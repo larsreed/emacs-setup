@@ -1,0 +1,17 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§ask SCCSid SCCS-ID
+§asku ForG Subrutine til hva slags pros (F, G eller J (etc))
+§asku System Systembokstav (K=FKR osv)
+§asku FileGrp Fellesnavn på prosedyrene (NNN i S§ForG§§System§_NNN_SSS)
+§if useCset Bruke currency set
+§default CurSet CUR_§FileGrp§
+§asku CurSet Navn på currency set
+§define employs employs
+§append employs \ §CurSet§
+§else
+§define employs
+§define CurSet
+§fi
+§define nProcs 0
+§defbool inclOld nil
+§include tvistproc.inc

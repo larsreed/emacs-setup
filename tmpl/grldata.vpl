@@ -1,0 +1,172 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§ask SCCSid SCCS-ID
+§ask FileID Fil/versjonskode
+/**************************************************************************
+§ask Versjon Leveranse
+§ask VersjonKort Leveranse uten punktum
+ Denne fila inneholder grunnlagsdata for TVIST §Versjon§
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+ §User§, §Date§
+ §SCCSid§
+ **************************************************************************/
+#include "tvist.hql"
+#include "trigger.hql"
+#include "kv_def.hql"
+#include "avgift.hql"
+#include "data.hql"
+
+
+#define MX_BRUKER "sa"
+#define MX_SERVER `M_DB_SERVER`
+
+§ask DriftsDato Driftsdato (Sybaseformat)
+#define MX_DATO '§DriftsDato§' /* ???????????? */
+
+#define MX_TVISTVER '§Versjon§'
+§define pctI %
+§append pctI I%
+#define MX_FID '§VersjonKort§-§pctI§'
+
+#define MX_USE_DB(dbn) use dbn  §§§§\
+go §§§§\
+print `dbn` §§§§\
+go
+
+-- ///// FEL /////
+MX_USE_DB(M_FEL_DB)
+
+--   ####### ####### #
+--   #       #       #
+--   #       #       #
+--   #####   #####   #
+--   #       #       #
+--   #       #       #
+--   #       ####### #######
+--
+
+
+-- NB! Skal alltid være med!
+MD_TVE(3,NULL,MX_TVISTVER)
+MD_TVE(12,NULL,`M_DB_SERVER`)
+
+-- Nye tabeller
+/* MD_TAB(id,'TBF','Tabellnavn','Beskrivelse','Systembokstav') */
+
+-- KOMMANDO
+/* MD_KMM(ID,'Verdi','Beskrivelse') */
+
+-- SYS_PARAM
+/* MD_SPA('Navn','Beskrivelse','verdi')
+MD_SPA_KEEP('Navn','Beskrivelse','verdi') */
+
+-- HJELP_KONTEKST
+/* MD_HKO('Dialog','Systemnavn',konteksID,'Beskrivelse','HLP_systemnavn') */
+
+-- Kodeverk
+/* MD_KOD(kv_...,'id','kode_b',NULL) */
+
+-- ///// FKR /////
+MX_USE_DB(M_FKR_DB)
+--   ####### #    #  ######
+--   #       #   #   #     #
+--   #       #  #    #     #
+--   #####   ###     ######
+--   #       #  #    #   #
+--   #       #   #   #    #
+--   #       #    #  #     #
+
+-- ///// SBR /////
+MX_USE_DB(M_SBR_DB)
+--  #####  ######  ######
+-- #     # #     # #     #
+-- #       #     # #     #
+--  #####  ######  ######
+-- 	 # #     # #   #
+-- #     # #     # #    #
+--  #####  ######  #     #
+
+-- ///// AFS /////
+MX_USE_DB(M_AFS_DB)
+--      #    #######  #####
+--     # #   #       #     #
+--    #   #  #       #
+--   #     # #####    #####
+--   ####### #             #
+--   #     # #       #     #
+--   #     # #        #####
+
+-- ///// AVSK /////
+MX_USE_DB(M_AVSK_DB)
+--      #    #     #  #####  #    #
+--     # #   #     # #     # #   #
+--    #   #  #     # #       #  #
+--   #     # #     #  #####  ###
+--   #######  #   #        # #  #
+--   #     #   # #   #     # #   #
+--   #     #    #     #####  #    #
+
+-- ///// PUS /////
+MX_USE_DB(M_PUS_DB)
+--   ######  #     #  #####
+--   #     # #     # #     #
+--   #     # #     # #
+--   ######  #     #  #####
+--   #       #     #       #
+--   #       #     # #     #
+--   #        #####   #####
+
+-- ///// VIRK /////
+MX_USE_DB(M_VIRK_DB)
+--   #     #   ###   ######  #    #
+--   #     #    #    #     # #   #
+--   #     #    #    #     # #  #
+--   #     #    #    ######  ###
+--    #   #     #    #   #   #  #
+--     # #      #    #    #  #   #
+--      #      ###   #     # #    #
+
+-- ///// TRAV /////
+MX_USE_DB(M_TRAV_DB)
+--  #####  #####     ##    #    #
+--    #    #    #   #  #   #    #
+--    #    #    #  #    #  #    #
+--    #    #####   ######  #    #
+--    #    #   #   #    #   #  #
+--    #    #    #  #    #    ##
+
+-- ///// SRM /////
+MX_USE_DB(M_SRM_DB)
+--    #####  ######  #     #
+--   #     # #     # ##   ##
+--   #       #     # # # # #
+--    #####  ######  #  #  #
+--         # #   #   #     #
+--   #     # #    #  #     #
+--    #####  #     # #     #
+--
+
+-- Skal alltid være med!
+#define MX_GRP_DV 251
+#define MX_DV(Fu) MD_SRM_usergroup_f(Fu,MX_GRP_DV,ko_acc_normal)
+
+-- Nye dialoger, batcher og rapporter (kommaseparerte strenger)
+#define MX_DIALOGER
+#define MX_XBATCHER
+#define MX_BATCHER
+#define MX_RAPPORTER
+
+-- Sletting av nye ting
+#if 0
+-- MD_SRM_refresh(MX_BATCHER)
+-- MD_SRM_refresh(MX_RAPPORTER)
+-- MD_SRM_delete(MX_XBATCHER)
+#endif
+
+
+-- ///// Til slutt /////
+-- ------------------------------------------------------------------
+-- Markerer til slutt at oppdateringen er gjort
+-- ------------------------------------------------------------------
+MX_USE_DB(M_FEL_DB)
+MD_TVE(11,1,MX_FID)

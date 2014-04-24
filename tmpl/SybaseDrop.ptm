@@ -1,0 +1,99 @@
+@reserved
+
+@types
+
+@template
+%FILE%SybaseDrop.sql
+/* Initialize this schema script against Sybase as follows: */
+/* isql -U<user> -P<pwd> <SybaseDrop.sql */
+/* Template: @@(#)TVIST SybaseDrop.ptm 29.3 04/06/02> */
+
+/* First: DROP foreign keys */
+  %ITERATE:Table%
+    %IF:TableIsInDB%
+      %ITERATE:Column%
+        %IF:RelationForeignKey%
+          %IF:NotGroupMember%
+%REM: Foreign key %
+ALTER TABLE %ID:TableName% DROP CONSTRAINT %ID:ConstraintName%F
+          %ENDIF%
+        %ENDIF%
+      %ENDITERATE%
+      %ITERATE:Group%
+        %IF:RelationForeignKey%
+          %IF:NotGroupMember%
+%REM: Group Foreign key %
+ALTER TABLE %ID:TableName% DROP CONSTRAINT %ID:ConstraintName%F
+        %ENDIF%
+        %ENDIF%
+      	%ENDITERATE%
+    	%ENDIF%
+  	%ENDITERATE% 
+  	go
+
+/* Second: ALTER TABLE and DROP INDEX statements including constraints and indexes */
+  %ITERATE:Table%
+    %IF:TableIsInDB%
+--%ID:TableName%
+      %IF:HasKey%
+        %ITERATE:Key%
+%REM: Primary key %
+ALTER TABLE %ID:TableName% DROP CONSTRAINT %ID:ConstraintName%P
+	go
+        %ENDITERATE%
+      %ENDIF%
+      %ITERATE:Column%
+        %IF:TypeConstraints%
+%REM: Check %
+ALTER TABLE %ID:TableName% DROP CONSTRAINT %ID:ConstraintName%V
+        go
+	%ENDIF%
+        %IF:ColumnPrimaryKey%
+        %ELSE%
+%IF:ColumnNotNull%
+%REM: Not Null %
+ALTER TABLE %ID:TableName% DROP CONSTRAINT %ID:ConstraintName%N
+	go
+        	%ENDIF%
+          %IF:ColumnIndex%
+%REM: [Unique] Index %
+DROP INDEX %ID:ConstraintName%I
+		go
+          %ELSE%
+            %IF:ColumnUnique%
+%REM: Unique (only) %
+ALTER TABLE %ID:TableName% DROP CONSTRAINT %ID:ConstraintName%U
+	go
+            %ENDIF%
+          %ENDIF%
+        %ENDIF%
+      %ENDITERATE%
+      %ITERATE:Group%
+        %IF:GroupPrimaryKey%
+        %ELSE%
+          %IF:GroupIndex%
+%REM: Group [Unique] Index %
+DROP INDEX %ID:ConstraintName%I
+	go
+          %ELSE%
+            %IF:GroupUnique%
+%REM: Group Unique (only) %
+ALTER TABLE %ID:TableName% DROP CONSTRAINT %ID:ConstraintName%U
+		go
+            %ENDIF%
+          %ENDIF%
+        %ENDIF%
+      %ENDITERATE%
+    %ENDIF%
+
+  %ENDITERATE%
+
+/* Third: DROP TABLE statements */
+%ITERATE:Table%
+	%IF:TableIsInDB%
+		DROP TABLE %ID:TableName%
+		go
+	%ENDIF%
+%ENDITERATE%
+
+%ENDFILE%

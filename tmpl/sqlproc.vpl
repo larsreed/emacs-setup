@@ -1,0 +1,70 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§ask PMnr PM-nr til historikken
+#include "tvist.hql"
+#include "sybase.hql"
+#include "proc.hql"
+§if kv Benytte kodeverk
+#include "kv_def.hql"
+§fi
+
+§ask ProcName Prosedyrenavn
+#define MX_PROCNAME §ProcName§
+§define execList exec §ProcName§
+
+M_DROP_PROC(MX_PROCNAME)
+/*****************************************************************************
+
+ Prosedyre: 	MX_PROCNAME
+ Mal:		@@(#)TVIST sqlproc.vpl 29.2 04/08/13>
+ Versjon:       §SCCSid§
+ Filnavn:	§FileID§
+
+§ask Beskr Beskrivelse
+ Beskrivelse: 	§Beskr§
+
+ Parametere:
+ 	Navn		Type	       Beskrivelse
+	----		----	       -----------
+        @m_retstat      int out        Status
+        @m_feiltekst    vchar(255) out Feilmeldingstekst
+§append execList \ @m_retstat out, @m_feiltekst out
+§do AntParam Antall param
+§ask Navn§R§ Navn param §R§
+§ask Type§R§ Type param §R§
+§ask Besk§R§ Beskrivelse param §R§
+§append execList ,§Navn§R§§
+        §Navn§R§§       §Type§R§§      §Besk§R§§
+§done
+
+ Returstatus:
+	Verdi	Beskrivelse
+	-----	-----------
+
+ Eksempel på kall:
+        declare @m_retstat int, @m_feiltekst varchar(255)
+§do AntParam
+        declare §Navn§R§§ §Type§R§§
+§done
+	§execList§
+
+ Endringslogg
+ Dato	Sign	Beskrivelse
+ ------	----	-----------
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+ §Date§ §User§    Opprettet (§PMnr§)
+*****************************************************************************/
+M_CREATE_PROC(MX_PROCNAME)
+§do AntParam Antall param
+	,§Navn§R§§ §Type§R§§
+§done
+as begin
+
+M_PROC_START(`MX_PROCNAME`)
+
+   declare ...
+
+M_PROC_SLUTT
+end
+go
+M_GRANT_PROC(MX_PROCNAME)

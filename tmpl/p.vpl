@@ -1,0 +1,176 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§rem  ***** NB **********************************************************
+§rem  Dersom dette er ment å være en frittstående rutine, bør du i
+§rem  stedet bruke f.eks. tillegg.vpl.
+§rem  Denne malen er beregnet på å generere prosedyrer som skal limes inn
+§rem  i eksisterende kildekodefiler!
+§rem  *******************************************************************
+§ask SCCSid SCCS-ID
+§ASK ProcName Fullt prosedyrenavn
+§ASK CurSet Evt. navn på currency set
+procedure §ProcName§ imports <Input>  :
+                     exports <Output> :
+                     employs §CurSet§
+; ==========================================================================
+; PROSEDYRE:    §ProcName§
+; TYPE:         Kallbar rutine (p.vpl 24.1)
+;
+; BESKRIVELSE:
+§ask PDescription Beskrivelse av prosedyra
+;    §PDescription§
+;
+; GRENSESNITT:
+; Type          Navn                    Bruk
+; -----------   ----------------------  ------------------------------------
+; IMPORTS	<Input>
+; EXPORTS	<Output>
+; IMP/EXP
+; RETURNS
+; EMPLOYS	§CurSet§
+; UNIV I
+; UNIV O
+; UNIV I/O
+; CURR I
+; CURR O
+; CURR I/O
+; GLOB I
+; GLOB O
+; GLOB I/O
+;
+; EKSEMPEL:
+;     call §ProcName§ exporting <Input> :
+;                     importing <Output>...
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+   @PBEGIN_P@
+   @UNIVERSAL@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+§if GUIapp Bruker prosedyren GUI-setninger
+§if Grape Bruke grapevariable
+;   -------------
+;   Grapevariable
+;   -------------
+    @GRAPE_LOCAL_VARS@
+    @GRAPE_GLOB_VARS@
+
+§fi Grape
+§fi GUIapp
+;  --------------
+;  Lokale makroer
+;  --------------
+   @LOCAL@_<MAKRO> = <definisjon>
+
+;  -----------
+;  Universelle
+;  -----------
+   universal <ENTITET|ROLLE>
+
+;  ----------------
+;  Globale variable
+;  ----------------
+   declare ZQ_<VAR> <decl> global
+   declare XQ_<VAR> <decl> global
+
+;  --------------
+;  Automatmerking
+;  --------------
+   automark <ENTITET|ROLLE>
+
+;  ----------
+;  Referanser
+;  ----------
+   declare <REF> as reference to <ENTITET>
+
+;  ----------
+;  Funksjoner
+;  ----------
+   declare <FUN> as function
+
+;  ----------
+;  Parametere
+;  ----------
+   declare Z_<PARAM> {as <DATAELEM>|@MAKRO@}
+   <Input>...
+   <Output>...
+
+;  ----------
+;  Konstanter
+;  ----------
+   declare X_<KONST> {as <DATAELEM>|@MAKRO@}
+
+;  --------
+;  Variable
+;  --------
+   declare Z_<VAR> {as <DATAELEM>|@MAKRO@}
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Init
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Versjonsstreng
+;  --------------
+   <1. prosedyre i hver fil>
+   W_SCCS_ID = '§SCCSid§'
+
+;  --------------
+;  Feilhåndtering
+;  --------------
+   default error-handling when db-error terminate from @LABEL_DB@
+§if GUIapp
+   @HOOK_DEF_DBERR@
+   default error-handling when gui-error terminate from @LABEL_GUI@
+   @HOOK_DEF_GUIERR@
+§fi GUIapp
+
+;  ----------
+;  Konstanter
+;  ----------
+   X_<KONST> = <VERDI - Skal ikke endres>
+
+;  --------
+;  Variable
+;  --------
+   Z_<VAR> = <VERDI - husk at lokale variable ikke har noen default verdi>
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+§if GUIapp
+    @HOOK_DEF_LEAVE@
+    terminate from @LABEL_END@
+§else
+    terminate from @LABEL_EXIT@
+§fi GUIapp
+
+    terminate-label @LABEL_DB@
+    @ERR_DB@
+
+§if GUIapp
+    terminate from @LABEL_END@
+
+    terminate-label @LABEL_GUI@
+    @ERR_GUI@
+
+    terminate-label @LABEL_END@
+    @HOOK_LEAVE@
+
+§fi
+   terminate-label @LABEL_EXIT@
+   @PEND_P@
+
+end procedure  ; §ProcName§

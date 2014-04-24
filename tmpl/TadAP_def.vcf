@@ -1,0 +1,42 @@
+/* @@(#)TVIST TadAP_def.vcf 24.1 03/05/27> */
+
+§ask OneLineDesc Kort beskrivelse av programmet
+§rem    ------------------------------------------
+§rem    1-linjes beskrivelse som legges i filhodet
+§rem    ------------------------------------------
+#define TadFileDesc §OneLineDesc§
+
+§ASK Kortnavn Navn på programmet i System Engineer (f.eks. AV003H)
+§rem -------------------------------------------------------------
+§rem Hvis dette bare er et testprogram, kan du finne på ditt eget
+§rem navn, f.eks. initialene dine + et løpenummer.
+§rem -------------------------------------------------------------
+#define DialogShortName §Kortnavn§
+
+/* Settes for tilpasse hvor oppdatert malkode som skal brukes
+   - se TadDefs.cf */
+#define TadGrapeLevel 4
+
+/*
+ * Kommentarer til AVVIK, DIVERSE og UTVIDELSER i filhodet defineres slik:
+ *    #define TadHode_Xxxx  @@\
+ *        ;   Bla bla bla... @@\
+ *        ;   mere bla
+ * der Xxxx er hhv Avvik, Diverse og Utvidelser.
+ * Det skal ikke være "hookkommentar" i topp og bunn.  Hver linje må
+ * formateres som kommentar, ikke bruk Tad______Empty.
+ */
+
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+#define TadHode_Historikk \
+; §Date§  §User§   Første versjon
+
+§ASK sysBokst Systembokstav
+§ASK mdiName Navn på MDI-vinduet
+#ifndef CR_HookEnd_MainAccess
+#define CR_HookEnd_MainAccess           @@\
+; <"CR_HookEnd_MainAccess"              @@\
+  call PD§sysBokst§_ADG_§mdiName§ @@\
+; "CR_HookEnd_MainAccess">
+#endif

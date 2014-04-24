@@ -1,0 +1,25 @@
+/* @@(#)TVIST TadHV_def.vcf 2.1 97/05/09> */
+
+§ask OneLineDesc Kort beskrivelse av programmet
+§rem    ------------------------------------------
+§rem    1-linjes beskrivelse som legges i filhodet
+§rem    ------------------------------------------
+#define TadFileDesc §OneLineDesc§
+
+#define TadGrapeLevel 4
+
+§default Kortnavn XX000
+§ASK Kortnavn Navn på programmet i System Engineer (f.eks. AV003H)
+§rem -------------------------------------------------------------
+§rem Hvis dette bare er et testprogram, kan du finne på ditt eget
+§rem navn, f.eks. initialene dine + et løpenummer.
+§rem -------------------------------------------------------------
+#define DialogShortName §Kortnavn§
+
+/* Inkluderer makroer for hovedvindu */
+#define TADHV_VINDU
+
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+#define TadHode_Historikk \
+; §Date§  §User§   Første versjon

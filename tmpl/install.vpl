@@ -1,0 +1,753 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+#!/bin/ksh
+§defbool usingSQL nil
+§if forTVIST TVIST-installasjon
+§defbool forTVINN nil
+§define SYSTEM TVIST
+§define sysName tvist
+§define newDirRoot /tvist/data
+§else
+§defbool forTVINN t
+§defbool inclAppl t
+§defbool Agresso nil
+§defbool AgressoDB nil
+§defbool instPWD nil
+§define SYSTEM TVINN
+§define sysName tvinn
+§define newDirRoot /tvinn
+§fi forTVIST
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+§ask Versjon
+§ask Filprefiks
+# ---------------------------------------------------------------------
+# Installasjonsscript for §SYSTEM§ §Versjon§.
+# Opprettet §Date§ av §User§.
+#
+# Malversjon: @(#)TVIST install.vpl 29.5 04/07/15>
+# ---------------------------------------------------------------------
+typeset -i err=0 warndb=2 warninst=2 instrun=0
+§if forTVIST
+typeset grp=utv dirgrp=utv agrgrp=staff
+typeset usr=root agrusr=agresso
+typeset agrbase=/agresso
+typeset sqlusr sqlpwd
+if [[ $(hostname) = prod05 ]]; then
+   grp=tvist
+   dirgrp=dv-appl
+elif [[ $(hostname) = tadkurs ]]; then
+   grp=serverx
+   dirgrp=serverx
+fi
+§else
+§if forTVINN
+typeset grp=tad dirgrp=tad
+typeset usr=tvinn
+if [[ $(hostname) = prod05 ]]; then
+   grp=tvinn
+   dirgrp=dv-appl
+fi
+§fi forTVINN
+§fi forTVIST
+export PATH=${PATH}:${SYBASE:-/sybase}/${SYBASE_OCS:-.}/bin
+typeset orgdir="$PWD"
+§if FullVer Full versjon (alle appl)
+§define fullV komplett versjon
+§define bupDir ./last
+§else FullVer
+§define fullV patch
+§define bupDir ../last
+§if inclAppl Er det TVIST-applikasjoner med i leveransen
+§do ant Antall filer i arkivet
+§ask Filnavn§R§ Filnavn nr. §R§
+§ask Dir§R§ Katalog nr. §R§
+§done
+§else
+§define ant 0
+§fi inclAppl
+§fi FullVer
+§if SQLscripts Skal det lastes SQL-scripts
+§defbool usingSQL t
+§fi SQLscripts
+§if AgressoDB Er Agresso databaseoppdateringer inkludert i leveransen
+§defbool usingSQL t
+§fi AgressoDB
+§define basedir ..
+typeset pfx=§Filprefiks§
+typeset txt="Installasjon av §SYSTEM§ §Versjon§"
+typeset maintz=${pfx}.tz
+§if usingSQL
+typeset sqlsrv=${DSQUERY:-§SYSTEM§SQL}
+§if AgressoDB
+typeset sqlsrvAgr=${sqlsrv%SQL}AGR
+§fi AgressoDB
+typeset sqltz=${pfx}a.tz
+§if forTVIST
+typeset dbn_A=TVIST_A dbo_A=TVIST_A
+typeset dbn_B=TVIST_B dbo_B=TVIST_B
+typeset dbn_C=TVIST_C dbo_C=TVIST_C
+typeset dbn_F=TVIST_F dbo_F=TVIST_F
+typeset dbn_I=TVIST_I dbo_I=TVIST_I
+typeset dbn_K=TVIST_K dbo_K=TVIST_K
+typeset dbn_P=TVIST_P dbo_P=TVIST_P
+typeset dbn_V=TVIST_V dbo_V=TVIST_V
+typeset dbn_R=TVIST_R dbo_R=TVIST_R
+typeset dbn_S=srm51   dbo_S=srm51
+typeset dbn_x         dbo_x
+typeset -i dbZA=0 dbZB=0 dbZC=0 dbZF=0 dbZI=0 dbZK=0 dbZP=0 dbZV=0 dbZR=0 dbZS=0
+typeset -i dbZgen=0 dbZgenAgr=0
+§else
+§rem   !!!!--> For TVINN? <--!!!
+§if forTVINN
+typeset dbn_T=TVINN dbo_T=TVINN # ...
+§fi forTVINN
+§fi forTVIST
+§fi usingSQL
+typeset outFiles=""
+typeset -i noMore=0
+
+print "_________________________ === $txt (§fullV§) ===\n"
+if [[ ${PWD##*/} != inst ]]; then
+   print -u2 "Scriptet må kjøres fra inst-katalogen - installasjon kan ikke fortsette!"
+   let err+=1
+fi
+§if inclAppl  Er det TVIST-applikasjoner med i leveransen
+if [[ ! -r ${maintz} ]]; then
+   print -u2 "Mangler fila ${maintz} - installasjon kan ikke fortsette!"
+   let err+=1
+fi
+§else
+let warninst-=1 # Ingen applikasjoner
+§fi inclAppl
+§if SQLscripts
+if [[ ! -r $sqltz ]]; then
+   print -u2 "ADVARSEL: Mangler fila $sqltz - kan ikke kjøre SQL-scripts!"
+fi
+§fi
+§if Agresso Er Agressoprogrammer inkludert i leveransen
+if [[ ! -r ${pfx}agr.tz ]]; then
+   print -u2 "Mangler fila ${pfx}agr.tz - installasjon kan ikke fortsette!"
+   let err+=1
+fi
+§else
+let warninst-=1 # Ingen Agressoinstallasjon
+§fi
+§if AgressoDB
+if [[ ! -r ${pfx}agrdb.sql ]]; then
+   print -u2 "ADVARSEL: Mangler fila ${pfx}agrdb.sql!"
+fi
+§else Ingen AgressoDB
+let warndb-=1 # Ingen Agresso DB-oppdatering
+§fi
+§if DBoppg Er databaseoppgradering med i leveransen
+if [[ ! -r ${pfx}db.sh ]]; then
+   print -u2 "ADVARSEL: Mangler fila ${pfx}db.sh - kan ikke oppgradere basen"
+fi
+§if DBoppgRun Skal databaseoppgradering kunne kjøres fra installasjonsscriptet
+if [[ ! -r ${pfx}dbrun.sh ]]; then
+   print -u2 "ADVARSEL: Mangler fila ${pfx}dbrun.sh - kan ikke oppgradere basen"
+fi
+§fi
+§else
+§defbool DBoppgRun nil
+let warndb-=1 # Ingen §SYSTEM§ DB-oppdatering
+§fi
+§if instPWD Skal det installeres nye passordfiler
+if [[ ! -r ${pfx}pwd.tz ]]; then
+   print -u2 "ADVARSEL: Mangler fila ${pfx}pwd.tz - kan ikke oppdatere passordfiler!"
+fi
+§fi
+§rem   !!!!--> Gjelder ikke dette TVINN? <--!!!
+if [[ $(id -un) != $usr ]]; then
+   print -u2 "Installasjonsscriptet må kjøres av $usr - avbryter!"
+   let err+=1
+fi
+
+[[ $err > 0 ]] && exit $err
+
+function readYN { # prompt
+   typeset -u r
+   while true; do
+      read r?"$* (j/n)? "
+      case "$r" in
+	 ([JY]) return 0;;
+	 (N)	return 1;;
+	 (*)    print -u2 "Svar J eller N!";;
+      esac
+   done
+}
+
+function chkf { # fil størrelse
+   ls -l $1 | egrep -s " $2 " ||
+      print -u2 "FEIL!!! ${1##*/} skulle vært på $2 tegn..."
+}
+
+§if usingSQL
+function runSqlSubst {
+   sed \
+§if forTVIST
+       -e 's/TVIST_VERSJON/9813679164592648920457674992766499264992634/g' \
+       -e 's/TVIST_FELT/7541585741558784456987841230557412058574748885/g' \
+       -e "s/TVIST_A/$dbn_A/g"  \
+       -e "s/TVIST_B/$dbn_B/g"  \
+       -e "s/TVIST_C/$dbn_C/g"  \
+       -e "s/TVIST_F/$dbn_F/g"  \
+       -e "s/TVIST_I/$dbn_I/g"  \
+       -e "s/TVIST_K/$dbn_K/g"  \
+       -e "s/TVIST_P/$dbn_P/g"  \
+       -e "s/TVIST_V/$dbn_V/g"  \
+       -e "s/TVIST_R/$dbn_R/g"  \
+       -e "s/srm51/$dbn_S/g"    \
+       -e "s/USR_A/$dbo_A/g"    \
+       -e "s/USR_B/$dbo_B/g"    \
+       -e "s/USR_C/$dbo_C/g"    \
+       -e "s/USR_F/$dbo_F/g"    \
+       -e "s/USR_I/$dbo_I/g"    \
+       -e "s/USR_K/$dbo_K/g"    \
+       -e "s/USR_P/$dbo_P/g"    \
+       -e "s/USR_V/$dbo_V/g"    \
+       -e "s/USR_R/$dbo_R/g"    \
+       -e "s/USR_S/$dbo_S/g"    \
+       -e "s/dsTVIST/$sqlsrv/g" \
+       -e 's/7541585741558784456987841230557412058574748885/TVIST_FELT/g' \
+       -e 's/9813679164592648920457674992766499264992634/TVIST_VERSJON/g' \
+§else
+§if forTVINN
+§rem   !!!!--> TVINN-ekvivalent? <--!!!
+       -n 'p' \
+§fi forTVINN
+§fi forTVIST
+       $*
+}
+
+function mkBup {
+   typeset f
+   for f; do
+      if [[ -r "$f" ]]; then
+	 print "   ... tar vare på gammel $f i $f.old"
+	 mv $f $f.old
+      fi
+   done
+}
+
+function getScr {
+   cd $orgdir
+   if [[ -r "$1" ]]; then
+      ls -l $1
+      if readYN "Beholde gammel $1 (normalt nei!)"; then
+	 return
+      else
+	 mkBup "$1"
+	 rm -f $1
+      fi
+   fi
+   zcat <${orgdir}/$sqltz | tar xf - $1
+   if [[ ! -r $1 ]]; then
+      print -u2 "\nFEIL - kan ikke lese $1 - avbryter!"
+      exit 1
+   fi
+}
+
+
+function runBg {
+   typeset f=$1
+   typeset g=${f%.sql}.out
+   typeset h=${f%.sql}.log
+   typeset i=${f%.sql}.in
+
+   if readYN "Starte $f som bakgrunnsjobb"; then
+      mkBup $g $h $i
+      runSqlSubst $f >$i
+      print "\nStarter oppdateringsjobb $f i bakgrunnen."
+      print "Output ligger i $g (og $h)."
+      print "Når jobben er helt ferdig, kan du slette $i."
+      nohup isql -S$sqlsrv -U$sqlusr -P$sqlpwd -o$g -i$i >$h 2>&1 &
+      outFiles="$outFiles $g ($h)"
+      noMore=1 # Vil ikke ha mer da...
+   fi
+}
+
+
+function runFg {
+   typeset f=$1
+   typeset g=${f%.sql}.out
+
+   if readYN "Starte $f"; then
+      mkBup $g
+      print -n "    ...kjører $f, resultat i $g..."
+      runSqlSubst $f | isql -S$sqlsrv -U$sqlusr -P$sqlpwd 2>&1 | tee $g
+      print "    ...$f ferdig"
+      outFiles="$outFiles $g"
+   fi
+}
+
+function ask1db { # base dflA dflB
+   read dbn_x?"Oppgi navn på $1-base (eller blank for $2): "
+   [[ -z "$dbn_x" ]] && dbn_x="$2"
+   read dbo_x?"Baseeier for $dbn_x (eller blank for $3): "
+   [[ -z "$dbo_x" ]] && dbo_x="$3"
+}
+
+
+function getDbs {
+   typeset db
+   if [[ $1 = R ]]; then # Agressokjøring
+      if [[ $dbZgenAgr -eq 0 ]]; then
+         read db?"Oppgi databaseserver for Agresso (eller blank for $sqlsrvAgr): "
+         [[ -z "$db" ]] || sqlsrvAgr="$db"
+         read sqlusr?"Oppgi navn på basebruker (eller blank for $USER): "
+         [[ -z "$sqlusr" ]] && sqlusr="$USER"
+         read sqlpwd?"Oppgi passord for $sqlusr på $sqlsrvAgr: "
+         dbZgenAgr=1
+§if forTVIST
+         # Tilpass defaults første gang
+         case "$sqlsrv" in
+            (TESTSQL)   dbn_R=UTV_R1  ; dbo_R=UTV_R1;;
+            (XSTESTSQL) dbn_R=UTV_R2  ; dbo_R=UTV_R2;;
+            (attvistdb) dbn_R=TEST_R3 ; dbo_R=TEST_R3;;
+         esac
+§fi forTVIST
+      fi
+   else # Ikke Agresso
+      if [[ $dbZgen -eq 0 ]]; then
+         read db?"Oppgi databaseserver for §SYSTEM§ (eller blank for $sqlsrv): "
+         [[ -z "$db" ]] || sqlsrv="$db"
+         read sqlusr?"Oppgi navn på basebruker (eller blank for $USER): "
+         [[ -z "$sqlusr" ]] && sqlusr="$USER"
+         read sqlpwd?"Oppgi passord for $sqlusr på $sqlsrv: "
+         dbZgen=1
+§if forTVIST
+         # Tilpass defaults første gang
+         case "$sqlsrv" in
+            (TESTSQL)
+                      dbn_A=UTV_A1 ; dbo_A=UTV_A
+                      dbn_B=UTV_B1 ; dbo_B=UTV_B
+                      dbn_C=UTV_C1 ; dbo_C=UTV_C
+                      dbn_F=UTV_F1 ; dbo_F=UTV_F
+                      dbn_I=UTV_I1 ; dbo_I=UTV_I
+                      dbn_K=UTV_K1 ; dbo_K=UTV_K
+                      dbn_P=UTV_P1 ; dbo_P=UTV_P
+                      dbn_V=UTV_V1 ; dbo_V=UTV_V
+                      ;;
+            (XSTESTSQL)
+                      dbn_A=UTV_A2 ; dbo_A=UTV_A
+                      dbn_B=UTV_B2 ; dbo_B=UTV_B
+                      dbn_C=UTV_C2 ; dbo_C=UTV_C
+                      dbn_F=UTV_F2 ; dbo_F=UTV_F
+                      dbn_I=UTV_I2 ; dbo_I=UTV_I
+                      dbn_K=UTV_K2 ; dbo_K=UTV_K
+                      dbn_P=UTV_P2 ; dbo_P=UTV_P
+                      dbn_V=UTV_V2 ; dbo_V=UTV_V
+                      ;;
+            (tvtvTVIST)
+                      dbn_A=AFS  ; dbo_A=$dbn_A
+                      dbn_B=SBR  ; dbo_B=$dbn_B
+                      dbn_C=TRAV ; dbo_C=$dbn_C
+                      dbn_F=FEL  ; dbo_F=$dbn_F
+                      dbn_I=AVSK ; dbo_I=$dbn_I
+                      dbn_K=FKR  ; dbo_K=$dbn_K
+                      dbn_P=PUS  ; dbo_P=$dbn_P
+                      dbn_V=VIRK ; dbo_V=$dbn_V
+                      ;;
+            (attvistdb)
+                      dbn_A=TEST_A3 ; dbo_A=TEST_A
+                      dbn_B=TEST_B3 ; dbo_B=TEST_B
+                      dbn_C=TEST_C3 ; dbo_C=TEST_C
+                      dbn_F=TEST_F3 ; dbo_F=TEST_F
+                      dbn_I=TEST_I3 ; dbo_I=TEST_I
+                      dbn_K=TEST_K3 ; dbo_K=TEST_K
+                      dbn_P=TEST_P3 ; dbo_P=TEST_P
+                      dbn_V=TEST_V3 ; dbo_V=TEST_V
+                      ;;
+         esac
+§fi forTVIST
+      fi # Agresso eller ei
+   fi
+   # Løp gjennom argumentene (de basene vi trenger)
+   for db; do
+      case $db in
+§if forTVIST
+	 (A) if [[ $dbZA -eq 0 ]]; then
+                ask1db AFS $dbn_A $dbo_A
+                dbn_A=$dbn_x
+                dbo_A=$dbo_x
+		dbZA=1
+	     fi;;
+	 (B) if [[ $dbZB -eq 0 ]]; then
+                ask1db SBR $dbn_B $dbo_B
+                dbn_B=$dbn_x
+                dbo_B=$dbo_x
+		dbZB=1
+	     fi;;
+	 (C) if [[ $dbZC -eq 0 ]]; then
+                ask1db TRAV $dbn_C $dbo_C
+                dbn_C=$dbn_x
+                dbo_C=$dbo_x
+		dbZC=1
+	     fi;;
+	 (F) if [[ $dbZF -eq 0 ]]; then
+                ask1db FEL $dbn_F $dbo_F
+                dbn_F=$dbn_x
+                dbo_F=$dbo_x
+		dbZF=1
+	     fi;;
+	 (I) if [[ $dbZI -eq 0 ]]; then
+                ask1db AVSK $dbn_I $dbo_I
+                dbn_I=$dbn_x
+                dbo_I=$dbo_x
+		dbZI=1
+	     fi;;
+	 (K) if [[ $dbZK -eq 0 ]]; then
+                ask1db FKR $dbn_K $dbo_K
+                dbn_K=$dbn_x
+                dbo_K=$dbo_x
+		dbZK=1
+	     fi;;
+	 (P) if [[ $dbZP -eq 0 ]]; then
+                ask1db PUS $dbn_P $dbo_P
+                dbn_P=$dbn_x
+                dbo_P=$dbo_x
+		dbZP=1
+	     fi;;
+	 (V) if [[ $dbZV -eq 0 ]]; then
+                ask1db VIRK $dbn_V $dbo_V
+                dbn_V=$dbn_x
+                dbo_V=$dbo_x
+		dbZV=1
+	     fi;;
+	 (S) if [[ $dbZS -eq 0 ]]; then
+                ask1db SRM $dbn_S $dbo_S
+                dbn_S=$dbn_x
+                dbo_S=$dbo_x
+		dbZS=1
+	     fi;;
+	 (R) if [[ $dbZR -eq 0 ]]; then
+                ask1db Agresso $dbn_R $dbo_R
+                dbn_R=$dbn_x
+                dbo_R=$dbo_x
+		dbZR=1
+	     fi;;
+§else
+§if forTVINN
+	 (T) if [[ $dbZT -eq 0 ]]; then  # !!! må fikses !!!
+                ask1db TVINN $dbn_T $dbo_T
+                dbn_T=$dbn_x
+                dbo_T=$dbo_x
+		dbZT=1
+	     fi;;
+§fi forTVINN
+§fi forTVIST
+      esac
+   done
+}
+
+§fi usingSQL
+
+§if DBoppg
+
+function runDbUpg {
+   [[ $noMore -gt 0 ]] && return
+   if readYN "Starte databaseoppdatering som bakgrunnsjobb"; then
+      let warndb-=1
+      let instrun=1
+      cd ${orgdir}
+      ./${pfx}dbrun.sh
+      outFiles="$outFiles (${pfx}oppg.log) ${pfx}db.log"
+      noMore=1
+   fi
+}
+§fi DBoppg
+§if AgressoDB
+
+function runAgrDbUpg {
+   [[ $noMore -gt 0 ]] && return
+   if readYN "Kjøre databaseoppdatering i Agresso"; then
+      let warndb-=1
+      let instrun=1
+      cd ${orgdir}
+      getDbs R
+      runFg ${pfx}agrdb.sql
+   fi
+}
+§fi AgressoDB
+
+§if SQLscripts
+§doN antSqlScripts Antall SQL-scripts som skal lastes
+§ask sqlSname§N§ kortnavn på SQL-script §N§
+
+function run§sqlSname§N§§ {
+   [[ $noMore -gt 0 ]] && return
+§ask sqlPrompt§N§ Spørsmål til bruker
+   if readYN "§sqlPrompt§N§§"; then
+§ask sqlScript§N§ Navn på SQL-scriptet
+      getScr §sqlScript§N§§
+§asku sqlDbs§N§ Basebokstaver vi trenger (blank mellom hver)
+      getDbs §sqlDbs§N§§
+§if sqlFg§N§ Kjøre i forgrunnen
+      runFg §sqlScript§N§§
+§else
+      runBg §sqlScript§N§§
+§fi
+   fi
+}
+§doneN
+§fi SQLscripts
+
+
+function checkFiles {
+   if readYN "Sjekke filstørrelser"; then
+      if [[ $1 = STD ]]; then
+   ******  kjør kommando  tarsjekk §Filprefiks§.tz for å generere liste! ****
+         shift
+      fi
+§if Agresso
+      if [[ $1 = AGR ]]; then
+   ******  kjør kommando  tarsjekk ${pfx}agr.tz for å generere liste! ****
+      fi
+§fi
+   fi
+}
+
+§if FullVer
+§if forTVIST
+dlist=" ./bin \
+	./sbin \
+	./rep \
+	./etc/adm"
+§else forTVIST
+§if forTVINN
+§rem   !!!!--> TVINN? <--!!!
+dlist=" ./bin \
+	./bilde \
+	./data \
+	./sql \
+	./worm \
+	./formula \
+	./adm"
+§fi forTVINN
+§fi forTVIST
+§else FullVer
+§if inclAppl
+flist="\
+§do ant
+	§Filnavn§R§§ \
+§done
+"
+dlist="\
+§do ant
+	§basedir§/§Dir§R§§/§Filnavn§R§§ \
+§done
+"
+§fi inclAppl
+§fi FullVer
+§if Agresso
+flistagr="$(zcat <${pfx}agr.tz | tar tf - | egrep -v '/$')"
+§fi
+§if instPWD
+flistpwd="$(zcat <${pfx}pwd.tz | tar tf - | egrep -v '/$')"
+§fi
+§if FullVer
+
+cd ..
+
+§fi
+print "_________________________ Aktive §SYSTEM§-prosesser:"
+if ps -ef | egrep '[/]§sysName§[/]'; then
+   if readYN "Fortsette installasjon"; then
+      true
+   else
+      exit 1
+   fi
+fi
+
+print "\n_________________________ Installasjon..."
+if readYN "Installere §SYSTEM§"; then
+   let warninst-=1
+   let instrun=1
+§if mkdir Skal det opprettes nye kataloger
+   cd §newDirRoot§
+§do mkdirN Antall kataloger som skal opprettes
+§ask dir§R§ Katalognavn nr.§R§ (evt relativt til §newDirRoot§)
+   mkdir -p §dir§R§§
+   chmod a+r §dir§R§§
+   chown $usr:$dirgrp §dir§R§§
+   chmod g+s §dir§R§§
+§done mkdirN
+   cd $orgdir
+§fi
+§if instPWD
+   zcat <${pfx}pwd.tz | tar xpf -
+   chown $usr $flistpwd
+   chmod 644 $flistpwd
+   for h in $flistpwd; do
+      case "$h" in
+         (prod-*) # Kun 1 gang per fil
+                  f=${h#prod-}
+                  g=/tvist/etc/$f
+                  if [[ -r $g ]]; then
+                     if readYN "$g finnes allerede - overskrive?"; then
+                        installIt=1
+                     else
+                        installIt=0
+                     fi
+                  else
+                     installIt=1
+                  fi
+                  if [[ $installIt > 0 ]]; then
+                     case $(hostname) in
+                        (toll0*|tadapp) mv prod-$f  $g;;
+                        (sitas|pauro)   mv stest-$f $g;;
+                        (test*)         mv test-$f  $g;;
+                        (tadkurs)       mv kurs-$f  $g;;
+                        (*)		mv std-$f   $g;;
+                     esac
+                  fi;;
+      esac
+   done
+   cd $orgdir
+§fi instPWD
+
+   cd $orgdir
+cat <<EOF
+
+Dersom installasjon skal foregå til andre kataloger enn de vanlige
+   /tvist/XXXbin  i stedet for /tvist/bin
+   /tvist/XXXrep  i stedet for /tvist/rep osv.
+må prefikset (XXX) angis her.  Angi blank for normal installasjon.
+EOF
+   read instpref?"Spesialprefiks (normalt tom): "
+   if [[ -n "$instpref" ]]; then
+      [[ -d ../${instpref}bin  ]] || print "NB: ${instpref}bin finnes ikke!"
+      [[ -d ../${instpref}sbin ]] || print "NB: ${instpref}sbin finnes ikke!"
+      [[ -d ../${instpref}rep  ]] || print "NB: ${instpref}rep finnes ikke!"
+      [[ -d ../etc/${instpref}adm  ]] ||
+            print "NB: etc/${instpref}adm finnes ikke!"
+      print "Installerer til /tvist/${instpref}bin, /tvist/${instpref}sbin"
+      print "    /tvist/${instpref}rep og /tvist/etc/${instpref}adm"
+      if readYN "Fortsette installasjon"; then
+         mkdir i$$
+         cd i$$
+         mkdir i$$
+         ln -s ../../${instpref}bin bin
+         ln -s ../../${instpref}sbin sbin
+         ln -s ../../${instpref}rep rep
+         mkdir etc
+         cd ./etc
+         ln -s ../../../etc/${instpref}adm adm
+         cd $orgdir
+      else
+         return 1
+      fi
+   fi
+§if FullVer
+   flist="$(zcat <${maintz} | tar tf -)"
+   cd $orgdir/..
+§fi
+   if readYN "Ta backup"; then
+
+      orgorgdir=$PWD
+      if [[ -n "$instpref" ]]; then
+§if FullVer
+         cd $orgdir/i$$
+§else
+         cd $orgdir/i$$/i$$
+§fi
+      fi
+      tar cfh - $dlist | compress >$orgdir/../last/u${pfx}${instpref}.tar.Z
+      cd $orgorgdir
+   fi
+§if inclAppl
+   if [[ -n "$instpref" ]]; then
+§if FullVer
+      cd $orgdir/i$$
+§else
+      cd $orgdir/i$$/i$$
+§fi
+   fi
+   zcat <${orgdir}/${maintz} | tar xpf -
+   chown $usr:$grp $flist
+§if FullVer
+   if [[ -n "$instpref" ]]; then
+      cd $orgdir/i$$/i$$
+   else
+      cd $orgdir
+   fi
+§fi FullVer
+   checkFiles STD
+§if FullVer
+§else
+   chmod 755 $flist
+§do ant
+   mv ./§Filnavn§R§§ §basedir§/§Dir§R§§/§Filnavn§R§§
+§done
+§fi FullVer
+   cd ${orgdir}
+   [[ -n "$instpref" ]] && rm -rf i$$
+§fi inclAppl
+fi
+§if Agresso
+if readYN "Installere Agresso"; then
+   cd $agrbase/$agrusr
+   if  readYN "Ta backup"; then
+      tar cf - $flistagr | compress >$orgdir/../last/u${pfx}agr.tar.Z
+      for f in $flistagr; do
+         cp $f $f.old
+      done
+      let warninst-=1
+   fi
+   zcat <${orgdir}/${pfx}agr.tz | tar xpf -
+   chown $agrusr:$agrgrp $flistagr
+   cd $agrbase/$agrusr
+   checkFiles AGR
+   cd $orgdir
+fi
+§fi
+
+print "_________________________ Database..."
+§if DBoppgRun
+runDbUpg
+§fi
+§if AgressoDB
+runAgrDbUpg
+§fi
+§if SQLscripts
+§doN antSqlScripts
+run§sqlSname§N§§
+§doneN
+§fi
+
+print "_________________________ Opprydning..."
+if readYN "Flytte installasjonsfiler vekk fra inst-katalogen"; then
+   cd ${orgdir}
+§rem   if rmLast Fjerne forrige versjon
+§rem   ask GmlPrefiks Filprefiks for forrige release
+§rem     rm -i ../last/?§GmlPrefiks§*.tar.Z
+§rem   fi
+§if inclAppl
+   mv ${maintz} ../last/i${pfx}.tar.Z
+§fi inclAppl
+§if Agresso
+   mv ${pfx}agr.tz ../last/i${pfx}agr.tar.Z
+§fi
+§if DBoppg
+   if readYN "Flytte databasescript også (bare hvis de alt er kjørt!) ?"; then
+      compress <${pfx}db.sh >../last/i${pfx}db.tar.Z
+      rm -i ${pfx}db.sh
+§if AgressoDB
+      compress <${pfx}agrdb.sql >../last/i${pfx}agrdb.sql.Z
+§fi
+   fi
+§fi
+fi
+
+print "\n_________________________ === $txt er ferdig ==="
+[[ $warninst > 0 && $instrun > 0 ]] &&
+   print "\n      Husk å kjøre øvrige installasjoner hvis det ikke er gjort!"
+[[ $warndb > 0 && $instrun > 0 ]] &&
+   print "\n      Husk å kjøre DB-oppgradering hvis det ikke er gjort!"
+if [[ -n "$outFiles" ]]; then
+   print "\n      SJEKK RESULTATFILER:"
+   for f in $outFiles; do
+      print "         $f"
+   done
+fi

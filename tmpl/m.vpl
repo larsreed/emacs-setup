@@ -1,0 +1,640 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§ask PMnr PM-nr til historikken
+§ask SCCSid SCCS-ID
+§ask FileID Fil/versjonskode
+; =========================================================================
+; PROSJEKT:    TVIST2000
+; FIL:         §FileID§
+§ASK Appl Applikasjonsnavn
+; APPLIKASJON: §Appl§
+; MAL:         m.vpl 27.4
+;
+; BESKRIVELSE:
+§ask Desc Beskrivelse av hovedprogrammet
+;    §Desc§
+;
+; KALLBARE RUTINER:
+;
+; HISTORIKK:
+; YYMMDD  Sign.  Endring
+; ------  -----  ----------------------------------------------------------
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+; §Date§  §User§   Opprettet (§PMnr§)
+;
+; AVVIK FRA STANDARD:
+;
+; MULIGE UTVIDELSER:
+;
+; DIVERSE:
+;
+; =========================================================================
+
+
+§if GUIapp Er dette en GUI-applikasjon
+@GRAPE_DEFS@
+§else
+@BATCH_DEFS@
+§fi
+@FI@ @SVPDIR@tvist_versjon@SUFF_SVP@
+
+§if GUIapp
+procedure PM_§Appl§_EXIT exports W_OK
+§else
+procedure PM_§Appl§_EXIT imports W_RETSTAT
+§fi
+;   =========================================================================
+;   PROSEDYRE:    PM_§Appl§_EXIT
+;   TYPE:         Prosedyre
+;
+;   BESKRIVELSE:
+§if GUIapp
+;      Sjekk om det er OK å avslutte applikasjonen
+§else
+;      Returner med status til operativsystemet
+§fi
+;
+;   GRENSESNITT:
+;   Type          Navn                    Bruk
+;   -----------   ----------------------  -----------------------------------
+§if GUIapp
+;   EXPORTS       W_OK                    FALSE hvis det ikke er OK å avslutte
+§else
+;   IMPORTS       W_RETSTAT               Returstatus fra batch
+§fi
+;
+;   DIVERSE:
+§if GUIapp
+§else
+;      Denne prosedyren avbryter applikasjonen!
+§fi
+;
+;   =========================================================================
+
+   @PBEGIN@
+
+;  -------------
+;  Deklarasjoner
+;  -------------
+§if GUIapp
+   @GRAPE_LOCAL_VARS@
+   @GRAPE_GLOB_VARS@
+§else
+   declare Z_OS_STAT @INT@
+§fi GUIapp
+
+;  ----
+;  Init
+;  ----
+§if GUIapp
+   W_OK = False
+§fi
+
+;  --------------
+;  Feilhåndtering
+;  --------------
+   default error-handling when db-error terminate from @LABEL_DB@
+§if GUIapp
+   @HOOK_DEF_DBERR@
+   default error-handling when gui-error terminate from @LABEL_GUI@
+   @HOOK_DEF_GUIERR@
+§fi GUIapp
+
+;  ---------------
+;  ((( K o d e )))
+;  ---------------
+§if GUIapp
+   @GRAPE_CHECK_EXIT@
+
+;  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+;  Kode for å sjekke om det er OK å avslutte.
+;  Sett W_OK til TRUE hvis OK.
+   W_OK = True
+;  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+§else
+
+   call PFF_BATCH_ERROR_MAP exporting W_RETSTAT :
+                            importing Z_OS_STAT
+   call PFF_ABORT exporting Z_OS_STAT
+
+;  -----------------
+;  Kommer aldri hit!
+;  -----------------
+§fi
+
+;   ----------
+;   Avslutning
+;   ----------
+§if GUIapp
+    @HOOK_DEF_LEAVE@
+    terminate from @LABEL_END@
+§else
+    terminate from @LABEL_EXIT@
+§fi GUIapp
+
+    terminate-label @LABEL_DB@
+    @ERR_DB@
+
+§if GUIapp
+    terminate from @LABEL_END@
+
+    terminate-label @LABEL_GUI@
+    @ERR_GUI@
+
+    terminate-label @LABEL_END@
+    @HOOK_LEAVE@
+
+§fi
+    terminate-label @LABEL_EXIT@
+    @PEND@
+
+end procedure ; PM_§Appl§_EXIT
+
+
+procedure P__MAIN_GUI imports Z_DLG_FILE :
+                      exports W_OK
+;   =========================================================================
+;   PROSEDYRE:    P__MAIN_GUI
+;   TYPE:         Prosedyre
+;   TARGET:       §Appl§
+;
+;   BESKRIVELSE:
+§if GUIapp
+;      Callback for åpning av dialogfil
+§else
+;      Dummy
+§fi GUIapp
+;
+;   GRENSESNITT:
+;   Type          Navn                    Bruk
+;   -----------   ----------------------  -----------------------------------
+;   IMPORTS       Z_DLG_FILE              Navn på dialogfil
+;   IMP/EXP       W_OK                    FALSE hvis dialogfil ikke er åpnet
+;
+;   DIVERSE:
+;
+;   =========================================================================
+
+    @PBEGIN@
+    @UNIVERSAL@
+
+;   -------------
+;   Deklarasjoner
+;   -------------
+    declare Z_DLG_FILE @FILENAME@
+§if GUIapp
+    @GRAPE_LOCAL_VARS@
+    @GRAPE_GLOB_VARS@
+§fi GUIapp
+
+;   --------------
+;   Feilhåndtering
+;   --------------
+    default error-handling when db-error terminate from @LABEL_DB@
+§if GUIapp
+    @HOOK_DEF_DBERR@
+    default error-handling when gui-error terminate from @LABEL_GUI@
+    @HOOK_DEF_GUIERR@
+§fi GUIapp
+
+;   -----
+;   Kode!
+;   -----
+    @FI@ @SVPDIR@main_pgui@SUFF_SVP@
+
+;   ----------
+;   Avslutning
+;   ----------
+§if GUIapp
+    @HOOK_DEF_LEAVE@
+    terminate from @LABEL_END@
+§else
+    terminate from @LABEL_EXIT@
+§fi GUIapp
+
+    terminate-label @LABEL_DB@
+    @ERR_DB@
+
+§if GUIapp
+    terminate from @LABEL_END@
+
+    terminate-label @LABEL_GUI@
+    @ERR_GUI@
+
+    terminate-label @LABEL_END@
+    @HOOK_LEAVE@
+
+§fi
+    terminate-label @LABEL_EXIT@
+    @PEND@
+
+end procedure ; P__MAIN_GUI in §Appl§
+
+
+procedure P__MAIN_CLIPBOARD imports zLevel :
+                            exports W_OK
+;   =========================================================================
+;   PROSEDYRE:    P__MAIN_CLIPBOARD
+;   TYPE:         Prosedyre
+;   TARGET:       §Appl§
+;
+;   BESKRIVELSE:
+§if GUIapp
+;      Callback for kryptering av clipboard
+§else
+;      Dummy
+§fi GUIapp
+;
+;   GRENSESNITT:
+;   Type          Navn                    Bruk
+;   -----------   ----------------------  -----------------------------------
+;   IMPORTS       zLevel                  Krypteringsnivå
+;   IMP/EXP       W_OK                    FALSE hvis endring ikke lot seg gjøre
+;
+;   DIVERSE:
+;
+;   =========================================================================
+
+    @PBEGIN@
+    @UNIVERSAL@
+
+;   -------------
+;   Deklarasjoner
+;   -------------
+    declare zLevel I4
+§if GUIapp
+    @GRAPE_LOCAL_VARS@
+    @GRAPE_GLOB_VARS@
+
+;   --------------
+;   Feilhåndtering
+;   --------------
+    default error-handling when db-error terminate from @LABEL_DB@
+    @HOOK_DEF_DBERR@
+    default error-handling when gui-error terminate from @LABEL_GUI@
+    @HOOK_DEF_GUIERR@
+§fi GUIapp
+
+;   -----
+;   Kode!
+;   -----
+§if GUIapp
+    W_OK = False
+    set property secure_edit_level of §Appl§ to zLevel
+§fi
+    W_OK = True
+
+;   ----------
+;   Avslutning
+;   ----------
+§if GUIapp
+    @HOOK_DEF_LEAVE@
+    terminate from @LABEL_END@
+§else
+    terminate from @LABEL_EXIT@
+§fi GUIapp
+
+    terminate-label @LABEL_DB@
+    @ERR_DB@
+
+§if GUIapp
+    terminate from @LABEL_END@
+
+    terminate-label @LABEL_GUI@
+    @ERR_GUI@
+
+    terminate-label @LABEL_END@
+    @HOOK_LEAVE@
+
+§fi
+    terminate-label @LABEL_EXIT@
+    @PEND@
+
+end procedure ; P__MAIN_CLIPBOARD in §Appl§
+
+
+procedure P__MAIN_READY exports W_OK
+;   =========================================================================
+;   PROSEDYRE:    P__MAIN_READY
+;   TYPE:         Prosedyre
+;   TARGET:       §Appl§
+;
+;   BESKRIVELSE:
+;      Callback for klargjør entitet
+;
+;   GRENSESNITT:
+;   Type          Navn                    Bruk
+;   -----------   ----------------------  -----------------------------------
+;   IMP/EXP       W_OK                    FALSE hvis feil ved klargjøring
+;
+;   DIVERSE:
+;
+;   =========================================================================
+
+    @PBEGIN@
+    @FI@ @SVPDIR@main_pready@SUFF_SVP@
+    terminate-label @LABEL_EXIT@
+    @PEND@
+
+end procedure ; P__MAIN_READY in §Appl§
+
+
+procedure P__MAIN_MESSAGE exports @MSG_CALLBACK_PARAM@
+;   =========================================================================
+;   PROSEDYRE:    P__MAIN_MESSAGE
+;   TYPE:         Prosedyre
+;   TARGET:       §Appl§
+;
+;   BESKRIVELSE:
+;      Callback for meldingsvisning
+;
+;   GRENSESNITT:
+;   Type          Navn                    Bruk
+;   -----------   ----------------------  -----------------------------------
+;    <se main_pmsg.svp>
+;
+;   DIVERSE:
+;
+;   =========================================================================
+
+    @PBEGIN@
+    @UNIVERSAL@
+
+§if GUIapp
+;   -------------
+;   Deklarasjoner
+;   -------------
+    @GRAPE_LOCAL_VARS@
+    @GRAPE_GLOB_VARS@
+§fi
+
+;   --------------
+;   Feilhåndtering
+;   --------------
+    default error-handling when db-error terminate from @LABEL_DB@
+§if GUIapp
+    @HOOK_DEF_DBERR@
+    default error-handling when gui-error terminate from @LABEL_GUI@
+    @HOOK_DEF_GUIERR@
+§fi GUIapp
+
+;   -----
+;   Kode!
+;   -----
+    @FI@ @SVPDIR@main_pmsg@SUFF_SVP@
+
+;   ----------
+;   Avslutning
+;   ----------
+§if GUIapp
+    @HOOK_DEF_LEAVE@
+    terminate from @LABEL_END@
+§else
+    terminate from @LABEL_EXIT@
+§fi GUIapp
+
+    terminate-label @LABEL_DB@
+    @ERR_DB@
+
+§if GUIapp
+    terminate from @LABEL_END@
+
+    terminate-label @LABEL_GUI@
+    @ERR_GUI@
+
+    terminate-label @LABEL_END@
+    @HOOK_LEAVE@
+
+§fi
+    terminate-label @LABEL_EXIT@
+    @PEND@
+
+end procedure ; P__MAIN_MESSAGE in §Appl§
+
+
+procedure P__MAIN_VERSION exports W_OMVINDU_TEKST, W_TITLE, W_DATO
+;   =========================================================================
+;   PROSEDYRE:    P__MAIN_VERSION
+;   TYPE:         Prosedyre
+;   TARGET:       §Appl§
+;
+;   BESKRIVELSE:
+;      Returner versjonsstrenger
+;
+;   GRENSESNITT:
+;   Type          Navn                    Bruk
+;   -----------   ----------------------  -----------------------------------
+;   EXPORTS       W_OMVINDU_TEKST         Tekststreng til OM-vinduet
+;   EXPORTS       W_TITLE                 Tittel til OM-vinduet
+;   EXPORTS       W_DATO                  Dato for bygging av appl.
+;
+;   DIVERSE:
+;
+;   =========================================================================
+
+    @PBEGIN@
+    @UNIVERSAL@
+
+§if GUIapp
+;   -------------
+;   Deklarasjoner
+;   -------------
+    @GRAPE_LOCAL_VARS@
+    @GRAPE_GLOB_VARS@
+§fi
+
+;   --------------
+;   Feilhåndtering
+;   --------------
+    default error-handling when db-error terminate from @LABEL_DB@
+§if GUIapp
+    @HOOK_DEF_DBERR@
+    default error-handling when gui-error terminate from @LABEL_GUI@
+    @HOOK_DEF_GUIERR@
+§fi GUIapp
+
+;   -----
+;   Kode!
+;   -----
+    @FI@ @SVPDIR@main_pversion@SUFF_SVP@
+
+;   ----------
+;   Avslutning
+;   ----------
+§if GUIapp
+    @HOOK_DEF_LEAVE@
+    terminate from @LABEL_END@
+§else
+    terminate from @LABEL_EXIT@
+§fi GUIapp
+
+    terminate-label @LABEL_DB@
+    @ERR_DB@
+
+§if GUIapp
+    terminate from @LABEL_END@
+
+    terminate-label @LABEL_GUI@
+    @ERR_GUI@
+
+    terminate-label @LABEL_END@
+    @HOOK_LEAVE@
+
+§fi
+    terminate-label @LABEL_EXIT@
+    @PEND@
+
+end procedure ; P__MAIN_VERSION in §Appl§
+
+
+program M_§Appl§ employs automarking
+;   =========================================================================
+;   PROSEDYRE:    M_§Appl§
+;   TYPE:         Hovedprogram
+;
+;   BESKRIVELSE:
+;      Hovedprogrammet!
+;
+;   GRENSESNITT:
+;   Type          Navn                    Bruk
+;   -----------   ----------------------  -----------------------------------
+;
+;   DIVERSE:
+;
+;   =========================================================================
+
+    @PBEGIN_M@
+    @UNIVERSAL@
+
+;   -------------
+;   Deklarasjoner
+;   -------------
+    declare X_BATCH boolean
+    declare X_APP   as SYSFLG.APP_NAME
+    declare X_SYS   as SYSFLG.SYS_NAME
+§if GUIapp
+    @GRAPE_LOCAL_VARS@
+    @GRAPE_GLOB_VARS@
+§else
+    declare Z_ID @BATCH_ID@
+§fi GUIapp
+
+;   ----
+;   Init
+;   ----
+    X_SYS              = '@APP@'
+    X_APP              = '§Appl§'
+§if GUIapp
+    X_BATCH            = False  ; GUI-applikasjon
+§else
+    X_BATCH            = True   ; batch-applikasjon
+§fi GUIapp
+    SYSFLG.DEBUG       = 0
+    SYSFLG.INIT_STATUS = 0
+
+
+;   --------------
+;   Versjonsstreng
+;   --------------
+    W_SCCS_ID = '§SCCSid§'
+
+;   ---------------
+;   ((( K o d e )))
+;   ---------------
+    call PFF_STARTUP exporting X_BATCH, :
+                               X_APP,   :
+                               X_SYS    :
+                     importing W_OK
+    if W_OK
+§if GUIapp
+       start event-processing
+§else
+§ASK BatchName Navn på batchen (ekskl. prefiks)
+§ASK System Systemnavn (A=AFS osv)
+;      ------------------------------------
+;      Hent ut BATCH-ID fra kallende script
+;      ------------------------------------
+       call PFF_BATCH_ID_GET importing Z_ID
+
+       if Z_ID is defined
+;         ------------
+;         Kjør batchen
+;         ------------
+          call PJ§System§_§BatchName§ exporting Z_ID :
+			      importing W_RETSTAT
+       else
+          W_RETSTAT = @BATCH_EINIT@ ; Feil under oppstart
+       end if
+    else ; feil fra PFF_STARTUP
+       W_RETSTAT = @BATCH_EINIT@    ; Feil under oppstart
+§fi
+    end if
+
+    call PFF_SHUTDOWN
+
+§if GUIapp
+§else
+    call PM_§Appl§_EXIT exporting W_RETSTAT
+§fi
+
+    terminate-label @LABEL_EXIT@
+    @PEND_M@
+
+end program ; M_§Appl§
+
+
+§if GUIapp
+control-handling CoAdm_§Appl§
+;  =========================================================================
+;  PROSEDYRE:    CoAdm_§Appl§
+;  TYPE:         Eventhandler
+;
+;  BESKRIVELSE:
+;     Event handling for application
+;
+;  GRENSESNITT:
+;  Type          Navn                    Bruk
+;  -----------   ----------------------  -----------------------------------
+;
+;  DIVERSE:
+;
+;  =========================================================================
+
+   @PBEGIN@
+   @UNIVERSAL@
+   default error-handling when gui-error terminate from @LABEL_GUI@
+   @HOOK_DEF_GUIERR@
+
+;  ---------------
+;  ((( K o d e )))
+;  ---------------
+   @GRAPE_COADM_BEGIN@
+
+;  perform conditionally ...
+;  if performed
+;     return
+;  end if
+
+   @GRAPE_COADM_END@
+
+   @MSG_INIT@
+      W_MNO = 1006  ; E: ukjent kontrollprosedyre
+   @MSG_DISPLAY@
+
+;  ----------
+;  Avslutning
+;  ----------
+   @HOOK_DEF_LEAVE@
+   terminate from @LABEL_END@
+
+   terminate-label @LABEL_GUI@
+   @ERR_GUI@
+
+   terminate-label @LABEL_END@
+   @HOOK_LEAVE@
+
+   terminate-label @LABEL_EXIT@
+   @PEND@
+
+end control-handling; CoAdm_§Appl§
+§fi GUIapp

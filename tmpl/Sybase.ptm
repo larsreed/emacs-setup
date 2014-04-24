@@ -1,0 +1,305 @@
+@reserved
+ADD
+ALL
+ALTER
+AND
+ANY
+AS
+ASC
+AVG
+BEGIN
+BETWEEN
+BREAK
+BROWSE
+BULK
+BY
+CHECKPOINT
+CLUSTERED
+COMMIT
+COMPUTE
+CONFIRM
+CONTINUE
+CONTROLROW
+CONVERT
+COUNT
+CREATE
+DATABASE
+DBCC
+DECLARE
+DEFAULT
+DELETE
+DESC
+DISK
+DISTINCT
+DROP
+DUMMY
+DUMP
+ELSE
+END
+ERRLVL
+ERROREXIT
+EXEC
+EXECUTE
+EXISTS
+EXIT
+FILLFACTOR
+FOR
+FROM
+GOTO
+GRANT
+GROUP
+HAVING
+HOLDLOCK
+IF
+IN
+INDEX
+INSERT
+INTO
+IS
+KILL
+LIKE
+LINENO
+LOAD
+MAX
+MIN
+MIRROREXIT
+NONCLUSTERED
+NOT
+NULL
+OFF
+OFFSETS
+ON
+ONCE
+OR
+ORDER
+OVER
+PERM
+PERMANENT
+PLAN
+PREPARE
+PRINT
+PROC
+PROCEDURE
+PROCESSEXIT
+PUBLIC
+RAISERROR
+READTEXT
+RECONFIGURE
+RETURN
+REVOKE
+ROLLBACK
+ROWCOUNT
+RULE
+SAVE
+SELECT
+SET
+SETUSER
+SHUTDOWN
+STATISTICS
+SUM
+TABLE
+TAPE
+TEMP
+TEMPORARY
+TEXTSIZE
+TO
+TRAN
+TRANSACTION
+TRIGGER
+TRUNCATE
+TSEQUAL
+UNIQUE
+UPDATE
+USE
+VALUES
+VIEW
+WAITFOR
+WHERE
+WHILE
+WITH
+WORK
+WRITETEXT
+
+@types
+numeric;numeric%IF:HasPrecision%(%TypePrecision%%IF:HasScale%,%TypeScale%%ENDIF%)%ENDIF%
+int;int
+smallint;smallint
+tinyint;tinyint
+real;real
+float;float
+varchar;varchar(%IF:HasLength%%TypeLength%%ELSE%%DefaultTextLength%%ENDIF%)
+char;char(%IF:HasLength%%TypeLength%%ELSE%%DefaultTextLength%%ENDIF%)
+text;text
+datetime;datetime
+money;money
+timestamp;timestamp
+image;image
+
+@template
+%FILE%SybaseSchema.sql
+/* Initialize this schema script against Sybase as follows: */
+/* isql -U<user> -P<pwd> <SybaseSchema.sql */
+/* Template version: Sybase.ptm 29.2 04/06/02 */
+
+/* First: CREATE TABLE statements including basic column definitions */
+%ITERATE:Table%
+	%IF:TableIsInDB%
+		%LINE%
+		%ENDLINE%
+		create table %ID:TableName% (
+		%ITERATE:Column%
+			%LINE%
+			%INDENT%     %ENDINDENT% %ID:ColumnName% %TYPE:DBType%
+			%IF:TypeDefault%
+				%INDENT% %ENDINDENT%DEFAULT %TypeDefault%
+			%ENDIF%
+			%IF:ColumnNotNull%
+				%INDENT% %ENDINDENT%NOT NULL
+			%ELSE%
+				%INDENT% %ENDINDENT%NULL
+			%ENDIF%
+			%IF:TypeConstraints%
+				%INDENT% %ENDINDENT%CONSTRAINT %ID:ConstraintName%V CHECK (%TypeConstraints%)
+			%ENDIF%
+			%IF:IsLast%
+				)
+			%ELSE%
+				,
+			%ENDIF%
+			%ENDLINE%
+		%ENDITERATE%
+		%LINE%
+		%INDENT%  %ENDINDENT%on %IF:HasSchema%%ID:SchemaName%_data%ELSE%%ID:ModelName%_data%ENDIF%
+		%ENDLINE%
+		go
+	%ENDIF%
+%ENDITERATE%
+
+/* Second: Add primary key constraints for all tables before indexes and foreign key constraints are added */
+  %ITERATE:Table%
+    %IF:TableIsInDB%
+      %IF:HasKey%
+        %ITERATE:Key%
+           %REM: Primary key %
+           %LINE%
+           %ENDLINE%
+           alter table %ID:TableName%
+               %LINE%
+               %INDENT%   %ENDINDENT%add constraint %ID:ConstraintName%P primary key %IF:Nonclustered% nonclustered %ENDIF%(%IF:IsGroup%%ID:KeyEltNames%%ELSE%%KeyName%%ENDIF%)
+	       %INDENT%  %ENDINDENT%on %IF:HasSchema%%ID:SchemaName%_data%ELSE%%ID:ModelName%_data%ENDIF%
+               %ENDLINE%
+           go
+           %LINE%
+           sp_primarykey %ID:TableName%,%IF:IsGroup%%ID:KeyEltNames%%ELSE%%KeyName%%ENDIF%
+           %ENDLINE%
+	   go
+        %ENDITERATE%
+      %ENDIF%
+    %ENDIF%
+  %ENDITERATE%
+
+/* Third: CREATE INDEX statements */
+%ITERATE:Table%
+	%IF:TableIsInDB%
+		%ITERATE:Column%
+			%IF:ColumnPrimaryKey%
+			%ELSE%
+				%IF:ColumnIndex%
+					%LINE%
+					%ENDLINE%
+					%LINE%
+					create
+					%IF:ColumnUnique%
+						%INDENT% %ENDINDENT%unique
+					%ENDIF%
+				 	%IF:Clustered%
+						%INDENT% %ENDINDENT%clustered
+					%ENDIF%
+					%INDENT% %ENDINDENT%index %ID:ColumnName%X on %ID:TableName% (%ID:ColumnName%)
+					%INDENT%  %ENDINDENT%on %IF:HasSchema%%ID:SchemaName%_data%ELSE%%ID:ModelName%_data%ENDIF%
+				 	%ENDLINE%
+					go
+				%ENDIF%
+			%ENDIF%
+		%ENDITERATE%
+		%ITERATE:Group%
+			%IF:GroupPrimaryKey%
+			%ELSE%
+				%IF:GroupIndex%
+					%LINE%
+					%ENDLINE%
+					%LINE%
+					create
+					%IF:GroupUnique%
+						%INDENT% %ENDINDENT%unique
+					%ENDIF%
+					%IF:Clustered%
+						%INDENT% %ENDINDENT%clustered
+					%ENDIF%
+					%INDENT% %ENDINDENT%index %ID:GroupName% on %ID:TableName% (%ID:GroupEltNames%)
+					%INDENT%  %ENDINDENT%on %IF:HasSchema%%ID:SchemaName%_data%ELSE%%ID:ModelName%_data%ENDIF%
+					%ENDLINE%
+					go
+				%ENDIF%
+			%ENDIF%
+		%ENDITERATE%
+	%ENDIF%
+%ENDITERATE%
+
+
+/* Fourth: ALTER TABLE statements including constraints */
+%ITERATE:Table%
+	%IF:TableIsInDB%
+		%ITERATE:Column%
+			%IF:RelationForeignKey%%IF:SamePackage%
+				%IF:NotGroupMember%
+		                        %LINE%
+		                        %ENDLINE%
+					alter table %ID:TableName%
+					%LINE%
+					%INDENT% %ENDINDENT%add constraint %ID:ConstraintName%F foreign key (%ID:ColumnName%) references %RelationForeignTable% (%RelationForeignKey%)
+					%ENDLINE%
+					go
+					%LINE%
+					sp_foreignkey %ID:TableName%,%RelationForeignTable%,%ID:ColumnName%
+					%ENDLINE%
+					go
+				%ENDIF%
+			%ENDIF%%ENDIF%
+		%ENDITERATE%
+		%ITERATE:Group%
+			%IF:RelationForeignKey%
+				%IF:NotGroupMember%
+		                        %LINE%
+		                        %ENDLINE%
+					alter table %ID:TableName%
+					%LINE%
+					%INDENT%   %ENDINDENT%add constraint %ID:ConstraintName%F foreign key (%ID:GroupEltNames%) references %RelationForeignTable% (%RelationForeignKeyEltNames%)
+					%ENDLINE%
+					go
+					%LINE%
+					sp_foreignkey %ID:TableName%,%RelationForeignTable%,%ID:GroupEltNames%
+					%ENDLINE%
+				%ENDIF%
+			%ENDIF%
+		%ENDITERATE%
+		%ITERATE:Method%
+			%LINE%
+			%ENDLINE%
+			%LINE%
+			create proc %ID:ProcName%(
+			%ITERATE:Parameter%
+				@%ParameterName% %ParameterType%
+				%IF:IsLast%
+				%ELSE%
+					,
+				%ENDIF%
+			%ENDITERATE%
+			) AS
+			%ENDLINE%
+			go
+		%ENDITERATE%
+	%ENDIF%
+%ENDITERATE%
+
+%ENDFILE%

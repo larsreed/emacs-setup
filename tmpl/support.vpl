@@ -1,0 +1,42 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§rem  ******************************************************************
+§rem  Denne malen er det kun aktuelt å benytte ifbm gjenskaping av feil!
+§rem  Den må ikke benyttes for "ekte" programmer!!!
+§rem  ******************************************************************
+program M_XXX employs automarking
+
+§ask db      Hvilken logindatabase
+§rem         Antar at navn og bruker er like
+§ask dbs     Databaserver
+§ask dbu     Databasebruker
+§ask dbp     Databasepassord
+       open database '§db§' on server '§dbs§' as '§dbu§' :
+           giving password '§dbp§'
+§ask db_a AFS-database
+§ask db_b SBR-database
+§ask db_f FEL-database
+§ask db_i AVSK-database
+§ask db_k FKR-database
+§ask db_p PUS-database
+§ask db_v VIRK-database
+§ask db_c TRAV-database
+       dbfunction connection '§dbs§', '§db_a§', 'TVIST_A', '-'
+       dbfunction connection '§dbs§', '§db_b§', 'TVIST_B', '-'
+       dbfunction connection '§dbs§', '§db_f§', 'TVIST_F', '-'
+       dbfunction connection '§dbs§', '§db_i§', 'TVIST_I', '-'
+       dbfunction connection '§dbs§', '§db_k§', 'TVIST_K', '-'
+       dbfunction connection '§dbs§', '§db_p§', 'TVIST_P', '-'
+       dbfunction connection '§dbs§', '§db_v§', 'TVIST_V', '-'
+       dbfunction connection '§dbs§', '§db_c§', 'TVIST_C', '-'
+§ASK entlist Liste over entiteter
+       ready entity §entlist§
+§if wdb Ta med DB-debug
+       dbfunction Trace DEBUG
+§fi wdb
+       dbfunction Case Insensitive ON
+
+       <legg testprogrammet her>
+
+       close database '§db§' on server '§dbs§'
+
+end program ; M_XXX

@@ -1,0 +1,125 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§ask PMnr PM-nr til historikken
+§ask SCCSid SCCS-ID
+§ask FileID Fil/versjonskode
+§ask Description Beskrivelse av fila
+§askl FunctionName Navn på hovedprosedyre
+§defineu UpFunc §FunctionName§
+§ask PDescription Beskrivelse av hovedprosedyre
+/*
+ * ==========================================================================
+ * PROSJEKT:    TVIST2000
+ * FIL:         §FileID§
+ * MAL:         o.vpl 27.5
+ *
+ * BESKRIVELSE:
+ *    §Description§
+ *
+ * KALLBARE RUTINER:
+ *    §UpFunc§
+ *
+ * HISTORIKK:
+ * YYMMDD  Sign.  Endring
+ * ------  -----  -----------------------------------------------------------
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+ * §Date§  §User§   Opprettet (§PMnr§)
+ *
+ * AVVIK FRA STANDARD:
+ *
+ * MULIGE UTVIDELSER:
+ *
+ * DIVERSE:
+ *
+ * ==========================================================================
+ */
+
+#include "proto.h"
+#include "dict.h"
+§if UseStrings Skal prosedyren se Sysdulstrenger
+#include "systring.h"
+§fi
+
+#if !( defined(lint) || defined(NO_ID) )
+   static volatile char sccs_id[]= "§SCCSid§";
+#endif
+
+PROCEDURE §FunctionName§ (<Params>) {
+ /*
+  * ========================================================================
+  * PROSEDYRE:    §FunctionName§
+  * TYPE:         Teknisk fellesrutine, C
+  *
+  * BESKRIVELSE:
+  *    §PDescription§
+  *
+  * GRENSESNITT:
+  * Type          Navn                    Bruk
+  * -----------   ----------------------  ----------------------------------
+  * IMPORTS	  <params>
+  * EXPORTS
+  * IMP/EXP
+  * RETURNS
+  * EMPLOYS
+  * UNIV I
+  * UNIV O
+  * UNIV I/O
+  * CURR I
+  * CURR O
+  * CURR I/O
+  * GLOB I
+  * GLOB O
+  * GLOB I/O
+  *
+  * EKSEMPEL:
+  *    call §UpFunc§ exporting <params> :
+  *                  importing ...
+  *
+  * DIVERSE:
+  *
+  * ========================================================================
+  */
+
+< body >
+}  /*§FunctionName§*/
+§do SecSub Antall subrutiner
+
+
+§ask Sub§R§ Suffiks for subrutine §R§
+static §FunctionName§_§Sub§R§§ (<Params>) {
+ /*
+  * ==========================================================================
+  * PROSEDYRE:    §FunctionName§_§Sub§R§§
+  * TYPE:         Subrutine
+  *
+§ask Sub§R§Desc Beskkrivelse av subrutine nr. §R§
+  * BESKRIVELSE:
+  *    §Sub§R§Desc§
+  *
+  * GRENSESNITT:
+  * Type          Navn                    Bruk
+  * -----------   ----------------------  ------------------------------------
+  * IMPORTS	  <Params>
+  * EXPORTS
+  * IMP/EXP
+  * RETURNS
+  * EMPLOYS
+  * UNIV I
+  * UNIV O
+  * UNIV I/O
+  * CURR I
+  * CURR O
+  * CURR I/O
+  * GLOB I
+  * GLOB O
+  * GLOB I/O
+  *
+  * DIVERSE:
+  *
+  * ==========================================================================
+  */
+
+<body>
+
+} /* §FunctionName§_§Sub§R§§ */
+§done

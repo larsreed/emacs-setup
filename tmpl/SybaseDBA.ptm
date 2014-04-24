@@ -1,0 +1,59 @@
+@template
+%FILE%SybaseDBA.sql
+/* Run this DBA script against Sybase as follows: */
+/* isql -Usa -P <SybaseDBA.sql  */
+
+/* The CREATE DATABASE and DISK INIT command will generate necessary */
+/* devices with calculated sizes. You may want to tailor file names, */
+/* prefix with directories or change device numbers (depending on other */ 
+/* databases in your Sybase environment). That is, the <>'s must be removed. */
+/* The following commands create a database of 16 MB with 8 MB on a data device, */
+/* 4 MB on an index device and 4 MB on a log device. */
+/* Template: @@(#)TVIST SybaseDBA.ptm 29.2 04/06/02> */
+
+
+disk init
+ name = "%ID:ModelName%_data",
+ physname = <".../%ID:ModelName%.data">,
+ vdevno = <2>, size = <4096>
+go
+
+disk init
+ name = "%ID:ModelName%_dind",
+ physname = <".../%ID:ModelName%.dind">,
+ vdevno = <3>, size = <2048>
+go
+
+disk init
+ name = "%ID:ModelName%_dlog",
+ physname = ".../%ID:ModelName%.dlog",
+ vdevno = <4>, size = <2048>
+go
+
+/* If sizes below are 0 (given in MB) then the sizes above are too small */
+/* (given in 2K pages). */
+/* If so, adjust all sizes to a minimum of 2 MB / 1024 2K pages. */
+
+create database %ID:ModelName%
+ on %ID:ModelName%_data = <8>,
+ %ID:ModelName%_dind = <4>
+ log on %ID:ModelName%_dlog = <4>
+go
+
+sp_addlogin %ID:ModelName%_user, %ID:ModelName%_pwd
+go
+
+use %ID:ModelName%
+go
+
+sp_changedbowner %ID:ModelName%_user
+go
+
+sp_defaultdb %ID:ModelName%_user, %ID:ModelName%
+go
+
+sp_addsegment %ID:ModelName%_data, %ID:ModelName%, %ID:ModelName%_data
+go
+
+sp_addsegment %ID:ModelName%_dind, %ID:ModelName%, %ID:ModelName%_dind
+go

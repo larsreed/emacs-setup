@@ -1,0 +1,17 @@
+# -*-makefile-*-
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§ask SCCSid SCCS-ID
+# FIL:         §SCCSid§
+# MAL:         appmake.vpl 27.4
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+# §Date§  §User§  Opprettet
+
+include $(MAKE_HOME)/Makerules
+§ask Cfg Konfigurasjon (ekskl. CFG_)
+include $(CFG_§Cfg§)
+
+§ask Exe Navn på eksekverbar fil
+PRG=§Exe§
+
+include $(MAKE_HOME)/make.app

@@ -1,0 +1,2202 @@
+§rem -*-sysdul-*-
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§ask SCCSid SCCS-ID
+§ask FileID Fil/versjonskode
+§ask PMnr PM-nr til historikken
+§defbool inclOld nil
+§defbool ioData nil
+!!!!!!!!!!!!!!!! NB!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Ikke ta denne malen for seriøst...
+Batcher er komplekse, og det er vanskelig å lage en mal som
+dekker alle muligheter.  Ta derfor dette som et forslag til hvordan
+du kan kommer i gang i med kodingen, snarere enn en halvferdig batch...
+Ta heller ikke for gitt at det ikke kan være feil i standardfunksjonaliteten
+i malen...
+Malen mangler foreløpig behandling av TRANS_MLD, behandlingen av de øvrige
+TRANS-entitetene har ikke vært spesielt testet.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+§ask BatchDescription Overordnet beskrivelse
+§asku System Systembokstav (A=AFS etc)
+§asku BatchName Navn på batchprosedyre, ekskl. PJ§System§_prefiks
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+§ask hovedEnt Hovedentitet (for IDENTIFY ALL el.l.)
+§def1 BatchDesign P.X.2.3.x.1\xB00?
+§ask BatchDesign Ref. til designdok
+§rem   ------------------------------------------------------------
+§rem   Oppgi evt. referanser til designdokumenter modulen bygger på
+§rem   ------------------------------------------------------------
+§rem --------------------------------------
+§do ParamCount Antall innparametere fra SRM
+§ask parDesc§R§ Beskrivelse av parameter nr.§R§
+§ask parVar§R§ Variabelnavn som skal inneholde fil nr.§R§
+§define parType§R§ <type?>
+§if isFilePar§R§ Er parameter nr.§R§ et filnavn
+§defbool ioData t
+§defbool anyFile t
+§define parType§R§ @FILENAME@
+§asku sysPar§R§ Hvilken systemparameter inneholder katalog
+§if isIn§R§ Er fil nr.§R§ en inputfil
+§defbool inFile t
+§else
+§defbool oDataFile t
+§fi isIn
+§else isFilePar
+§if isBoolPar§R§ Er parameter nr.§R§ en Boolean
+§define parType§R§ boolean
+§else isBoolPar
+§if isDatePar§R§ Er parameter nr.§R§ en dato
+§define parType§R§ @DATE@
+§else isDatePar
+§fi isDatePar
+§fi isBoolPar
+§fi isFilePar
+§done
+
+; ==========================================================================
+; PROSJEKT:    TVIST2000
+; FIL:         §FileID§
+; MAL:         j.vpl 29.3
+;
+; BESKRIVELSE:
+;    §BatchDescription§
+;
+; KALLBARE RUTINER:
+;    PJ§System§_§BatchName§
+;
+; HISTORIKK:
+; YYMMDD  Sign.  Endring
+; ------  -----  -----------------------------------------------------------
+; §Date§  §User§   Opprettet (PM§PMnr§)
+;
+; REFERANSE TIL DESIGN:
+;    §BatchDesign§
+;
+; Filer:
+; I/O Katalog    Filnavn               Bruk
+; --- ---------- --------------------- -------------------------------------
+;  O  TrcDir     <generert>.trc        Standard tracefil
+;  O  TrcDir     <generert>.log        Standard kvitteringsfil
+;  O  n/a        <zzq_ErrLog>          Felles feilfil
+§if useRes Bruke resultatfil (i tillegg til trc/log)
+;  0  ResDir     <generert>.txt        Resultatfil <!!!beskrivelse!!!>
+§fi
+§if useDump Bruke dumpfil (for records med feil)
+;  O  DataDir    <batch_id>.dmp        Dumpfil (forkastede records)
+§fi
+< rams opp dine egne in- og outputfiler her!>
+§do ParamCount
+§if isFilePar§R§ Er parameter nr.§R§ et filnavn
+§if isIn§R§ Er fil nr.§R§ en inputfil
+;  I   §sysPar§R§§  ???          ???
+§else
+;  O   §sysPar§R§§  ???          ???
+§fi isIn
+§fi isFilePar
+§done
+;
+; AVVIK FRA STANDARD:
+;
+; MULIGE UTVIDELSER:
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+@BATCH_DEFS@
+§if oDataFile Lager batchen noen strukturert datafil
+§defbool ioData t
+§fi
+§if inFile Leser batchen input fra fil
+§defbool ioData t
+§else
+@LOCAL@_identify = <Dataliste i identify-setningene, hvis brukt>
+§fi
+§if ioData
+
+
+<-----------------------------------------------------------------------
+ Det kan være fornuftig å deklarere SVAPP-makroer for deklarasjon av
+ felter i datafil(er), og for recordlayouts - f.eks.
+@LOCAL@_reclen = 80 ; Total recordlengde
+@LOCAL@_ftype_decl = '
+   declare zBuffer      A@X_RECLEN@          ; Hele recorden
+   declare zRecType_Raw A2                   ; Hardkodet til filformatet
+   declare zRecType     @INT@                ; Konvertert fra zRecType_Raw
+   declare zKunde       A11                  ; Kundenummmer
+   declare zDato_Raw    A8                   ; Dato på format YYYYMMDD
+   declare zDato        @DATE@               ; Konvertert fra zDato_Raw
+   declare zSum_Raw     A17                  ; Beløp i ører
+   declare zSum         as BEREGNING.BELØP   ; Konvertert fra zSum_Raw
+   declare zTekst       A42                  ; Kommentarfelt'
+§if inFile
+@LOCAL@_flist_io = ' :
+   zRecType_Raw,     :
+   zKunde,           :
+   zDato_Raw,        :
+   zSum_Raw,         :
+   zTekst'
+§fi
+@LOCAL@_flist_data = ':
+   zRecType,     :
+   zKunde,           :
+   zDato,        :
+   zSum,         :
+   zTekst'
+§if inFile
+Med denne er strukturen kan du f.eks. lage deg en konverteringsrutine
+  i GET_NEXT:   @X_FTYPE_DECL@
+                read zBuffer from zInputFile
+                call SJ§System§_§BatchName§_CONV_DATA exporting zBuffer :
+                            importing @X_FLIST_DATA@, :
+                                      W_OK
+                if not W_OK => tell opp feil og les neste
+  i SJ§System§_§BatchName§_CONV_DATA: 
+                @X_FTYPE_DECL@
+                read @X_FLIST_IO@ from zBuffer
+                if IO-error => hopp ut
+                read zRecType from zRecType_Raw
+                if IO-error => hopp ut
+                call PFF_DATE_YYYYMMDD_TO_DATE exporting zDato_Raw ...
+§else
+  i DO_IT       @X_FTYPE_DECL@
+                write @X_FLIST_DATA@ to zBuffer
+§fi
+                ...
+
+Hensikten med å lage makroer er da å samle hardkodingen av filformatet på
+ett sted - sørg for at du unngår ytterligere hardkodinger lenger ned.
+Merk at det sjelden er noen god ide å bruke "declare as <modellvariabel>" for
+de feltene som leses fra / skrives til fil og som utveksles med systemer som
+ikke er generert fra samme repository - siden man da kan få forskyvninger i
+recordene som er vanskelige å feilsøke...
+---------------------------------------------------------------------->
+§fi ioData
+
+<--------------------------------------------------
+Noen batcher kan ha glede av å oversende inputparameterne mellom rutiner.
+Kan være greit å putte disse også i makroer, for å sikre konsistens:
+@LOCAL@_par_dekl = '
+§do ParamCount
+   declare §parVar§R§§ §parType§R§§ ; Parameter for §parDesc§R§§
+§done
+§backspace 0 '
+@LOCAL@_par_list = ':
+§do ParamCount
+   §parVar§R§§, :
+§done
+§backspace 3 '
+
+-------------------------------------------------->
+
+
+
+§default CurSet CUR_§BatchName§
+§asku CurSet Currencysett som brukes
+procedure PJ§System§_§BatchName§ @BATCH_PARAM@      :
+                         employs §CurSet§
+; ==========================================================================
+; PROSEDYRE:    PJ§System§_§BatchName§
+; TYPE:         Batch
+;
+; BESKRIVELSE:
+§ask PDescription Beskrivelse av hovedprosedyren
+;    §PDescription§
+;
+; GRENSESNITT:
+; Type          Navn                    Bruk
+; -----------   ----------------------  ------------------------------------
+; IMPORTS       ZZ_BATCH_ID             Identifiserer batchen entydig
+; EXPORTS       ZZ_BATCH_STATUS         Resultat.  Se tabell under.
+; IMPORTS
+; EXPORTS
+; IMP/EXP
+; RETURNS
+; EMPLOYS        <!!!! rydd opp i tabellen!!!>
+; UNIV I
+; UNIV O
+; UNIV I/O
+; CURR I
+; CURR O        §CurSet§                Udefinert
+; CURR O
+; CURR I/O
+; GLOB I
+; GLOB O
+; GLOB I/O
+; ENVIRON
+;
+; RETURVERDIER:
+;    @BATCH_EOK@    == OK
+;    @BATCH_ESUSP@  == Stoppet av operatør (kontrollert)
+;    @BATCH_ENULL@  == Ingen data å behandle
+;    @BATCH_EWARN@  == Kjørt ferdig - advarsler er skrevet
+;    @BATCH_ERR@    == feil under kjøring - delvis resultat produsert
+;    @BATCH_ECRIT@  == kritisk feil under kjøring - intet resultat produsert
+;    @BATCH_EINIT@  == feil ved init. - intet resultat produsert
+;
+; EKSEMPEL:
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+   @PBEGIN_PJ@
+   @UNIVERSAL@
+<  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+<  Her deklareres standard parametere & variable (se oversikt under).    >
+<  Videre åpnes systemfiler, og konstanter/variable gis initiell verdi.  >
+<  Andre fellesparametere vil også bli håndtert her.                     >
+<  Dersom noe går galt, settes ZZ_BATCH_STATUS til @BATCH_EINIT@, og     >
+<  kontrollen overføres til label @LABEL_EXIT@ under.                    >
+<  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+; --------------------------------------------------------------------------
+;  Felles variable:
+;  VARIABEL             TYPE        INNHOLD
+;  ------------------   ---------   -------------------------------------------
+;  ZZ_BATCH_ID          @BATCH_ID@  ID for batchen (parameter)
+;  ZZ_BATCH_STATUS      W_RETSTAT   Returstatus for batchen (parameter)
+;  ZZ_BATCH_INPUT       @FILENAME@  Navn på evt. inputfil (parameter)
+;  XX_BATCH_INPUT       @FILENO@    Nummer på evt. inputfil (konstant)
+;                                   - filen må åpnes lokalt
+;  ZZ_BATCH_OUTPUT      @FILENAME@  Navn på evt. outputfil (parameter)
+;  XX_BATCH_OUTPUT      @FILENO@    Nummer på evt. outputfil (konstant)
+;                                   - filen må åpnes lokalt
+;  XX_BATCH_LOG         @FILENO@    Nummer på evt. loggfil (konstant)
+;                                   - filen åpnes automatisk
+;  SYSFLG.LOG_FILE      @FILENAME@  Universell, navn på loggfil (parameter)
+;  XX_BATCH_DUMP        @FILENO@    Nummer på evt. dumpfil (konstant)
+;                                   - filen må åpnes med makro
+;                                   @@batch_open_dump@@ (se under)
+;  SYSFLG.DUMPFILE      @FILENAME@  Universell, navn på dumpfil (parameter)
+;  SYSFLG.ERRORFILE     @FILENAME@  Universell, navn på tracefil (parameter)
+;  ZZ_BATCH_MIN         <counter>   Nummer på første forekomst som skal
+;                                   behandles - default 1 (parameter)
+;  ZZ_BATCH_MAX         <counter>   Nummer på siste forekomst som skal
+;                                   behandles - default 0, som betyr uendelig
+;                                   (parameter)
+;  ZZ_BATCH_TRANS_NO    <counter>   Antall forekomster som er behandlet i denne
+;                                   transaksjonen - oppdateres lokalt
+;  ZZ_BATCH_TRANS_MAX   <counter>   Max antall forekomster som skal behandles
+;                                   per transaksjon (parameter)
+;  ZZ_BATCH_OK          <counter>   Antall forekomster som er behandlet med
+;                                   OK resultat - oppdateres lokalt
+;  ZZ_BATCH_ERR         <counter>   Antall forekomster som er behandlet med
+;                                   feilresultat - oppdateres lokalt
+;  ZZ_BATCH_NO          <counter>   Antall forekomster som er behandlet totalt
+;                                   - oppdateres lokalt
+;  ZZ_CONT              boolean     TRUE så lenge behandling skal fortsette
+;  ZZ_BREAK             boolean     FALSE inntil evt. indre løkke skal avslutte
+;  ZZ_REPNAME           @REP_NAME@  Variant av batchen som kjøres
+;  ZZ_BATCH_IS_RESTART  boolean     Settes til TRUE dersom dette er en
+;                                   restart
+;  ZZ_BATCH_APPEND      boolean     Settes til TRUE dersom resultatfil skal
+;                                   legges til i stedet for overskrives
+;  ZZ_BATCH_TRANS_TRACE TRANS_ID    ID for denne batchens tracetrans
+;  ZZ_BATCH_TRANS_SUM   TRANS_ID    ID for denne batchens sumtrans
+;  ZZ_BATCH_TRANS_ERR   TRANS_ID    ID for denne batchens feiltrans
+;  ZZ_BATCH_TRANS_COMM  TRANS_ID    ID for denne batchens kommtrans
+;  ZZ_BATCH_COMM_[ABC]  @VARCHAR@   Fritekstvariable til PFF_BATCH_RECEIPT
+;  ZZ_BATCH_RESTART_INFO <intern>   Logglinje med restartinformasjon
+;  ZZ_BATCH_SEKVENS_NR  @LONG@      Logginfo for batcher som har sekvensnr.
+;                     * Variable merket <counter> er av type @BATCH_COUNTER@,
+;                       som i praksis er ekvivalente med @LONG@ (32-bit).
+; --------------------------------------------------------------------------
+
+§if useDump
+;  -----------------------------
+;  Motta navn på og åpne dumpfil
+;  -----------------------------
+   @BATCH_OPEN_DUMP@
+§fi
+
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+< ZZ_CONT og ZZ_BREAK snakker om indre og ytre løkke.  Dette er bare et    >
+< forslag til oppdeling, der strukturen er slik                            >
+<    WHILE jobben skal gå videre                                           >
+<       WHILE jobben OG løkka skal gå videre                               >
+<          utfør behandling                                                >
+<          hent neste                                                      >
+<       END WHILE                                                          >
+<    END WHILE                                                             >
+< En slik struktur gir rom for å svelge flere records i en transaksjon,    >
+< siden man kan omslutte den indre løkka med en transaksjonsenhet.         >
+< Merk DOG at du skal behandle feilmeldinger og restartinfo i TRANS med    >
+< i en slik situasjon - pass på at ikke disse rulles tilbake sammen med    >
+< dårlige data...
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Lokale makroer
+;  --------------
+   @LOCAL@_<makro> = '
+      <definisjon.  Husk at makroer ikke kan redefineres innen samme fil>'
+
+;  -----------
+;  Universelle
+;  -----------
+   universal <ENTITET|ROLLE> --- helst ikke...
+
+;  ----------------
+;  Globale variable
+;  ----------------
+   declare ZQ_<VAR> <decl> global
+   declare XQ_<VAR> <decl> global
+§if inclOld
+
+;  --------------
+;  Automatmerking
+;  --------------
+   automark <ENTITET|ROLLE>
+
+;  ----------
+;  Referanser
+;  ----------
+   declare <REF> as reference to <ENTITET>
+
+;  ----------
+;  Funksjoner
+;  ----------
+   declare <FUN> as function
+§fi inclOld
+
+;  ----------
+;  Konstanter
+;  ----------
+   declare X_<KONST> {as <DATAELEM>|@MAKRO@}
+
+;  --------
+;  Variable
+;  --------
+   declare z<Var> {as <DATAELEM>|@MAKRO@}
+§do ParamCount
+§if isFilePar§R§
+   declare §parVar§R§§ @FILENAME@ ; Parameter for !!!
+§else isFilePar
+§if isBoolPar§R§
+   declare §parVar§R§§ boolean    ; Parameter for !!!
+§else isBoolPar
+§if isDatePar§R§ Er
+   declare §parVar§R§§ @DATE@     ; Parameter for !!!
+§else isDatePar
+   declare §parVar§R§§ ????     ; Parameter for !!!
+§fi isDatePar
+§fi isBoolPar
+§fi isFilePar
+§done
+§if anyFile Er noen av SRM-parameterne et filnavn
+   declare zIsInputFile boolean
+   declare zDir        @FILENAME@
+§fi
+
+   @TIMER_DECL@
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Init
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Versjonsstreng
+;  --------------
+   W_SCCS_ID = '§SCCSid§'
+
+;  --------------
+;  Feilhåndtering
+;  --------------
+   default error-handling when DB-error terminate from @LABEL_DB@
+
+;  ----------
+;  Konstanter
+;  ----------
+   X_<KONST> = <VERDI - Skal ikke endres>
+
+;  --------
+;  Variable
+;  --------
+   z<Var> = <VERDI - husk at lokale variable ikke har noen default verdi>
+
+;  ---------------
+;  Hent parametere
+;  ---------------
+;  ---------------------------------------------------------------------------
+;  Her brukes følgende variable:
+;      ZZ_BATCH_PAR_NO   @INT@          Nummer for aktuell parameter
+;      ZZ_BATCH_PAR_TXT  @PARAMSTRING@  Parameterverdi
+;      ZZ_BATCH_PAR_LOG  boolean        Internt bruk!
+;      ZZ_BATCH_PAR_DESC @VARCHAR@      Beskrvelse til loggfila
+;      ZZ_BATCH_PAR_OK   boolean        Settes til FALSE dersom behandling
+;                                       skal termineres etter at param er lest
+;      ZZ_LOOPSTAT       as W_RETSTAT   Internt bruk!
+;  ---------------------------------------------------------------------------
+   @BATCH_PAR_BEGIN@
+<     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   >
+<     Dette starter en løkke der alle parametere blir tilgjengelige,     >
+<     parameternummeret ligger i ZZ_BATCH_PAR_NO, innholdet i strengen   >
+<     ZZ_BATCH_PAR_TXT - ta verdien derfra over i egne variable.         >
+<     Det kan være lurt å tilordne defaulter til variablene i tilfelle   >
+<     ingen verdi er gitt.                                               >
+<     Variabel ZZ_BATCH_PAR_DESC brukes for å beskrive parameter for     >
+<     i loggfil - selve loggingen gjøres med makroen BATCH_LOG_PARAM.    >
+<     Variabel ZZ_BATCH_PAR_OK er initielt TRUE - settes til FALSE når   >
+<     feil oppdages - se beskrivelse under.                              >
+<     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   >
+
+§do ParamCount
+
+      or if ZZ_BATCH_PAR_NO equal to §R§
+         ZZ_BATCH_PAR_DESC = '§parDesc§R§§'
+§if isFilePar§R§
+
+§if isMustPar§R§ Må §parDesc§R§§ ha verdi
+         if ZZ_BATCH_PAR_TXT is undefined
+            @MSG_INIT@
+               W_MNO = 10013 ; Filnavn må ha verdi
+               W_MVAR1 = '§R§'
+               W_MVAR2 = '§parDesc§R§§'
+            @MSG_DISPLAY@
+
+            ZZ_BATCH_PAR_DESC = '§parDesc§R§§ mangler'
+            ZZ_BATCH_PAR_OK = False
+         else
+§else
+         if ZZ_BATCH_PAR_TXT is defined
+§fi
+;           ----------------------------
+;           Henter ut path fra SYS_PARAM
+;           ----------------------------
+            call PFF_SYSPAR_§sysPar§R§§ importing zDir
+§if isIn§R§
+            zIsInputFile = True
+§else
+            zIsInputFile = False
+§fi
+
+;           ---------------------------------------------------
+;           Benytter fullt filnavn hvis path sendes med fra SRM
+;           - hvis ikke benyttes path fra SYS_PARAM/DATAdir.
+;           Viser automatisk feilmelding ved behov.
+;           ---------------------------------------------------
+            call PFF_BATCH_FILE_PARAM exporting zIsInputFile,      :
+                                                ZZ_BATCH_PAR_TXT,  :
+                                                zDir               :
+                                      importing ZZ_BATCH_PAR_DESC, :
+                                                ZZ_BATCH_PAR_OK,   :
+                                                §parVar§R§§
+            ZZ_BATCH_PAR_TXT = §parVar§R§§
+
+         end if
+§else isFilePar
+§if isBoolPar§R§
+         call PFF_BATCH_BOOLEAN_FROM_RBS exporting ZZ_BATCH_PAR_TXT :
+                                         importing §parVar§R§§
+         if §parVar§R§§
+            ZZ_BATCH_PAR_TXT = 'Ja'
+         else
+            ZZ_BATCH_PAR_TXT = 'Nei'
+         end if
+§else isBoolPar
+§if isDatePar§R§
+§if isMustPar§R§ Må §parDesc§R§ ha verdi
+         if ZZ_BATCH_PAR_TXT is undefined
+            @MSG_INIT@
+               W_MNO = 10013 ; Dato må ha verdi
+               W_MVAR1 = '§R§'
+               W_MVAR2 = '§parDesc§R§§'
+            @MSG_DISPLAY@
+
+            ZZ_BATCH_PAR_DESC = '§parDesc§R§§ mangler'
+            ZZ_BATCH_PAR_OK = False
+         else
+§else
+         if ZZ_BATCH_PAR_TXT is undefined
+            §parVar§R§§ = LAVESTE.DATO
+         else
+§fi
+            call PFF_DATE_FROM_RBS exporting ZZ_BATCH_PAR_TXT :
+                                   importing §parVar§R§§,   :
+                                             W_OK
+            if not W_OK
+               @MSG_INIT@
+               W_MNO = 7043 ; Ugyldig dato
+               W_MVAR1 = ZZ_BATCH_PAR_TXT
+               @MSG_DISPLAY@
+               ZZ_BATCH_PAR_OK   = false
+               ZZ_BATCH_PAR_DESC = '§parDesc§R§§ er en UGYLDIG dato!'
+            end if
+         end if
+§else isDatePar
+         <kode for å ta seg av parameter nr. §R§ - typisk omtrent som følger>
+            §parVar§R§§ = ZZ_BATCH_PAR_TXT
+          eller
+            read §parVar§R§§ from ZZ_BATCH_PAR_TXT
+            if IO-error
+               @MSG_INIT@
+                  W_MNO   = 10033  ; Feil format på parameter
+                  W_MVAR1 = '§R§'    ; Linjenummer
+               @MSG_DISPLAY@
+               ZZ_BATCH_PAR_DESC = 'Feil format i nr.§R§ (§parDesc§R§§)!'
+               ZZ_BATCH_PAR_OK   = False
+            end if
+
+         <evt. validering av parameterverdi kommer her -
+          dersom parameter er ugyldig - sett ZZ_BATCH_PAR_OK = False
+          og meld feil - men ikke avbryt (alle parametere sjekkes før
+          evt avbrudd.  Endre også ZZ_BATCH_PAR_DESC som skissert over.
+          Se kode under for håndtering av uthopp >
+§fi isDatePar
+§fi isBoolPar
+§fi isFilePar
+
+;        ----------------
+;        Oppdater loggfil
+;        ----------------
+         @BATCH_LOG_PARAM@
+
+§done
+      else
+         @MSG_INIT@
+            W_MNO = 10012  ; Ukjent parameter nr. <1> m/ innhold <2-9>
+            write ZZ_BATCH_PAR_NO to W_MVAR1
+            read W_MVAR2, W_MVAR3, W_MVAR4, W_MVAR5, W_MVAR6, W_MVAR7, :
+                 W_MVAR8, W_MVAR9                                      :
+                 from ZZ_BATCH_PAR_TXT
+         @MSG_DISPLAY@
+         ZZ_BATCH_PAR_OK   = False
+
+;        ----------------
+;        Oppdater loggfil
+;        ----------------
+         ZZ_BATCH_PAR_DESC = 'Ukjent parameter!'
+         @BATCH_LOG_PARAM@
+
+      <NB! ikke END IF! - den kommer i neste makro>
+   @BATCH_PAR_END@
+
+<  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+<  Dersom du har parametere som MÅ være gitt, kan du initialisere dem    >
+<  til blank, og sjekke her om de har fått verdi.  F.eks.:               >
+<     if ZdittDistrikt is defined                                        >
+<        LAV.DISTRIKT_ID = ZdittDistrikt                                 >
+<     else                                                               >
+<        @MSG_INIT@                                                      >
+<           W_MNO   = 10013  ; Mangler parameterverdi                    >
+<           W_MVAR1 = '<parameternr.>'                                   >
+<           W_MVAR2 = '@DISTRIKT_K@'                                     >
+<           <hvis du velger å bruke default framfor å avslutte, kan      >
+<            defaultverdiene legges i W_MVAR3-W_MVAR9>                   >
+<        @MSG_DISPLAY@                                                   >
+<        write 1X, 'Mangler verdi for @DISTRIKT_K@' to XX_BATCH_LOG      >
+<        ZZ_BATCH_PAR_OK = False                                         >
+<     end if                                                             >
+<  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+< Dersom du har kontroller PÅ TVERS av parametere, bør de kontrollene    >
+< gjøres her (f.eks. at du er avhengig av parameter A for å validere     >
+< parameter B).  Ved feil, skriv melding til trace, en linje i loggfilen >
+< som gjør bruker oppmerksom på dette (jf. over) og sett ZZ_BATCH_PAR_OK >
+< til False.                                                             >
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+
+;  ---------------------------------------------------------------
+;  Sjekk at alle param. var OK (evt. feil skal allerede være meldt
+;  ---------------------------------------------------------------
+   if not ZZ_BATCH_PAR_OK
+      ZZ_BATCH_STATUS = @BATCH_EINIT@
+      terminate from @LABEL_LEAVE@
+   end if
+
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  ------------------------------------
+;  Sjekk om jobben får lov til å starte
+;  ------------------------------------
+   @BATCH_START_TEST@
+<  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+<  Dersom det er adgang forbudt, vil ZZ_CONT være FALSE, >
+<  og ZZ_BATCH_STATUS være @BATCH_ESUSP@.                >
+<  Det normale vil da være å hoppe ut, etter evt. rydde- >
+<  aktiviteter, f.eks.:                                  >
+<     if not ZZ_CONT                                     >
+<        terminate from @LABEL_LEAVE@                     >
+<     end if                                             >
+<  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+§if wTrans Legge inn TRANS-rutiner
+
+;  --------------------------------------------------------
+;  Sjekk om jobben har vært startet før, hent evt. restart-
+;  parametere.
+;  -------------------------------------------------------------
+   call SJ§System§_§BatchName§_TRANS_INIT exporting ZZ_BATCH_ID    :
+                             importing ZZ_BATCH_TRANS_TRACE, :
+                                       ZZ_BATCH_TRANS_SUM,   :
+                                       ZZ_BATCH_TRANS_ERR, :
+                                       ZZ_BATCH_TRANS_COMM,  :
+                                       <parametere>,    :
+                                       ZZ_BATCH_IS_RESTART,     :
+                                       ZZ_BATCH_OK,     :
+                                       ZZ_BATCH_ERR,    :
+                                       W_OK
+   if not W_OK
+      ZZ_BATCH_STATUS = @BATCH_EINIT@  ; Feil er meldt
+      terminate from @LABEL_LEAVE@      ; Stygg sak...
+   else
+      ZZ_BATCH_NO = ZZ_BATCH_OK + ZZ_BATCH_ERR
+   end if
+§fi
+
+§if useRes
+§if wTransBuffer Bruke TRANS_BUFFER til mellomlagring
+§else
+   ZZ_BATCH_APPEND = ZZ_BATCH_IS_RESTART
+§fi wTransBuffer
+< åpne resultatfilen med std. navn slik det er git fra SRM >
+§if wTransBuffer
+§backspace 2
+  - det er strengt tatt ikke behov for denne på en lang stund så lenge
+    man lagrer i TRANS_BUFFER - du kan vurdere å flytte makroen til
+    like foran CLOSE-kallet - evt utelate den helt hvis du benytter en
+    PGF_TEMPTRANS_..._DUMP_...-rutine som vil ha navn, ikke handle, til filen>
+§fi
+   @BATCH_OPEN_OUTPUT@
+
+§else
+§if wTransBuffer Bruke TRANS_BUFFER til mellomlagring
+§fi
+§fi useRes
+
+
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+< !!!!!  Denne er din - det følgende er bare et eksempel !!!!!!!!!!!!!!!!! >
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+
+;  ----------------------------
+;  Klargjør for henting av data
+;  ----------------------------
+§if inFile Input fra fil
+   call SJ§System§_§BatchName§_INIT exporting ZZ_BATCH_INPUT,  :
+                                      XX_BATCH_INPUT,  :
+                                      <parametere>,   :
+§else
+   call SJ§System§_§BatchName§_INIT exporting <parametere>,   :
+§fi
+§do ParamCount
+                                      §parVar§R§§, :
+§done
+§if wTransBuffer
+                                      ZZ_BATCH_ID, :
+§fi wTransBuffer
+                                      ZZ_BATCH_MIN,    :
+                                      ZZ_BATCH_MAX     :
+                            importing ZZ_BATCH_STATUS, :
+                                      ZZ_CONT
+<   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+<   Denne prosedyren er ment å gjøre nødvendig initialisering.          >
+<   Hva dette innebærer, vil være prosedyreavhengig.  Dersom            >
+<   man benytter inputfil, vil initialisering typisk bestå i å åpne     >
+<   fila.  Ved henting fra database benyttes typisk IDENTIFY ALL.       >
+<   Kanskje vil også andre inputparametere være med.                    >
+<   Prosedyren kan typisk markere at prosessering ikke skal gå videre   >
+<   med å sette ZZ_CONT til FALSE, normalt bør også returstatus settes. >
+<   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+
+;  ----------------------------------------------------
+;  Ytterste løkke - går til avbrutt eller slutt på data
+;  ----------------------------------------------------
+   while ZZ_CONT
+
+;     ------------------------------
+;     Sjekk om vi får lov til en til
+;     ------------------------------
+      @BATCH_CONT_TEST@
+<  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+<  Denne makroen kaller jobbkontrollen, og sjekker om det er kommet  >
+<  stoppsignal.  I så fall settes status til @BATCH_ESUSP@, og       >
+<  ZZ_CONT blir FALSE.                                               >
+<  Det kan da være en ide å hoppe ut av løkka, så man slipper en tom >
+<  transaksjon i de følgende linjer:                                 >
+<     if not ZZ_CONT                                                 >
+<        terminate from @LABEL_ENDLOOP@                              >
+<     end if                                                         >
+<  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+
+;     -----------------
+;     Start transaksjon
+;     -----------------
+<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+< Denne håndteringen passer best for store jobber, der man typisk          >
+< skal/kan kjøre mange forekomster i 1 transaksjon.  Man kan lett tilpasse >
+< dette til 1 forekomst pr. transaksjon ved å sette ZZ_BATCH_TRANS_MAX til >
+< 1, men tenk over låseproblematikk - dersom det gjøres tunge beregninger, >
+< vil det typisk være lurt å vente lengst mulig med å starte transaksjonen >
+< (for å minimalisere låsetiden).                                          >
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+      @TRANS_BEGIN@
+      if not SYSFLG.TRANSACTION
+         @BATCH_ERR_STAT@ ; Oppdaterer ZZ_BATCH_STATUS
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+<  Denne makroen setter status til @BATCH_ECRIT@ dersom ZZ_BATCH_OK er >
+<  null, ellers @BATCH_ERR@.
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+      end if
+
+;     ------------------------------------------------------------------
+;     Indre løkke - denne går så lenge det finnes data, men stopper også
+;     dersom antall forekomster overstiger max (eller det ikke er noen
+;     grense).
+;     ------------------------------------------------------------------
+      ZZ_BREAK           = False ; Initielt av
+      ZZ_BATCH_TRANS_NO = 0     ; Foreløpig ingen i denne transaksjonen
+      while ZZ_CONT       and                               :
+            not ZZ_BREAK  and                               :
+            ( ( ZZ_BATCH_TRANS_NO < ZZ_BATCH_TRANS_MAX ) or :
+              ( ZZ_BATCH_TRANS_MAX equal to 0          )    )
+
+;        ---------------
+;        Neste forekomst
+;        ---------------
+§if inFile
+         call SJ§System§_§BatchName§_GET_NEXT exporting XX_BATCH_INPUT, :
+                                                XX_BATCH_LOG,   :
+§else
+         call SJ§System§_§BatchName§_GET_NEXT exporting XX_BATCH_LOG    :
+§fi
+                                      importing <datafelter>,   :
+                                                ZZ_BATCH_NO,    :
+                                                ZZ_CONT,        :
+                                                ZZ_BREAK
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+< Her hentes neste forekomst for prosessering.  Ved input fra fil,   >
+< benyttes typisk en READ-setning (da må handle til fila være med),  >
+< ved henting fra database typisk en IDENTIFY NEXT (vi holder på     >
+< databasepekere vha currency set).                                  >
+< Prosedyren bør oppdatere ZZ_BATCH_NO dersom den klarer å hente en  >
+< forekomst, ZZ_CONT/ZZ_BREAK kan settes for å sørge for terminering >
+< av indre og/eller ytre loop.                                       >
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+
+;        -----------------------------------------------------
+;        Hvis feil/slutt på data/før første, gjør vi ingenting
+;        -----------------------------------------------------
+         if not ZZ_BREAK and               :
+            ( ZZ_BATCH_NO >= ZZ_BATCH_MIN )
+
+;           --------------------------------
+;           Tell opp for denne transaksjonen
+;           --------------------------------
+            ZZ_BATCH_TRANS_NO = ZZ_BATCH_TRANS_NO + 1
+
+§if Timer Legge inn timer
+;           --------------------------
+;           Start timer for behandling
+;           --------------------------
+            @TIMER_START@
+
+§else
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+< Hvis du vil ta tiden, kan du f.eks. legge inn                       >
+<    @TIMER_START@                                                    >
+< her. Merk at timere ikke vil gi noe synlig resultat hvis man ikke   >
+< setter debugflagg i konfigfila, så det skader ikke å legge det inn  >
+< i produksjonskode.                                                  >
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+
+§fi
+;           ----------------------
+;           Ta hånd om forekomsten
+;           ----------------------
+            call SJ§System§_§BatchName§_DO_IT exporting XX_BATCH_LOG,    :
+§if inFile
+                                                XX_BATCH_DUMP,   :
+§fi
+                                                ZZ_BATCH_NO,     :
+§if wTransBuffer
+                                                ZZ_BATCH_ID, :
+§fi wTransBuffer
+                                                <datafelter>     :
+                                      importing ZZ_BATCH_OK,     :
+                                                ZZ_BATCH_ERR,    :
+                                                ZZ_BATCH_STATUS, :
+                                                ZZ_CONT,         :
+                                                ZZ_BREAK
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+< Her er prosedyren som faktisk behandler en forekomst.                >
+< Den får medsendt nummeret på nåværende forekomst (ZZ_BATCH_NO), samt >
+< andre data den måtte trenge, f.eks. handle til logg- og dumpfil.     >
+< Den bør oppdatere enten ZZ_BATCH_OK eller ZZ_BATCH_ERR (avh. av      >
+< resultat), og kan også sette ZZ_CONT/ZZ_BREAK for å styre løkkene.   >
+< Feilstatus kan også settes i ZZ_BATCH_STATUS.                        >
+< Dersom den gjør tunge oppdateringer (>2 sekunder per kall),          >
+< bør jobbkontrollsystemet kalles med jevne mellomrom for å sjekke på  >
+<avbrudd med makro                                                     >
+< @BATCH_BREAK_TEST@ (som sjekker på mer seriøse beskjeder enn         >
+< @BATCH_CONT_TEST@).                                                  >
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+§if Timer
+;           -----------------
+;           Skriv tidsforbruk
+;           -----------------
+            @TIMER_STOP@
+            write ZZ_BATCH_NO, '. forekomst' to ZZ_TIMER_CTX
+            @TIMER_PRINT@
+
+§else
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+< Hvis du begynte å ta tiden over, vil du typisk legge inn             >
+<     @TIMER_STOP@                                                     >
+<     write ZZ_BATCH_NO, '. forekomst' to ZZ_TIMER_CTX                 >
+<     @TIMER_PRINT@                                                    >
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+
+§fi
+         end if
+
+;        --------------------------------------------
+;        Sjekk antall i denne transaksjonen og totalt
+;        --------------------------------------------
+         @BATCH_MAX_TEST@
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+< Denne dupliserer noe av testen i indre while-løkke over.             >
+< Det testes på om maks totalt er nådd, i så fall brytes begge løkker, >
+< eller om maks i transaksjon er nådd - i så fall brytes indre.        >
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+      end while  ; indre løkke
+
+;     -------------------------------------
+;     Oppdater restartinfo i TRANS-tabeller
+;     -------------------------------------
+§if wTrans
+      call SJ§System§_§BatchName§_TRANS_UPDATE exporting ZZ_BATCH_TRANS_TRACE, :
+                                              ZZ_BATCH_TRANS_SUM,   :
+                                              <parametere>,    :
+                                              ZZ_BATCH_OK,     :
+                                              ZZ_BATCH_ERR     :
+                                    importing W_OK
+
+      if not W_OK
+         ZZ_CONT = False
+      end if
+
+§fi
+;     ---------------------
+;     Avslutt transaksjonen
+;     ---------------------
+      @TRANS_END@
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+< Her burde det trolig vært håndtering av transaksjonsfeil, og evt. >
+< restarting...                                                     >
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+
+terminate-label @LABEL_ENDLOOP@
+
+;     -------------------------------------
+;     Sjekk om feilfrekvensen er akseptabel
+;     -------------------------------------
+      @BATCH_ERR_TEST@
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+< Her sjekkes det om antall feil (ZZ_BATCH_ERR) kontra antall totalt >
+< (ZZ_BATCH_NO) har nådd et uakseptabelt nivå.  I så fall settes     >
+< ZZ_CONT til FALSE.                                                 >
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+
+   end while ; ytre løkke
+
+;  --------------------
+;  Rydd opp etter løkka
+;  --------------------
+§if inFile
+   call SJ§System§_§BatchName§_CLOSE exporting ZZ_BATCH_INPUT, :
+                                       XX_BATCH_INPUT, :
+                                       <parametere>    :
+§else
+   call SJ§System§_§BatchName§_CLOSE exporting <parametere>    :
+§fi
+§if wTransBuffer
+                                       ZZ_BATCH_ID,   :
+                                       ZZ_BATCH_OUTPUT,   :
+§fi wTransBuffer
+                             importing ZZ_BATCH_STATUS
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+< Her rydder vi etter oss...  Typisk CLOSE FILE eller >
+<  NOTE THAT SELECTION...                             >
+< !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >
+
+§if wTrans
+;  -----------------------------
+;  Rydd opp i TRANS-forekomstene
+;  -----------------------------
+< !!!  NB! Skal ikke gjøres dersom batchen er avbrutt !!! >
+   call SJ§System§_§BatchName§_TRANS_DONE exporting ZZ_BATCH_TRANS_TRACE, :
+                                         ZZ_BATCH_TRANS_SUM,   :
+                                         ZZ_BATCH_TRANS_ERR,   :
+                                         ZZ_BATCH_TRANS_COMM   :
+                               importing W_OK
+
+§fi
+
+terminate-label @LABEL_LEAVE@
+;  -------------------
+;  Korriger evt.status
+;  -------------------
+   call PFF_BATCH_JUSTER_STATUS exporting ZZ_BATCH_ID,         :
+                                          ZZ_BATCH_NO,         :
+                                          ZZ_BATCH_OK,         :
+                                          ZZ_BATCH_ERR         :
+                                importing ZZ_BATCH_STATUS,     :
+                                          ZZ_BATCH_CRIT_BREAK, :
+                                          ZZ_BATCH_STD_BREAK
+
+;  ----------------
+;  Skriv kvittering
+;  ----------------
+   call PFF_BATCH_RECEIPT exporting @BATCH_RECEIPT_PAR@ :
+                          importing W_RETSTAT
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+terminate from @LABEL_EXIT@
+
+terminate-label @LABEL_DB@
+   @ERR_DB@
+
+terminate-label @LABEL_EXIT@
+   < Makroen lukker filene XX_BATCH_{INPUT,LOGG,DUMP,OUTPUT} - lukk evt. >
+   < andre filer her.                                                    >
+   @PEND_PJ@
+
+end procedure  ; PJ§System§_§BatchName§
+
+
+§if inFile
+procedure SJ§System§_§BatchName§_INIT imports Z_FNAME,     :
+                                      Z_FNO,        :
+                                      <parametere>, :
+§else
+procedure SJ§System§_§BatchName§_INIT imports <parametere>, :
+§fi
+§do ParamCount
+                                      §parVar§R§§, :
+§done
+§if wTransBuffer
+                                      Z_BATCH_ID,  :
+§fi wTransBuffer
+                                      Z_MIN,       :
+                                      Z_MAX        :
+                              exports W_RETSTAT,   :
+                                      W_OK         :
+                              employs §CurSet§
+; ==========================================================================
+; PROSEDYRE:    SJ§System§_§BatchName§_INIT
+; TYPE:         Subrutine
+;
+; BESKRIVELSE:
+§if inFile
+;    Åpner inputfil
+§else
+;    Setter opp løkka som skal brukes (currency set)
+§fi
+;
+; GRENSESNITT:
+; Type          Navn                    Bruk
+; -----------   ----------------------  ------------------------------------
+§if inFile
+; IMPORTS       Z_FNAME                 Navn på inputfil
+; IMPORTS       Z_FNO                   Nummer på inputfil
+§fi
+§do ParamCount
+; IMPORTS       §parVar§R§§             §parDesc§R§§
+§done
+§if wTransBuffer
+; IMPORTS       Z_BATCH_ID              ID for denne kjøringen
+§fi wTransBuffer
+; IMPORTS       Z_MIN                   1. forekomst som skal behandles
+; IMPORTS       Z_MAX                   Siste forekomst som skal behandles
+; IMPORTS       <...>                   <...>
+; IMP/EXP       W_RETSTAT               Returstatus - endres kun ved feil,
+;                                       settes da til en BATCH_Exxx-makro
+; EXPORTS       W_OK                    TRUE hvis OK, FALSE hvis feil
+§if inFile
+§else
+; CURR O        §CurSet§                Klargjort for løkke
+§fi
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+   @PBEGIN_S@
+   @UNIVERSAL@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Lokale makroer
+;  --------------
+   @LOCAL@_<makro> = <definisjon>
+
+;  -----------
+;  Universelle
+;  -----------
+   universal <ENTITET|ROLLE> --- helst ikke...
+
+;  ----------------
+;  Globale variable
+;  ----------------
+   declare ZQ_<VAR> <decl> global
+   declare XQ_<VAR> <decl> global
+§if inclOld
+
+;  --------------
+;  Automatmerking
+;  --------------
+   automark <ENTITET|ROLLE>
+
+;  ----------
+;  Referanser
+;  ----------
+   declare <REF> as reference to <ENTITET>
+
+;  ----------
+;  Funksjoner
+;  ----------
+   declare <FUN> as function
+§fi inclOld
+
+;  ----------
+;  Parametere
+;  ----------
+§if inFile
+   declare Z_FNAME @FILENAME@
+   declare Z_FNO   @FILENO@
+§fi
+§if wTransBuffer
+   declare Z_BATCH_ID as BATCH.BATCH_ID
+§fi wTransBuffer
+§do ParamCount
+   declare §parVar§R§§ §parType§R§§
+§done
+   declare Z_MIN   @BATCH_COUNTER@, :
+           Z_MAX   @BATCH_COUNTER@
+   declare Z_<PARAM> {as <DATAELEM>|@MAKRO@}
+
+;  ----------
+;  Konstanter
+;  ----------
+   declare X_<KONST> {as <DATAELEM>|@MAKRO@}
+
+;  --------
+;  Variable
+;  --------
+   declare z<Var> {as <DATAELEM>|@MAKRO@}
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Init
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Feilhåndtering
+;  --------------
+   default error-handling when DB-error terminate from @LABEL_DB@
+
+;  ----------
+;  Konstanter
+;  ----------
+   X_<KONST> = <VERDI - Skal ikke endres senere>
+
+;  --------
+;  Variable
+;  --------
+   z<Var> = <VERDI - husk at lokale variable ikke har noen default verdi>
+   W_OK = False
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+§if inFile
+   open old file      Z_FNAME :
+            with unit Z_FNO   :
+            for  read
+   if IO-error
+      @MSG_INIT@
+         W_MNO = 5004  ; Finner ikke fila
+         read W_MVAR1, W_MVAR2, W_MVAR3, W_MVAR4, W_MVAR5 :
+              from Z_FNAME
+      @MSG_DISPLAY@
+      W_RETSTAT = @BATCH_EINIT@
+§else
+   identify all §hovedEnt§ with   <loop-spec>  :
+§do ParamCount
+                                                §parVar§R§§, :
+§done
+                         that   <rel-spec>   :
+                         select @X_IDENTIFY@ :
+                         sorted by <sort-spec>
+   if db-error
+      @MSG_INIT@
+         W_MNO   = 3113 ; DB-feil, identify
+         W_MVAR1 = '§hovedEnt§'
+      @MSG_DISPLAY@
+      W_RETSTAT = @BATCH_ECRIT@
+§fi
+   else
+      W_OK = True
+   end if
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   terminate from @LABEL_EXIT@
+
+   terminate-label @LABEL_DB@
+   @ERR_DB@
+
+   terminate-label @LABEL_EXIT@
+   @PEND_S@
+
+end procedure  ; SJ§System§_§BatchName§_INIT
+
+
+
+§if inFile
+procedure SJ§System§_§BatchName§_GET_NEXT imports Z_FILENO,    :
+                                          Z_LOG        :
+§else
+procedure SJ§System§_§BatchName§_GET_NEXT imports Z_LOG        :
+§fi
+                                  exports <datafelter> :
+                                          Z_NUM,       :
+                                          Z_CONT,      :
+                                          Z_BREAK      :
+                                  employs §CurSet§
+; ==========================================================================
+; PROSEDYRE:    SJ§System§_§BatchName§_GET_NEXT
+; TYPE:         Subrutine
+;
+; BESKRIVELSE:
+;    Henter neste forekomst
+;
+; GRENSESNITT:
+; Type          Navn                    Bruk
+; -----------   ----------------------  ------------------------------------
+§if inFile
+; IMPORTS       Z_FILENO                Handle til inputfil
+§fi
+; IMPORTS       Z_LOG                   Handle til loggfil
+; EXPORTS       <datafelter>            Felter som skal behandles
+; IMP/EXP       Z_NUM                   Økes med 1 hvis hentet
+; IMP/EXP       Z_CONT                  Settes til FALSE hvis det ikke er
+;                                       flere forekomster
+; IMP/EXP       Z_BREAK                 Settes til TRUE hvis ingen flere
+; CURR I/O      §CurSet§.§hovedEnt§       Pekte på forrige, peker på neste,
+;                                       om noen
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+   @PBEGIN_S@
+   @UNIVERSAL@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Lokale makroer
+;  --------------
+   @LOCAL@_<makro> = <definisjon>
+   @LOCAL@_exit    = 2000
+
+;  -----------
+;  Universelle
+;  -----------
+   universal <ENTITET|ROLLE> --- helst ikke...
+
+;  ----------------
+;  Globale variable
+;  ----------------
+   declare ZQ_<VAR> <decl> global
+   declare XQ_<VAR> <decl> global
+§if inclOld
+
+;  --------------
+;  Automatmerking
+;  --------------
+   automark <ENTITET|ROLLE>
+
+;  ----------
+;  Referanser
+;  ----------
+   declare <REF> as reference to <ENTITET>
+
+;  ----------
+;  Funksjoner
+;  ----------
+   declare <FUN> as function
+§fi inclOld
+
+;  ----------
+;  Parametere
+;  ----------
+§if inFile
+   declare Z_FILENO @FILENO@
+§fi
+   declare Z_LOG    @FILENO@
+   declare Z_NUM    @BATCH_COUNTER@
+   declare Z_CONT   boolean
+   declare Z_BREAK  boolean
+   declare Z_<PARAM> {as <DATAELEM>|@MAKRO@}
+
+;  ----------
+;  Konstanter
+;  ----------
+   declare X_<KONST> {as <DATAELEM>|@MAKRO@}
+
+;  --------
+;  Variable
+;  --------
+   declare z<Var> {as <DATAELEM>|@MAKRO@}
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Init
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Feilhåndtering
+;  --------------
+   default error-handling when DB-error terminate from @LABEL_DB@
+
+;  ----------
+;  Konstanter
+;  ----------
+   X_<KONST> = <VERDI - Skal ikke endres>
+
+;  --------
+;  Variable
+;  --------
+   z<Var> = <VERDI - husk at lokale variable ikke har noen default verdi>
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+§if inFile
+   read ZTYPE, ZBUFFER from Z_FILENO :
+        at end terminate from @X_EXIT@
+§else
+   identify next §hovedEnt§ :
+                 and get @X_IDENTIFY@
+   if DB-error
+      @MSG_INIT@
+         W_MNO   = 3000  ; Generell databasefeil
+         W_MVAR1 = '§hovedEnt§'
+      @MSG_DISPLAY@
+      terminate from @X_EXIT@
+   or if not identified
+      terminate from @X_EXIT@
+   end if
+§fi
+
+;  -----------------------
+;  OK - tell opp & avslutt
+;  -----------------------
+   Z_NUM = Z_NUM + 1
+   terminate from @LABEL_EXIT@
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+   terminate from @LABEL_EXIT@
+
+   terminate-label @LABEL_DB@
+   @ERR_DB@
+
+;  ----------
+;  Feilutgang
+;  ----------
+   terminate-label @X_EXIT@
+   Z_CONT  = False
+   Z_BREAK = True
+
+   terminate-label @LABEL_EXIT@
+   @PEND_S@
+
+end procedure  ; SJ§System§_§BatchName§_GET_NEXT
+
+
+procedure SJ§System§_§BatchName§_DO_IT imports Z_LOG,       :
+§if inFile
+                                       Z_DUMP,      :
+§fi
+                                       Z_NUM,       :
+§if wTransBuffer
+                                       Z_BATCH_ID,  :
+§fi wTransBuffer
+                                       <datafelter> :
+                               exports Z_NUM_OK,    :
+                                       Z_NUM_ERR,   :
+                                       W_RETSTAT,   :
+                                       Z_CONT,      :
+                                       Z_BREAK      :
+                               employs §CurSet§
+; ==========================================================================
+; PROSEDYRE:    SJ§System§_§BatchName§_DO_IT
+; TYPE:         Subrutine
+;
+; BESKRIVELSE:
+;    Behandle 1 forekomst
+;
+; GRENSESNITT:
+; Type          Navn                    Bruk
+; -----------   ----------------------  ------------------------------------
+; IMPORTS       Z_LOG                   Handle til loggfil
+§if inFile
+; IMPORTS       Z_DUMP                  Handle til dumpfil
+§fi
+; IMPORTS       Z_NUM                   Nr. i rekken for denne forekomsten
+§if wTransBuffer
+; IMPORTS       Z_BATCH_ID              ID for denne kjøringen
+§fi wTransBuffer
+; IMPORTS       <datafelter>            <...>
+; IMP/EXP       Z_NUM_OK                Økes med 1 hvis OK
+; IMP/EXP       Z_NUM_ERR               Økes med 1 hvis feil
+; IMP/EXP       W_RETSTAT               Oppdateres evt. med ny status
+; IMP/EXP       Z_CONT                  Settes til FALSE hvis behandling skal
+;                                       avsluttes
+; IMP/EXP       Z_BREAK                 Settes til TRUE hvis denne trans. skal
+;                                       avsluttes
+; CURR I        §CurSet§.§hovedEnt§       Gjeldende forekomst
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+   @PBEGIN_S@
+   @UNIVERSAL@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Lokale makroer
+;  --------------
+   @LOCAL@_<makro> = <definisjon>
+
+;  -----------
+;  Universelle
+;  -----------
+   universal <ENTITET|ROLLE> --- helst ikke...
+
+;  ----------------
+;  Globale variable
+;  ----------------
+   declare ZQ_<VAR> <decl> global
+   declare XQ_<VAR> <decl> global
+§if inclOld
+
+;  --------------
+;  Automatmerking
+;  --------------
+   automark <ENTITET|ROLLE>
+
+;  ----------
+;  Referanser
+;  ----------
+   declare <REF> as reference to <ENTITET>
+
+;  ----------
+;  Funksjoner
+;  ----------
+   declare <FUN> as function
+§fi inclOld
+
+;  ----------
+;  Parametere
+;  ----------
+§if wTransBuffer
+   declare Z_BATCH_ID as BATCH.BATCH_ID
+§fi wTransBuffer
+   declare Z_NUM_OK   @BATCH_COUNTER@
+   declare Z_NUM_ERR  @BATCH_COUNTER@
+   declare Z_NUM      @BATCH_COUNTER@
+   declare Z_CONT     boolean
+   declare Z_BREAK    boolean
+   declare Z_LOG      @FILENO@
+   declare Z_DUMP     @FILENO@
+   declare Z_<PARAM> {as <DATAELEM>|@MAKRO@}
+
+;  ----------
+;  Konstanter
+;  ----------
+   declare X_<KONST> {as <DATAELEM>|@MAKRO@}
+
+;  --------
+;  Variable
+;  --------
+   declare z<Var> {as <DATAELEM>|@MAKRO@}
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Init
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Feilhåndtering
+;  --------------
+   default error-handling when DB-error terminate from @LABEL_DB@
+
+;  ----------
+;  Konstanter
+;  ----------
+   X_<KONST> = <VERDI - Skal ikke endres>
+
+;  --------
+;  Variable
+;  --------
+   z<Var> = <VERDI - husk at lokale variable ikke har noen default verdi>
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+< -------------------------- eksempel ------------------------------------->
+< (her brukes 2 variable ZTYPE og ZBUFFER - de er altså bare eksempler!)   >
+      if ZTYPE equal to 'N'
+;        ------------
+;        Ny forekomst
+;        ------------
+         read §hovedEnt§.§hovedEnt§_ID, §hovedEnt§.§hovedEnt§_NAVN, §hovedEnt§.LUKT_FAKTOR :
+              from ZBUFFER
+         store §hovedEnt§ with §hovedEnt§_ID, §hovedEnt§_NAVN, LUKT_FAKTOR
+         if not stored
+;           -----------------
+;           Feil - må meldes!
+;           -----------------
+            Z_NUM_ERR = Z_NUM_ERR + 1
+            @MSG_INIT@                   ; Klargjør for feilmelding
+            W_MVAR1 = '§hovedEnt§'
+            write §hovedEnt§.§hovedEnt§_ID to W_MVAR2
+
+            find §hovedEnt§ with §hovedEnt§.§hovedEnt§_ID  ; Finnes den kanskje allerede?
+            if not found
+               W_MNO    = 3010           ; Generell lagrefeil
+            else
+               W_MNO    = 3011           ; Kan ikke lagre duplikat
+            end if
+
+;           -------------------------------------
+;           Oppdater loggfil, dumpfil og tracefil
+;           -------------------------------------
+            @MSG_DISPLAY@                ; Vis melding
+            write ZTYPE, ZBUFFER to Z_DUMP
+
+         else    ; stored
+            Z_NUM_OK = Z_NUM_OK + 1
+         end if  ; if not stored
+
+      or if ZTYPE equal to 'E'
+;        -----------
+;        Oppdatering
+;        -----------
+
+         ...
+      end if  ; if ZTYPE=...
+< ------------------------------------------------------------------------->
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   terminate from @LABEL_EXIT@
+
+   terminate-label @LABEL_DB@
+   @ERR_DB@
+
+   terminate-label @LABEL_EXIT@
+   @PEND_S@
+
+end procedure  ; SJ§System§_§BatchName§_DO_IT
+
+
+
+§if inFile
+procedure SJ§System§_§BatchName§_CLOSE imports Z_FNAME,      :
+                                       Z_FNO         :
+                                       <parametere>  :
+§else
+procedure SJ§System§_§BatchName§_CLOSE imports <parametere>  :
+§fi
+§if wTransBuffer
+                                       Z_BATCH_ID,       :
+                                       Z_BATCH_OUTPUT,   :
+§fi wTransBuffer
+                               exports W_RETSTAT     :
+                               employs §CurSet§
+; ==========================================================================
+; PROSEDYRE:    SJ§System§_§BatchName§_INIT
+; TYPE:         Subrutine
+;
+; BESKRIVELSE:
+;    Avslutter løkka
+;
+; GRENSESNITT:
+; Type          Navn                    Bruk
+; -----------   ----------------------  ------------------------------------
+§if inFile
+; IMPORTS       Z_FNAME                 Navn på inputfil
+; IMPORTS       Z_FNO                   Nummer på inputfil
+§fi
+§if wTransBuffer
+; IMPORTS       Z_BATCH_ID              ID for denne kjøringen
+§fi wTransBuffer
+; IMP/EXP       W_RETSTAT               Returstatus - endres kun ved feil,
+;                                       settes da til en BATCH_Exxx-makro
+; CURR O        §CurSet§                Udefinert
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+   @PBEGIN_S@
+   @UNIVERSAL@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Lokale makroer
+;  --------------
+   @LOCAL@_<makro> = <definisjon>
+
+;  -----------
+;  Universelle
+;  -----------
+   universal <ENTITET|ROLLE> --- helst ikke...
+
+;  ----------------
+;  Globale variable
+;  ----------------
+   declare ZQ_<VAR> <decl> global
+   declare XQ_<VAR> <decl> global
+§if inclOld
+
+;  --------------
+;  Automatmerking
+;  --------------
+   automark <ENTITET|ROLLE>
+
+;  ----------
+;  Referanser
+;  ----------
+   declare <REF> as reference to <ENTITET>
+
+;  ----------
+;  Funksjoner
+;  ----------
+   declare <FUN> as function
+§fi inclOld
+
+;  ----------
+;  Parametere
+;  ----------
+§if inFile
+   declare Z_FNAME @FILENAME@
+   declare Z_FNO   @FILENO@
+   declare Z_<PARAM> {as <DATAELEM>|@MAKRO@}
+§fi
+§if wTransBuffer
+   declare Z_BATCH_ID     as BATCH.BATCH_ID
+   declare Z_BATCH_OUTPUT @FILENAME@
+   declare Z_NUM_OK       @LONG@
+   declare zAnt           @LONG@
+   declare zErr           @LONG@
+   declare zBuffer        A@X_BUFFER_LEN@
+   declare zRetStat       as W_RETSTAT
+§fi wTransBuffer
+
+;  ----------
+;  Konstanter
+;  ----------
+   declare X_<KONST> {as <DATAELEM>|@MAKRO@}
+§if wTransBuffer
+   declare xAppend    boolean ; Append til fil?
+   xAppend = False ; Skal overskrive
+§fi
+
+;  --------
+;  Variable
+;  --------
+   declare z<Var> {as <DATAELEM>|@MAKRO@}
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Init
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Feilhåndtering
+;  --------------
+   default error-handling when db-error terminate from @LABEL_DB@
+
+;  ----------
+;  Konstanter
+;  ----------
+   X_<KONST> = <VERDI - Skal ikke endres senere>
+
+;  --------
+;  Variable
+;  --------
+   z<Var> = <VERDI - husk at lokale variable ikke har noen default verdi>
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+§if inFile
+   close file with unit Z_FNO
+   if IO-error
+      @MSG_INIT@
+         W_MNO = 5009  ; Kan ikke lukke fil
+         read W_MVAR1, W_MVAR2, W_MVAR3, W_MVAR4, W_MVAR5 :
+              from Z_FNAME
+      @MSG_DISPLAY@
+   end if
+§fi
+
+§if wTransBuffer
+
+< Det er mange variasjoner over temaet transbuffer - se gf_temptran for utvalg
+  - men her en skisse av den enkleste løsningen >
+
+;  ---------------------------------------
+;  Skal ikke dumpe hvis batchen er avbrutt
+;  ---------------------------------------
+   if W_RETSTAT equal to @BATCH_ESUSP@
+      terminate from @LABEL_EXIT@
+   end if
+
+;  -----------------
+;  Er det laget noe?
+;  -----------------
+   call PGF_TEMPTRANS_ANTALL exporting Z_BATCH_ID :
+                             importing zAnt
+   < zAnt = zAnt - 1 ; Ikke tell med startrecord ??? >
+   if zAnt < 1
+      terminate from @LABEL_EXIT@ ; Ingenting å gjøre!
+   end if
+
+;  ----------------
+;  Lag SLUTT-record
+;  ----------------
+   < zAnt = zAnt + 2 ; Datarecords + start + slutt ???>
+   write '@X_SLUTTREC@', zAnt in "ZZZZZZZ9" to zBuffer
+
+   call PGF_TEMPTRANS_LAGRE exporting Z_BATCH_ID, :
+                                      zBuffer    :
+                            importing zRetStat
+   if zRetStat < @STAT_OK@
+      @MSG_INIT@
+         W_MVAR1 = 'temp.trans.'
+         if zRetStat equal to -3  ; Kunne ikke generere linjenummer
+            W_MNO = 3017          ;  Tabellen er full
+         else
+            W_MNO = 3010          ; Feil ved lagring
+         end if
+      @MSG_DISPLAY@
+      W_RETSTAT = @BATCH_ECRIT@
+      terminate from @LABEL_EXIT@
+   end if
+
+;  --------------------------
+;  Skriv hele gjengen til fil
+;  --------------------------
+   call PGF_TEMPTRANS_FIL_DUMP_FORT exporting Z_BATCH_ID,     :
+                                              Z_BATCH_OUTPUT, :
+                                              xAppend         :
+                                    importing zAnt,           :
+                                              zErr,           :
+                                              zRetStat
+   if zRetStat < @STAT_OK@
+      W_RETSTAT = @BATCH_ERR@
+      @MSG_INIT@
+      if zRetStat equal to @STAT_DBERR@
+         W_MNO = 10026 ; DB-feil ved dumping
+      else
+         W_MNO = 10027 ; IO-feil ved dumping
+      end if
+      @MSG_DISPLAY@
+      terminate from @LABEL_EXIT@
+   end if
+
+;  ------------------
+;  Slett TRANS_BUFFER
+;  ------------------
+   call PGF_TEMPTRANS_SLETT_ALLE exporting Z_BATCH_ID :
+                                 importing zRetStat
+   if zRetStat < @STAT_OK@
+      W_RETSTAT = @BATCH_ERR@
+      @MSG_INIT@
+      W_MNO = 10029 ; DB-feil ved sletting
+      @MSG_DISPLAY@
+      terminate from @LABEL_EXIT@
+   end if
+§fi wTransBuffer
+
+   note that selection for §hovedEnt§ is undefined
+   note that §hovedEnt§               is undefined
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   terminate from @LABEL_EXIT@
+
+   terminate-label @LABEL_DB@
+   @ERR_DB@
+
+   terminate-label @LABEL_EXIT@
+   @PEND_S@
+
+end procedure  ; SJ§System§_§BatchName§_CLOSE
+§if wTrans Legge inn TRANS-rutiner
+
+
+procedure SJ§System§_§BatchName§_TRANS_INIT imports z_ID             :
+                               exports z_TransId_Trace, :
+                                       z_TransId_Sum,   :
+                                       z_TransId_Error, :
+                                       z_TransId_Comm,  :
+                                       <parametere>     :
+                                       z_IsRestart,     :
+                                       z_OK_Count,      :
+                                       z_Error_Count,   :
+                                       W_OK
+; ==========================================================================
+; PROSEDYRE:    SJ§System§_§BatchName§_TRANS_INIT
+; TYPE:         Subrutine
+;
+; BESKRIVELSE:
+;    Init. av TRANS-tabeller for batchjobben.
+;
+; GRENSESNITT:
+; Type          Navn                    Bruk
+; -----------   ----------------------  ------------------------------------
+; IMPORTS       z_ID                    Identifiserer batchen entydig
+; EXPORTS       z_TransId_Trace         ID for TRANS type trace
+; EXPORTS       z_TransId_Sum           ID for TRANS type sum
+; EXPORTS       z_TransId_Error         ID for TRANS type feil
+; EXPORTS       z_TransId_Comm          ID for TRANS type kommunikasjon
+; EXPORTS       z_IsRestart             TRUE hvis batchjobben er restartet,
+; EXPORTS                                  ellers FALSE
+; EXPORTS       z_OK_Count  &
+;               z_Error_Count           Antall transaksjoner hhv OK og feil
+;                                          (dersom jobben er restartet)
+; EXPORTS       W_OK                    TRUE hvis alt er OK, ellers FALSE
+;                                          (=> avbryt)
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+   @PBEGIN_S@
+   @UNIVERSAL@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  ----------
+;  Parametere
+;  ----------
+   declare z_ID              @BATCH_ID@
+   declare z_TransId_Trace   as TRANS.TRANS_ID
+   declare z_TransId_Sum     as TRANS.TRANS_ID
+   declare z_TransId_Error   as TRANS.TRANS_ID
+   declare z_TransId_Comm    as TRANS.TRANS_ID
+   declare z_IsRestart       boolean
+   declare z_OK_Count        @BATCH_COUNTER@
+   declare z_Error_Count     @BATCH_COUNTER@
+   <flere parametere>
+
+;  ----------
+;  Konstanter
+;  ----------
+   declare xDelAkt           as TRANS.DEL_AKT
+   declare xHovedAkt         as TRANS.HOVED_AKT
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Init
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  ----------
+;  Konstanter
+;  ----------
+   xHovedAkt = <spesifikk KO-makro eller @KO_TOM@>
+   xDelAkt   = <spesifikk KO-makro eller @KO_TOM@>
+
+;  ----------
+;  Parametere
+;  ----------
+   z_TransId_Trace         = LAVESTE.TRANS_ID
+   z_TransId_Sum           = LAVESTE.TRANS_ID
+   z_TransId_Error         = LAVESTE.TRANS_ID
+   z_TransId_Comm          = LAVESTE.TRANS_ID
+   TRANS_LINJE.DATA_LINJE  = ''
+   z_OK_Count,             = 0
+   z_Error_Count,          = 0
+   z_Is_Restart            = False
+   W_OK                    = True
+
+   <nullstill også dine egne parametere>
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  -------------------------------------------------------------
+;  Hent IDer for TRANS-forekomster (opprett hvis de ikke finnes)
+;  -------------------------------------------------------------
+   call PGF_TRANS_RESTART_INIT exporting z_ID,                   :
+                                         xHovedAkt,              :
+                                         xDelAkt                 :
+                               importing z_TransId_Trace,        :
+                                         z_TransId_Sum,          :
+                                         z_TransId_Error,        :
+                                         z_TransId_Comm,         :
+                                         TRANS_LINJE.DATA_LINJE, :
+                                         z_OK_Count,             :
+                                         z_Error_Count,          :
+                                         W_RETSTAT
+
+   if W_RETSTAT < @STAT_OK@
+      @MSG_INIT@
+         W_MNO   = 3122  ; Feil ved opprettelse/henting
+         write W_RETSTAT to W_MVAR1
+         string-function FrontStrip W_MVAR1
+      @MSG_DISPLAY@
+      W_OK = False
+      terminate from @LABEL_EXIT@
+   end if
+
+;  --------------------------------
+;  Les eventuelle restart-parametre
+;  --------------------------------
+   if TRANS_LINJE.DATA_LINJE is defined
+      read <dine parametere> :
+           from TRANS_LINJE.DATA_LINJE
+      if IO-error
+         @MSG_INIT@
+            W_MNO   = 10027  ; IO-feil ved behandling av restart
+         @MSG_DISPLAY@
+         W_OK = False
+         terminate from @LABEL_EXIT@
+      end if
+      z_IsRestart = True
+   end if
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+   terminate-label @LABEL_EXIT@
+   @PEND_S@
+
+end procedure  ; SJ§System§_§BatchName§_TRANS_INIT
+
+
+
+procedure SJ§System§_§BatchName§_TRANS_UPDATE imports z_TransId_Trace, :
+                                           z_TransId_Sum,   :
+                                           <parametere>     :
+                                           z_OK_Count,      :
+                                           z_Error_Count    :
+                                   exports W_OK
+; ==========================================================================
+; PROSEDYRE:    SJ§System§_§BatchName§_TRANS_UPDATE
+; TYPE:         Subrutine
+;
+; BESKRIVELSE:
+;    Oppdaterer TRANS-tabeller underveis
+;
+; GRENSESNITT:
+; Type          Navn                    Bruk
+; -----------   ----------------------  ------------------------------------
+; IMPORTS       z_TransId_Trace         ID for TRANS type trace
+; IMPORTS       z_TransId_Sum           ID for TRANS type sum
+; IMPORTS       <parametere...>
+; IMPORTS       z_OK_Count              Antall transaksjoner OK så langt
+; IMPORTS       z_Error_Count           Antall transaksjoner feil så langt
+; EXPORTS       W_OK                    FALSE hvis noe går galt, ellers
+;                                       TRUE
+;
+; ==========================================================================
+
+   @PBEGIN_S@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  ----------
+;  Parametere
+;  ----------
+   declare z_TransId_Trace   as TRANS.TRANS_ID
+   declare z_TransId_Sum     as TRANS.TRANS_ID
+   declare z_OK_Count        @BATCH_COUNTER@
+   declare z_Error_Count     @BATCH_COUNTER@
+   <flere parametere>
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  ---------------------------------------------------------
+;  Ta vare på data som må lagres for å kunne restarte jobben
+;  ---------------------------------------------------------
+   write <parametere> :
+         to TRANS_LINJE.DATA_LINJE
+
+;  -------------------
+;  Oppdater TRACE-info
+;  -------------------
+   call PGF_TRANS_RESTART_INFO_OPPDATER exporting z_TransId_Trace,        :
+                                                  z_TransId_Sum,          :
+                                                  TRANS_LINJE.DATA_LINJE, :
+                                                  z_OK_Count,             :
+                                                  z_Error_Count           :
+                                        importing W_RETSTAT
+
+   if W_RETSTAT < @STAT_OK@
+      @MSG_INIT@
+         W_MNO = 3030 ; Feil under oppdatering
+         W_MVAR1 = 'TRANS'
+         write z_TransId_Trace, ' / ', z_TransId_Sum to W_MVAR2
+      @MSG_DISPLAY@
+      W_OK = False
+   end if
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+   terminate-label @LABEL_EXIT@
+   @PEND_S@
+
+end procedure  ; SJ§System§_§BatchName§_TRANS_UPDATE
+
+
+
+procedure SJ§System§_§BatchName§_TRANS_DONE imports z_TransId_Trace, :
+                                         z_TransId_Sum,   :
+                                         z_TransId_Error, :
+                                         z_TransId_Comm   :
+                                 exports W_OK
+; ==========================================================================
+; PROSEDYRE:    SJ§System§_§BatchName§_TRANS_DONE
+; TYPE:         Subrutine
+;
+; BESKRIVELSE:
+;    Oppdaterer TRANS-tabeller når batchjobben avslutter normalt.
+;
+; GRENSESNITT:
+; Type          Navn                    Bruk
+; -----------   ----------------------  ------------------------------------
+; IMPORTS       z_TransId_Trace         ID for TRANS type trace
+; IMPORTS       z_TransId_Sum           ID for TRANS type sum
+; IMPORTS       z_TransId_Error         ID for TRANS type feil
+; IMPORTS       z_TransId_Comm          Id for TRANS type kommunikasjon
+; EXPORTS       W_OK                    Settes FALSE ved feil, ellers TRUE
+;
+; ==========================================================================
+
+   @PBEGIN_S@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  ----------
+;  Parametere
+;  ----------
+   declare z_TransId_Trace   as TRANS.TRANS_ID
+   declare z_TransId_Sum     as TRANS.TRANS_ID
+   declare z_TransId_Error   as TRANS.TRANS_ID
+   declare z_TransId_Comm    as TRANS.TRANS_ID
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+   call PGF_TRANS_FERDIG exporting z_TransId_Trace, :
+                                   z_TransId_Sum,   :
+                                   z_TransId_Error,  :
+                                   z_TransId_Comm   :
+                         importing W_RETSTAT
+
+   if W_RETSTAT < @STAT_OK@
+      @MSG_INIT@
+         W_MNO = 3030 ; Feil under oppdatering
+         W_MVAR1 = 'TRANS'
+      @MSG_DISPLAY@
+      W_OK = False
+   else
+      W_OK = True
+   end if
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+   terminate-label @LABEL_EXIT@
+   @PEND_S@
+
+end procedure  ; SJ§System§_§BatchName§_TRANS_DONE
+§fi
+§do SubCount Antall subrutiner
+§asku sSuff§R§ Suffiks for subrutine §R§
+
+
+procedure SJ§System§_§BatchName§_§sSuff§R§§ #sParam# :
+                              employs §CurSet§
+; ==========================================================================
+; PROSEDYRE:    SJ§System§_§BatchName§_§sSuff§R§§
+; TYPE:         Subrutine
+;
+; BESKRIVELSE:
+§ask sDesc§R§ Beskrivelse av subrutine §R§
+;    §sDesc§R§§
+;
+; GRENSESNITT:
+; Type          Navn                    Bruk
+; -----------   ----------------------  ------------------------------------
+; IMPORTS	#sParam#...
+; EXPORTS
+; IMP/EXP
+; RETURNS
+; EMPLOYS       §CurSet§
+; UNIV I
+; UNIV O
+; UNIV I/O
+; CURR I
+; CURR O
+; CURR I/O
+; GLOB I
+; GLOB O
+; GLOB I/O
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+   @PBEGIN_S@
+   @UNIVERSAL@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Lokale makroer
+;  --------------
+   @LOCAL@_<makro> = <definisjon>
+
+;  -----------
+;  Universelle
+;  -----------
+   universal <ENTITET|ROLLE> --- helst ikke...
+
+;  ----------------
+;  Globale variable
+;  ----------------
+   declare ZQ_<VAR> <decl> global
+   declare XQ_<VAR> <decl> global
+§if inclOld
+
+;  --------------
+;  Automatmerking
+;  --------------
+   automark <ENTITET|ROLLE>
+
+;  ----------
+;  Referanser
+;  ----------
+   declare <REF> as reference to <ENTITET>
+
+;  ----------
+;  Funksjoner
+;  ----------
+   declare <FUN> as function
+§fi inclOld
+
+;  ----------
+;  Parametere
+;  ----------
+   declare Z_<PARAM> {as <DATAELEM>|@MAKRO@}
+
+;  ----------
+;  Konstanter
+;  ----------
+   declare X_<KONST> {as <DATAELEM>|@MAKRO@}
+
+;  --------
+;  Variable
+;  --------
+   declare z<Var> {as <DATAELEM>|@MAKRO@}
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Init
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Feilhåndtering
+;  --------------
+   default error-handling when db-error terminate from @LABEL_DB@
+
+;  ----------
+;  Konstanter
+;  ----------
+   X_<KONST> = <VERDI - Skal ikke endres>
+
+;  --------
+;  Variable
+;  --------
+   z<Var> = <VERDI - husk at lokale variable ikke har noen default verdi>
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   terminate from @LABEL_EXIT@
+
+   terminate-label @LABEL_DB@
+   @ERR_DB@
+
+   terminate-label @LABEL_EXIT@
+   @PEND_S@
+
+end procedure  ; SJ§System§_§BatchName§_§sSuff§R§§
+§done SubCount

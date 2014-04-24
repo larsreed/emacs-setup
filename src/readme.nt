@@ -1,0 +1,97 @@
+This is a basic port of the gnuserv suite, originally by
+Andy Norman et al. The NT/Win95 implementation uses mailslots,
+and under NT relies on NT's built-in security for access control.
+
+Because shells on NT vary widely as to how they interpret 
+special characters like quotes and parentheses, I have
+added a debug flag (-d) to gnudoit and gnuclient. Use this
+to display the lisp code that is sent to the gnuserv process.
+
+Basic installation:
+
+* Put the gnuserv.el program on your load-path and byte compile 
+it. Add the following lines to your emacs intialization file
+(_emacs on NT):
+
+  (require 'gnuserv)
+  (gnuserv-start)
+
+* Make sure the gnuserv program is somewhere that emacs can find it.
+(eg, on your PATH or in the emacs bin directory). Make sure the gnudoit 
+and gnuclient programs are accessible from your shell.
+
+Besides using gnuclient and gnudoit from the command-line, you can
+also use gnuclient for some File Associations. It beats the heck out
+of Notepad :)
+
+
+16-Sep-96
+---------
+
+gnuclient.c is now compiled as console program (gnuclient.exe, same
+name as before) and as windows program (gnuclientw.exe).
+
+The windows version will force the -q (quick) flag on and is ideal to
+be used with the Explorer's file-type association.  It will not open a
+console window like gnuclient.exe.
+
+It is also possible to drag files on the gnuclientw.exe program, or a
+shortcut to the program (placed on your desktop e.g.), to
+"drag-n-drop" a file into Emacs.
+
+Also, gnuclient and gnudoit will now try to start Emacs if they cannot
+connect to gnuserv's mailslot.  They do this by launching 'runemacs.exe'
+and then waiting for up to 30 seconds for the gnuserv mailslot to
+appear.  Make sure the emacs-19.xx\bin directory is in your path for
+this to work.
+
+
+7-Oct-96
+--------
+
+gnuclientw.exe and gnuclient.exe will now explicitly look up the long
+filename of the file they are passed as an argument (Windows does not
+seem to pass long filenames to shortcuts).
+
+
+11-Oct-96
+---------
+
+Fixed small bug in new long filename code.  gnuclient was no longer
+accepting filenames of files that don't exist.
+
+
+13-Jan-97
+---------
+
+Incorporated small fix suggested by William Sobel.  gnuclient(w) will
+now make sure the path uses a lowercase drive letter before sending it
+to Emacs.  Emacs will then no longer consider files opened manually to
+be different than when they are opened with gnuclient(w).  Needs a
+better fix in gnuserv.el or perhaps even Emacs itself, but this "hack"
+helps to make this less of a problem :)
+
+
+27-Feb-97
+---------
+
+Fixed small bug in gnuserv that could send it into a 100% CPU time
+consuming loop.  This very rarely happened (when the Emacs process was
+killed e.g.), but now gnuserv will put up a message box informing the
+user of the abnormal error and will then quit.
+
+Added two new options to gnuclient and gnuclientw (-f and -F).  The -f
+option will pop the Emacs window to the front, as long as Emacs was
+not iconified.  The -F option will _always_ pop the Emacs window to
+the front, uniconifying it if needed.
+
+Major code cleanup (especially in gnuclient/gnudoit).  Note that most
+source files are .cpp files now.  Starting gnuclient(w) or gnudoit
+without argument no longer causes problems (the program fails and
+usage will be printed to the console).
+
+Added version strings to all .EXE files to help people better identify
+what version of these tools they are running.  gnuclient/gnudoit will
+print the version information as part of the usage output.
+
+Nico.

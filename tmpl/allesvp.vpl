@@ -1,0 +1,42 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§ask SCCSid SCCS-ID
+§ask FileID Fil/versjonskode
+§asku Ent Entitetsklasse
+*V ; ==========================================================================
+*V ; PROSJEKT:    TVIST2000
+;    FIL:         §FileID§
+*V ; MAL:         allesvp.vpl 27.5
+*V ;
+*V ; BESKRIVELSE:
+*V ;    Alle felter i §Ent§
+*V ;
+*V ; HISTORIKK:
+*V ; YYMMDD  Sign.  Endring
+*V ; ------  -----  -----------------------------------------------------------
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+*V ; §Date§  §User§   Opprettet
+*V ;
+*V ; AVVIK FRA STANDARD:
+*V ;
+*V ; MULIGE UTVIDELSER:
+*V ;
+*V ; DIVERSE:
+*V ;
+*V ; ==========================================================================
+§definel lEnt §Ent§
+*V MACRO alle_§lEnt§ = ':
+§do AntFelt Antall felter ekskl. fremmednøkler
+§asku fNavn§R§ Felt #§R§
+     §Ent§.§fNavn§R§§,       :
+§done
+§asku TBF TBF for entitet §Ent§
+§do AntFK Antall fremmednøkler
+§asku tbf§R§ TBF #§R§
+§asku fkNavn§R§ Eiers nøkkel #§R§
+     §Ent§.§tbf§R§§_§TBF§.§fkNavn§R§§, :
+§done
+§backspace 3 '
+; --------------------------------------
+; Slutt: §FileID§
+; --------------------------------------

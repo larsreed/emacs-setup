@@ -1,0 +1,71 @@
+§rem -*-sysdul-*-
+§rem Malversjon: @@(#)TVIST tombatch.vpl 29.3 04/07/06>
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§ask SCCSid SCCS-ID
+§ask FileID Fil/versjonskode
+§ask PMnr PM-nr til historikken
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+§asku SysLtr Systembokstav
+§asku BatchName Batchnavn UTEN PJx-prefiks
+§default BatchNameL §BatchName§
+§askl BatchNameL Ditto med små bokstaver
+§default CurSet CUR_§BatchName§
+§asku CurSet Currencysett
+
+j-pros ----8<------------8<------------8<------------8<------------8<--------
+
+; §SCCSid§
+; §Date§  §User§   Opprettet dummy (PM§PMnr§)
+@BATCH_DEFS@
+procedure PJ§SysLtr§_§BatchName§ @BATCH_PARAM@ employs §CurSet§
+   @PBEGIN_PJ@
+   terminate-label 990
+end procedure
+
+m-pros ----8<------------8<------------8<------------8<------------8<--------
+
+; =========================================================================
+; PROSJEKT:    TVIST
+; FIL:         §FileID§
+; APPLIKASJON: M§BatchName§
+; MAL:         m2.vpl 3.3
+;
+; BESKRIVELSE:
+;    ????
+;
+; KALLBARE RUTINER:
+;
+; HISTORIKK:
+; YYMMDD  Sign.  Endring
+; ------  -----  ----------------------------------------------------------
+; §Date§  §User§   Opprettet (PM§PMnr§)
+;
+; AVVIK FRA STANDARD:
+;
+; MULIGE UTVIDELSER:
+;
+; DIVERSE:
+;
+; =========================================================================
+
+
+@LOCAL@_program = M_§BatchName§
+@LOCAL@_short   = §BatchNameL§
+@LOCAL@_batch   = PJ§SysLtr§_§BatchName§
+@LOCAL@_ver_id  = '@@§SCCSid§'
+
+@FI@ @SVPDIR@batch_main@SUFF_SVP@
+
+Makefile ----8<------------8<------------8<------------8<------------8<--------
+
+# -*-makefile-*-
+# FIL:         §SCCSid§
+# §Date§  §User§  Opprettet
+include $(MAKE_HOME)/Makerules
+§ask Cfg Konfigurasjon (ekskl. CFG_)
+include $(CFG_§Cfg§)
+
+PRG=§BatchNameL§
+
+include $(MAKE_HOME)/make.app

@@ -1,0 +1,268 @@
+/* @@(#)TVIST TadOL_proc.vcf 29.2 04/07/06> */
+
+/* Her defineres alle verdiene som skal ekspanderes inn i koden som grape
+   genererer ut i fra malene. */
+
+
+§if GotoList Skal vinduet kunne brukes til å starte et hovedvindu
+§ASK GotoVedl Hva er Systematornavnet på hovedvinduet som kalles fra dette listevinduet
+§ASK GotoVedlSE Hva er SE-navnet på hovedvinduet som kalles fra dette listevinduet
+§else
+§define GotoVedl N/A
+§define GotoVedlSE N/A
+§fi
+@LOCAL@_maindialog = '§GotoVedl§'
+§ask ListeTittel Tittel i vindu som liste
+@LOCAL@_list_title = '§ListeTittel§'
+§ask OppslagTittel Tittel i vindu som oppslag
+@LOCAL@_lookup_title = '§OppslagTittel§'
+§ASK Kortnavn Navn på vindu i System Engineer (f.eks. AV0001OL)
+
+/* Her legges inn navnet til den entiteten som vinduet refererer til */
+§ASK HovedEntitet Hovedentitet i vinduet
+§rem  -----------------------------------------------------------------
+§rem  I praksis vil det normalt si den tabellen det gjøres IDENTIFY mot
+§rem  -----------------------------------------------------------------
+@LOCAL@_ent_name = '§HovedEntitet§'
+/* Av hensyn til hooknavn brukes denne lite... */
+
+/* Alle felter som skal vises i listen. */
+
+§ASK Listblokkvisning Felter som det skal vises til i listblock m/prefiks
+§rem   --------------------------------------------------------------------
+§rem   Her ramser du opp alle felt som ligger i listen, slik de er lagt opp
+§rem   i dialogeditoren.  Feltene skal kvalifiseres med entitets/rollenavn
+§rem   (hvis det ikke er frie dataelementer), og adskilles med komma.
+§rem   Eksempel:
+§rem      KUNDE.KUNDENAVN, KOMMUNIKASJON.LINJENR, RO_KODE_1.KODE_B, W_KOMM
+§rem   --------------------------------------------------------------------
+@LOCAL@_listblock_display = '§Listblokkvisning§'
+
+§if NotSok Er det søkefelter i vinduet
+
+/* Listen av elementer som inngår i hovedentiteten og som skal
+   hentes fra basen. */
+
+§ASK BaseElementer Hovedentitetens elementer som skal hentes fra basen m/entitetnavn
+§rem   ----------------------------------------------------------------------
+§rem   Her ramser du opp de feltene som skal hentes fra databasen i IDENTIFY-
+§rem   setningen.  Feltene må ha entitet/rolleprefiks.  I motsetning til i
+§rem   listen, brukes her ofte relasjonsnavn.  Man vil her typisk snakke om
+§rem   MEDLEM.RELASJON.FREMMEDNØKKEL, mens man i listblokka benytter
+§rem   EIER.PRIMÆRNØKKEL (eller et annet felt i eier-entiteten).  I denne
+§rem   lista legges også inn felt som skal benyttes til å slå opp på
+§rem   kodeverk etc.  Eksempel:
+§rem      KOMMUNIKASJON.KUN_KOM.KUNDE_ID, KOMMUNIKASJON.LINJE_NR, KOMMUNIKASJON.KOMM_TYPE
+§rem   ----------------------------------------------------------------------
+@LOCAL@_entlist = '§BaseElementer§'
+
+/* Her legges inn alle søkefelter i vinduet */
+
+§ASK Sokefelter Søkefelter i vinduet m/entitet/rollenavn
+§rem   ----------------------------------------------------------------------
+§rem   Her legger du inn fullt navn på feltene (med entitet/rolleprefiks hvis
+§rem   det ikke er frie datalementer) som er definert som søkefelter, slik de
+§rem   gjenfinnes i dialogeditoren.
+§rem   ----------------------------------------------------------------------
+@LOCAL@_search_fields = '§Sokefelter§'
+
+§if NoenKodeverk Brukes kodeverk overhodet
+§rem    Disse makroene må legges inn hvis det er definert comboboks i vinduet
+§rem    som går mot det generelle kodeverket. De må også defineres hvis det
+§rem    refereres til kodeverket i listen.
+
+@FI@ @SVPDIR@kv_def@SUFF_SVP@
+@FI@ @SVPLIST@alle_kode@SUFF_SVP@
+
+§fi (NoenKodeverk)
+
+
+§do AntCombo Hvor mange combobokser er det i vinduet(kodeverk, relatert ent.)
+§ASK Combofelt§R§ Navnet på søkefeltet som skal representeres som comboboks nr.§R§
+§rem  -----------------------------------------------------------------------
+§rem  Dvs. oppgi navnet på det feltet som står som comboboks i dialogeditoren
+§rem  -----------------------------------------------------------------------
+
+§if Kv§R§ Er comboboksen nr.§R§ basert på kodeverk
+
+§ASK KvType§R§ Hvilken kodeverksmakro (KV_xxx) skal benyttes i boks nr.§R§
+§rem    -----------------------------------------------------------------
+§rem    Angi navnet på kodeverksmakroen (@KV_xxx@) slik den er definert i
+§rem    fila kv_def.svp, uten krøllalfa rundt, men med KV-prefiks.
+§rem    F.eks.:    KV_FABRIKAT
+§rem    -----------------------------------------------------------------
+§if AlleK§R§ Skal utgåtte koder også være med i comboboks nr.§R§
+§rem   ------------------------------------------------------------------
+§rem   Utgåtte koder skal typisk tas med i OL-vinduer, mens de utelates i
+§rem   vedlikeholdsvinduer.
+§rem   ------------------------------------------------------------------
+§define AlleKpar§R§ True
+§else
+§define AlleKpar§R§ False
+§fi
+§else (not kodeverk)
+§ASK RelEntitet§R§ Hva er navnet på relatert entitet for boks nr.§R§
+§rem  -------------------------------------------
+§rem  Oppgi entitetsnavn, f.eks. AVG_ELEMENT_TYPE
+§rem  -------------------------------------------
+§ASK ComboDbFelt§R§ Navn på combofelt i databasen (boks nr.§R§)
+§rem  ---------------------------------------------------------
+§rem  Oppgi navnet på det feltet som skal hentes fra databasen.
+§rem  Dette er en kolonne  i tabellen fra forrige spørsmål
+§rem  - f.eks. AVG_ELEMENT_TYPE_B.
+§rem  ---------------------------------------------------------
+§fi (Kv)
+
+/* Definisjon av prosedyren for valg av verdi i comboboks.
+   Blanker ut verdi hvis (ingen) er valgt. */
+
+TadOLCpStart(CD|DialogShortName|COMBO_§R§,Valg av verdi i komboboks §Combofelt§R§§)
+   TadComboSelect(§Combofelt§R§§)
+TadOLCpEnd(CD|DialogShortName|COMBO_§R§)
+§done
+
+
+/* Definisjon av prosedyren for fylling av comboboks. */
+TadOLCpStart(CD|DialogShortName|WINDOW_1,Fylling av komboboks)
+   /* !!! Alle prosedyrene for fylling er slått sammen til 1 !!! */
+§do AntCombo
+§if Kv§R§ Er comboboksen nr.§R§ basert på kodeverk
+   TadKodeFillCombo(§at§§KvType§R§§§at§,§Combofelt§R§§,§AlleKpar§R§§)
+§else Kv§R§
+   TadComboFill(§Combofelt§R§§,§ComboDbFelt§R§§,TadRelatedFindAll(§RelEntitet§R§§,§ComboDbFelt§R§§))
+§fi Kv§R§
+§done AntKombo
+TadOLCpEnd(CD|DialogShortName|WINDOW_1)
+§fi NotSok
+
+/* Generell prosedyre for  */
+
+
+/* Prosedyre som kalles når vinduet lukkes (OK, WMClose, Avbryt,
+   dobbeltklikk i listblokk og akseleratorene Escape og Enter).
+   HookUniversalPKeyDefine utføres dersom forekomst skal trekkes med,
+   ellers utføres HookUniversalPKeyBlank. */
+TadOLCpStart(CD|DialogShortName|CLOSE_1,Lukking av vinduet)
+   TadOLClose(§HovedEntitet§,@X_LISTBLOCK_DISPLAY@,§GotoVedlSE§,@X_MAINDIALOG@)
+TadOLCpEnd(CD|DialogShortName|CLOSE_1)
+
+
+§if NotSok Er det søkefelter i vinduet
+
+/* Definisjon av prosedyre for CTRL-DOWN. */
+TadOLCpStart(CD|DialogShortName|WINDOW_10,Ctrl-Down)
+   TadOLPgdwn(§HovedEntitet§,§Kortnavn§)
+TadOLCpEnd(CD|DialogShortName|WINDOW_10)
+
+/* Definisjon av prosedyre for pressbutton SØK. Identifiserer utvalget og
+   viser de 50 første forekomstene. */
+
+TadOLCpStart(CD|DialogShortName|SOK_1,Søk-knapp)
+   TadOLSok(@X_SEARCH_FIELDS@,§HovedEntitet§,§Kortnavn§)
+TadOLCpEnd(CD|DialogShortName|SOK_1)
+
+§else
+
+/* Definisjon av prosedyre for CTRL-DOWN. */
+TadOLCpStart(CD|DialogShortName|WINDOW_10,Ctrl-Down)
+   TadListblockNoPgdwn(§HovedEntitet§)
+TadOLCpEnd(CD|DialogShortName|WINDOW_10)
+
+§fi NotSok
+
+/* Definisjon av prosedyre for pressbutton Hjelp. Kaller hjelpesystemet */
+
+TadOLCpStart(CD|DialogShortName|HJELP_1,Hjelp-knapp)
+   TadOLHelp(DialogName)
+TadOLCpEnd(CD|DialogShortName|HJELP_1)
+
+/* Definisjon av prosedyre for tittel på vindu. */
+
+TadOLCpStart(CD|DialogShortName|WINDOW_12,Sett vindustittel)
+        TadOLChangeTitle(@X_LIST_TITLE@,@X_LOOKUP_TITLE@,§Kortnavn§)
+TadOLCpEnd(CD|DialogShortName|WINDOW_12)
+
+§if NotSok  Er det søkefelter i vinduet
+
+/* Definisjon av prosedyre for å vise et gitt antall forekomster til en liste.
+   (pt. 50) Benyttes både ved CTRL-DOWN og SØK. */
+
+TadOLProcStart(SD|DialogShortName|PGDWN,@LISTBLOCK_ROWCOUNT@ neste,§HovedEntitet§)
+   TadListblockPgdwn(§HovedEntitet§,@X_ENTLIST@,@X_LISTBLOCK_DISPLAY@)
+TadOLProcEnd(SD|DialogShortName|PGDWN)
+§fi NotSok
+
+§if GotFocus Er det behov for å fange GotFocus
+§rem   ------------------------------------------------------------------
+§rem   Dersom man har type "..."-knapper i vinduet, må man benytte
+§rem   GotFocus for å fange opp verdier fra det underliggende OL-vinduet.
+§rem   ------------------------------------------------------------------
+
+/* Her defineres prosedyre for å fange GotFocus.
+   Innholdet i denne vil normalt være en eller flere bolker av følgende
+   type:
+
+      if zq_§Kortnavn§_<entitet>_get
+
+	 zq_§Kortnavn§_<entitet>_get = False  ; Har fått det vi vil
+
+	 if SISTE.<nøkkel-for-entitet> is defined
+
+	    < ====================================================== >
+            < Dersom primærnøkkelen vises, er det ikke nødvendig med >
+	    < oppslag, ellers må vi hente fram data                  >
+	    < ------------------------------------------------------ >
+	    find <entitet> with <entitet>.<nøkkel-for-entitet> equal to :
+				SISTE.<nøkkel-for-entitet>	        :
+			   and get <entitet>.<visningsfelt(er)>
+	    display <entitet>.<visningsfelt(er)> in DialogName
+	    < ------------------------------------------------------ >
+	    < ellers er det nok å vise primærnøkkel direkte	     >
+	    < ------------------------------------------------------ >
+	    display <entitet>.<nøkkel-for-entitet> equal to :
+		    SISTE.<nøkkel-for-entitet>		    :
+		    in DialogName
+	    < ====================================================== >
+
+	    call Q_FIN_<entitet>_<dialog>  ; Sett currency
+
+	 else    ; Ingen data i SISTE
+	    clear <relevante felt> in DialogName
+	    <evt feilhåndtering>
+	 end if  ; SISTE definert
+      end if     ; zq_§Kortnavn§_<entitet>_get satt
+ */
+TadOLCpStart(CD|DialogShortName|WINDOW_14,Aksjon på GotFocus)
+	!!! Denne må du definere selv - se kommentar over !!!
+TadOLCpEnd(CD|DialogShortName|WINDOW_14)
+§fi GotFocus
+
+
+/* Adgangskontroll ved åpning av vinduet */
+
+TadOLCpStart(CD|DialogShortName|ADG_1,Adgangskontroll)
+   TadAccessOpen
+§if bNy Er det aktiv NY-knapp i vinduet
+§default bNyNm NY_D
+§ASK bNyNm Hva heter NY-knappen (i dialogeditoren)
+§ASK bNyHV Hvilket vindu åpner NY-knappen
+§rem   ----------------------------------------------------------------
+§rem   Her angis SYSTEMATOR-navnene på NY-knappen og vinduet den åpner,
+§rem   dette brukes til aksesskontroll.
+§rem   ----------------------------------------------------------------
+   TadAccessItem(§bNyNm§,§bNyHV§)
+§fi bNy
+§do no3dot Antall knapper med 3 prikker
+§rem  ----------------------------------------------------------
+§rem  ...-knapper må ha adgangskontroll.  Angi antall, så får du
+§rem  spørsmål om det som trengs.
+§rem  ----------------------------------------------------------
+§ASK bDotNm§R§ Hva heter ...-knapp nr.§R§ (i dialogeditoren)
+§ASK bDotOL§R§ Hvilket vindu åpner ...-knapp nr.§R§
+§rem   -----------------------------------------------------------------
+§rem   Her angis SYSTEMATOR-navnene på ...-knappen og vinduet den åpner,
+§rem   dette brukes til aksesskontroll.
+§rem   -----------------------------------------------------------------
+   TadAccessItem(§bDotNm§R§§,§bDotOL§R§§)
+§done no3dot
+TadOLCpEnd(CD|DialogShortName|ADG_1)

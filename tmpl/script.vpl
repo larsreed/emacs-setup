@@ -1,0 +1,331 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§ask PMnr PM-nr til historikken
+§ask SCCSid SCCS-ID
+§ask FileID Fil/versjonskode
+§ask ScriptName Navn på scriptet
+§ask SRMname Navn på jobben i SRM
+§if SQL Skal scriptet brukes til SQL-batcher
+§rem Like greit å spørre med det sammme!
+§fi
+#!/bin/ksh
+# ==========================================================================
+# PROSJEKT:    TVIST2000
+# FIL:         §FileID§
+# MAL:         script.vpl 27.4
+# BATCH:       §SRMname§
+#
+§ask Description Beskrivelse av scriptet
+# BESKRIVELSE:
+#    §Description§
+#
+# HISTORIKK:
+# YYMMDD  Sign.  Endring
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+# ------  -----  -----------------------------------------------------------
+# §Date§  §User§   Opprettet (§PMnr§)
+#
+# GRENSESNITT:
+# Type          Navn                    Bruk
+# -----------   ----------------------  ------------------------------------
+# PARAM         -h                      Vis syntakssammendrag
+§if SQL
+# PARAM         Standard param for SQL-batcher
+§else
+§do antScriptParam Antall kommandolinjeparametere
+# PARAM         parameter§R§              ...
+§done
+§ask SyntaxHelp Syntaksbeskrivelse (uten -h)
+§fi
+# RETURNS       0                       OK
+#               1                       Ingenting å gjøre
+§if SQL
+#               2                       OK, men advarsler er skrevet
+§fi
+#               4                       Avbrutt av signal
+#               5                       Avsluttet med feil
+§if SQL
+#               6                       Kritisk feil - ingenting utført
+#               7                       Feil under oppstart, f.eks. ugyldige
+#                                       parametere
+§fi
+#               101                     Feil i parameterdefinisjonen
+§if SQL
+#               102                     Kan ikke åpne parameterfil
+#               104                     Feil format på parameterfil
+#               105                     Kan ikke opprette loggfil
+#               106                     Finner ikke isql/bcp-kommand
+§fi
+#
+# EKSEMPEL:
+§if SQL
+#    §ScriptName§ parameterfil batchnavn batch-ID
+§else
+#     §ScriptName§ §SyntaxHelp§...
+§fi
+#
+# AVVIK FRA STANDARD:
+#
+# MULIGE UTVIDELSER:
+#
+# DIVERSE:
+#
+# ==========================================================================
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Deklarasjoner
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# -----------------
+# Standard variable
+# -----------------
+§if SQL
+@FI@ @SVPDIR@script_intro@SUFF_SVP@
+§else
+typeset -r I=${0##*/}   # Scriptets navn
+§fi SQL
+typeset -r Ver="§SCCSid§"
+§if SQL
+typeset -r Syntax="parameterfil batchnavn batch-ID | -h"
+typeset -r OptString=":h"
+§else
+typeset -r Syntax="§SyntaxHelp§  | -h"
+§ask OptString Syntaksstreng til getopts (uten h)
+typeset -r OptString=":§OptString§h"
+§fi (SQL)
+
+# ----
+# Init
+# ----
+§if SQL
+§else
+alias Error='print -u2 -- "$I: "'
+function ErrorExit {
+   typeset rstat=$1
+   shift
+   Error "$*"
+   exit $rstat
+}
+
+§fi (SQL)
+<!!! annen init gjøres her !!!>
+
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Funksjoner
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function Help { # exitCode
+§if SQL
+   vxdbg
+§fi SQL
+   cat <<EOF
+*** $I, versjon $Ver ***
+Syntaks:  $I $Syntax
+          -h: gi hjelptekst (denne)
+§if SQL
+          Parameterfila må være leselig og inneholde:
+            linje 1: databasebruker
+            linje 2: databasepassord
+            linje 3: databaseserver (brukes bare dersom DSQUERY ikke er satt)
+            linje 4: databasenavn
+            linje 5: databasefilnavn (overstyrer variable over hvis gitt)
+            linje 6: navn på resultatfil (og grunnlag for loggfil etc)
+§do antParam Antall parameterlinjer bortsett fra de 6 vanlige
+§define l_§R§ (eval (+ §R§ 6))
+§ask paramDesc§R§ Beskrivelse av parameter §R§
+            linje §l_§R§§:  §paramDesc§R§§
+§done
+§fi
+          <!!!!!!!!!  fyll på med hjelp her !!!!!!>
+EOF
+   exit $1
+}
+§if YesNoCancel Inkludere readYN-funksjon
+
+
+function readYN { # prompt
+   typeset -u r
+   while true; do
+      read r?"$* (j/n)? "
+      case "$r" in
+	 ([JY]) return 0;;
+	 (N)	return 1;;
+	 (*)    print -u2 "Svar J eller N!";;
+      esac
+   done
+}
+§fi
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Init
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# --------------------
+# Les og tolk opsjoner
+# --------------------
+§if SQL
+§if useStdOpts Bare standard opsjoner
+@SCRIPT_STD_OPTS@
+§fi useStdOpts
+§else SQL
+§defbool useStdOpts nil
+§fi SQL
+§if useStdOpts
+§else
+while getopts $OptString opt; do
+   case "$opt" in
+      (h)  Help;;
+§do antOpt Antall opsjoner som skal håndteres
+      (X)  ;;
+§done
+      (:)  ErrorExit 101 "mangler argument til -$OPTARG  (-h for hjelp)";;
+      (\?) ErrorExit 101 "ukjent opsjon -- -$OPTARG  (-h for hjelp)";;
+   esac
+done
+shift $OPTIND-1
+§fi useStdOpts
+§if SQL
+§defbool MustArg t
+§define minArg 3
+§fi
+§if MustArg Må scriptet ha argumenter (f.eks.) filnavn
+§ask minArg Minimum antall argumenter
+
+# ------------------------------
+# Sjekk obligatoriske argumenter
+# ------------------------------
+[ $# -lt §minArg§ ] &&
+         ErrorExit 101 "mangler kommandolinjeargumenter (-h for hjelp)!"
+§fi mustArg
+§if SQL
+
+paramFile="$1"
+batchName="$2"
+batchID="$3"
+
+# ------------------------
+# Sjekk & les parameterfil
+# ------------------------
+if [ ! -r $paramFile ]; then
+   ErrorExit 102 "kan ikke åpne parameterfila ($paramFile)"
+else
+#  ----------------------------
+#  Åpne parameterfil for lesing
+#  ----------------------------
+   exec 3< $paramFile
+
+   readStdParams
+§do antParam
+
+§asku paramID§R§ Nøkkelord for parameter §R§
+§if isMust§R§ Må parameter §R§ inngis
+   readKeyMust §paramID§R§§ "§paramDesc§R§§"
+§else
+   readKey §paramID§R§§  # §paramDesc§R§§
+§fi isMust
+§if isInt§R§ Er parameter numerisk
+   typeset -i par§paramID§R§§=$param
+§else
+   typeset par§paramID§R§§="$param"
+§fi
+   <!!! legg inn egen håndtering av §paramID§R§§ her - ligger i $param !!!>
+§if isMust§R§
+§else
+   if [[ -z "$§paramID§R§§" ]]; then # Tom
+   fi
+§fi
+
+§done
+#  --------------------
+#  Lukk fila etter bruk
+#  --------------------
+   exec 3<&-
+
+#  ------------
+#  Og slett den
+#  ------------
+   rm $paramFile
+fi
+§fi (SQL)
+§if SQL
+§defbool Traps t
+§fi
+§if Traps Fange signaler (f.eks. ctrl-C)
+
+# ----------------
+# Signalhåndtering
+# ----------------
+§if SQL
+@SCRIPT_STD_TRAP@
+§else
+trap "!!!!!!" HUP INT QUIT TERM
+trap "!!!!!!" EXIT
+§fi (SQL)
+§fi (Traps)
+
+§if SQL
+# -------
+# Loggfil
+# -------
+startLogFile
+cat >> $logFile <<EOF
+*************************************************************************
+* PARAMETERE:
+§do antParam
+*    §paramDesc§R§§:	$par§paramID§R§§!!!
+§done
+*************************************************************************
+
+EOF
+if [ $? -gt 0 ] ; then
+   ErrorExit 105  "kan ikke skrive til loggfil"
+fi
+§fi
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Kode
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+<!!! her kommer selve scriptet !!!>
+if <alt er OK>; then
+   retStat=0
+else
+   retStat=<din feilkode>
+fi
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Avslutning
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+§if SQL
+# !!!!!!!!!!!!!!! statusTekst="..."
+endLogFile
+§fi
+
+exit $retStat
+
+# ---------------------
+# Slutt: §FileID§
+# ---------------------
+
+!!!!!!!!!!!!!! grunnlagsdata !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+o legg til '§SRMname§' i MX_BATCHER
+
+MD_SRM_func(2,'§Description§','§SRMname§')
+MD_SRM_repdef(MX_SERVER,'§SRMname§',3,1,0,11,'/tvist/sbin/§ScriptName§','§Description§')
+MD_SRM_repfi('§SRMname§',1,0,'txt','res')
+MD_SRM_repfi('§SRMname§',2,8,'trc','trc')
+MD_SRM_repfi('§SRMname§',3,8,'log','log')
+MD_SRM_reppar('§SRMname§',1,0,'DBFILE',"<kommer under>",'Databasefil','','',0)
+MD_SRM_dbfile('<gammel batch>','§SRMname§')
+§do antParam
+§define i_§R§ (eval (+ §R§ 1))
+§ask defvalP§R§ Defaultverdi for parameter §R§
+§ask sqlP§R§ Evt SQL-setning for parameter §R§
+§def1 antIned§R§ 0
+§ask antIned§R§ Antall i nedtrekksliste
+MD_SRM_reppar('§SRMname§',§i_§R§§,<type>,'§paramID§R§§',"§defvalP§R§§",'Angi §paramID§R§§','§paramDesc§R§§',' §sqlP§R§§',§antIned§R§§)
+§done
+MX_DV('§SRMname§')
+MD_SRM_repgroup_r('§SRMname§',MX_GRP_<gruppe>,<pri>)

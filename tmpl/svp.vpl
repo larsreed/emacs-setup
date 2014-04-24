@@ -1,0 +1,31 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§ask PMnr PM-nr til historikken
+§ask SCCSid SCCS-ID
+§ask FileID Fil/versjonskode
+*V ; ==========================================================================
+*V ; PROSJEKT:    TVIST2000
+;    FIL:         §FileID§
+*V ; MAL:         svp.vpl 27.4
+*V ;
+*V ; BESKRIVELSE:
+§ask sDescription Beskrivelse av innhold
+*V ;    §sDescription§
+*V ;
+*V ; HISTORIKK:
+*V ; YYMMDD  Sign.  Endring
+*V ; ------  -----  -----------------------------------------------------------
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+*V ; §Date§  §User§   Opprettet (§PMnr§)
+*V ;
+*V ; AVVIK FRA STANDARD:
+*V ;
+*V ; MULIGE UTVIDELSER:
+*V ;
+*V ; DIVERSE:
+*V ;
+*V ; ==========================================================================
+   W_SCCS_ID = '§SCCSid§'
+; --------------------------------------
+; Slutt: §FileID§
+; --------------------------------------

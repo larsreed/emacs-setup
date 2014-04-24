@@ -1,0 +1,4 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§defbool isFel t
+§rem @@(#)TVIST ff.vpl 27.5 04/02/26>
+§include fx.vpl

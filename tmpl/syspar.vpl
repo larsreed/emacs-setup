@@ -1,0 +1,407 @@
+Malversjon: @@(#) syspar.vpl 27.4 04/02/27>
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t))) 
+
+§ask PMnr PM-nr til historikken
+================= til ff_syspar.vsd ===========================================
+§define tillegg PM§PMnr§: Lagt til
+§defbool harKomm nil
+
+Kallbare rutiner:
+§do antPar Antall nye parametere
+§asku parName§R§ Parameternavn nr.§R§
+;    PFF_SYSPAR_§parName§R§§
+§append tillegg \ ,§parName§R§§
+§if isSekv§R§ Er param.nr.§R§ et sekvensnummer
+;    PFF_SYSPAR_§parName§R§§_OPPDATER
+§append tillegg ,§parName§R§§_OPPDATER
+§defbool isKomm§R§ nil
+§defbool isDir§R§ nil
+§else
+§if isKomm§R§ Er param. nr.§R§ en KOMMANDO (ikke SYS_PARAM)
+§defbool harKomm t
+§defbool isDir§R§ nil
+§else
+§if isDir§R§  Er param. nr.§R§ en katalogparameter (f.eks. TIL_XXX)
+§fi isDir
+§fi isKomm
+§fi isSekv
+§done antPar
+
+
+Til historikken:
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+; §Date§  §User§   §tillegg§
+
+Designreferanse:
+§do antPar
+§if hasDes§R§ Er det design på rutine nr.§R§
+§asku desRef§R§ Referanse til design for param nr.§R§
+;    §parName§R§§: P.X.2.3.11.4\§desRef§R§§
+§if isSekv§R§
+§asku desRefB§R§ Referanse til design for oppdat-rutine param nr.§R§
+;    §parName§R§§_OPPDATER: P.X.2.3.11.4\§desRefB§R§§
+§fi isSekv
+§else
+;    §parName§R§§: -
+§if isSekv§R§
+;    §parName§R§§_OPPDATER: -
+§fi isSekv
+§fi hasDes
+§done
+
+
+
+Etter prosedyrehodet:
+§do antPar
+§if isKomm§R§
+§rem trenger ikke makro her
+§else
+@LOCAL@_§parName§R§§       = '§parName§R§§'
+§fi
+§done antPar
+
+
+I PFF_SYSPAR_INIT:
+§do antPar
+§if isSekv§R§
+§define dataType§R§ @LONG@
+§else
+§if isDir§R§
+§define dataType§R§ @FILENAME@
+§else
+§ask dataType§R§ Datatype nr.§R§ (deklarasjon)
+§fi isDir
+§fi isSekv
+   declare @X_GLOB_PFX@_§parName§R§§     §dataType§R§§                       @X_GLI@
+§if isSekv§R§
+§defbool nullOK§R§ nil
+§else
+§if isKomm§R§
+§defbool nullOK§R§ nil
+§else
+§if isDir§R§
+§defbool nullOK§R§ nil
+§else
+§if nullOK§R§ Er det OK med nullverdier for nr.§R§?
+   declare @X_GLOB_PFX@_§parName§R§§_FLG boolean                          @X_GLI@
+§fi nullOK
+§fi isDir
+§fi isKomm
+§fi isSkev
+§done antPar
+
+§if harKomm
+
+================= til x_ff_syspar.svp =========================================
+
+Til historikken i svappfila:
+*V ; §Date§  §User§   §tillegg§
+
+================= til kommando.svp ============================================
+
+Til historikken i svappfila:
+*V ; §Date§  §User§   §tillegg§
+
+Makrodefinisjoner:
+§do antPar
+§if isKomm§R§
+§ask kmmId§R§ Numerisk ID for kommando §R§
+*V MACRO kmm_§parName§R§§ =  §kmmId§R§§ ; / §defVal§R§§
+§fi
+§done
+§fi harKomm
+
+Prosedyredefinisjon:
+§do antPar
+§if isKomm§R§
+
+================= til x_ff_syspar.svp =========================================
+
+§else
+§if harKomm
+
+================= til ff_syspar.vsd ===========================================
+
+§fi
+§fi
+§if isSekv§R§
+procedure PFF_SYSPAR_§parName§R§§ imports zThisSeq  :
+                                 exports zLastSeq, :
+                                         W_RETSTAT
+§define retParam§R§ zLastSeq
+§else
+§if isDir§R§
+procedure PFF_SYSPAR_§parName§R§§ exports zDir
+§define retParam§R§ zDir
+§else
+§ask retParam§R§ Prosedyre nr.§R§, returparameter
+procedure PFF_SYSPAR_§parName§R§§ exports §retParam§R§§
+§fi isDir
+§fi isSekv
+; ==========================================================================
+; PROSEDYRE:    PFF_SYSPAR_§parName§R§§
+; TYPE:         Teknisk fellesrutine
+;
+; BESKRIVELSE:
+§if isSekv§R§
+§ask shortDesc§R§ Kort beskrivelse
+;    Henter sekvensnummer for forrige kjøring av batch for
+;    §shortDesc§R§§.  Sammenligner også med forrige sekvensnummer.
+§else
+§ask Description§R§ Prosedyrebeskrivelse nr.§R§
+;    §Description§R§§
+§fi
+;
+; GRENSESNITT:
+; Type          Navn                    Bruk
+; -----------   ----------------------  ------------------------------------
+§if isSekv§R§
+§define defVal§R§ 0
+; IMPORTS       zThisSeq                Sekvensnummer for denne kjøringen
+; EXPORTS	zLastSeq                Sekvensnummer.for forrige kjøring
+;                                       Returnerer 0 dersom ikke verdi
+;                                       for systemparameteren finnes i basen.
+; EXPORTS       W_RETSTAT               Se SFF_SYSPAR_SEKV
+;
+; EKSEMPEL:
+;    Se felles eksempel under SFF_SYSPAR_SEKV over
+§else
+; EXPORTS	§retParam§R§§                 Returverdi
+§ask defVal§R§ Default verdi nr.§R§
+;                                       Returnerer §defVal§R§§
+;                                       hvis parameter ikke er satt
+;
+; EKSEMPEL:
+;     declare §retParam§R§§ §dataType§R§§
+;     call PFF_SYSPAR_§parName§R§§ importing §retParam§R§§
+§fi
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+   @PBEGIN_PFF@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+   @X_HIT_DECL@
+§if nullOK§R§
+   declare @X_GLOB_PFX@_§parName§R§§_FLG boolean global
+§fi
+   declare @X_GLOB_PFX@_§parName§R§§ §dataType§R§§ global
+§if isSekv§R§
+   declare zThisSeq                 @LONG@
+   declare zLastSeq                 @LONG@
+§else
+   declare §retParam§R§§                 §dataType§R§§
+§fi
+§if isKomm§R§
+   declare zKey                     @KMM_KEY_DECL@
+   declare zCmd                     @KMM_CMD_DECL@
+§else
+   declare xNullOK                  boolean
+§if isDir§R§
+   declare zDefDir                  @FILENAME@, :
+           zDir                     @FILENAME@, :
+           zName                    @FILENAME@, :
+           zSuff                    @FILENAME@
+   @INI_DECL@
+§fi isDir
+
+§if nullOK§R§
+   xNullOK = True
+§else
+   xNullOK = False
+§fi nullOK
+§fi isKomm
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  ---------------------------------
+;  Bruk hentet verdi hvis den finnes
+;  ---------------------------------
+§if nullOK§R§
+   if @X_GLOB_PFX@_§parName§R§§_FLG
+§else
+   if @X_GLOB_PFX@_§parName§R§§ is defined
+§fi
+      §retParam§R§§ = @X_GLOB_PFX@_§parName§R§§     ; forrige verdi
+      @X_HIT_HIT@
+
+;  ----------------
+;  Ellers - slå opp
+;  ----------------
+   else
+§if isKomm§R§
+      zKey = @KMM_TPL_§parName§R§§@
+      call PFF_SYSPAR_KOMMANDO exporting zKey    :
+                               importing zCmd,   :
+                                         W_RETSTAT
+      if W_RETSTAT >= @STAT_OK@
+         §retParam§R§§ = zCmd
+         @X_GLOB_PFX@_§parName§R§§ = §retParam§R§§   ; husk til neste gang
+      else
+         §retParam§R§§ = '§defVal§R§§'                 ; default
+      end if
+§else not isKomm
+§if isDir§R§
+;     -------------------------------
+;     Bygg navn på standard directory
+;     -------------------------------
+      zDir  = ZZQ_DATADIR
+      zName = '§defVal§R§§'
+      zSuff = ''
+      call PFF_FNAME_CONCAT exporting zDir,  :
+                                      zName, :
+                                      zSuff  :
+                            importing zDefDir
+      SYS_PARAM.SPA_VERDI = zDefDir             ; default
+§else
+      SYS_PARAM.SPA_VERDI = '§defVal§R§§'                ; default
+§fi isDir
+      SYS_PARAM.SPA_ID    = '@X_§parName§R§§@'
+      call SFF_SYSPAR_GET exporting SYS_PARAM.SPA_ID, :
+                                    xNullOK           :
+                          importing SYS_PARAM.SPA_VERDI
+§if isSekv§R§
+§defbool isNumber§R§ t
+§else
+§if isDir§R§
+§defbool isNumber§R§ t
+§fi isDir
+§fi isSekv
+§if isNumber§R§ Er verdi nr.§R§ numerisk
+      read §retParam§R§§ from SYS_PARAM.SPA_VERDI
+      if IO-error
+         §retParam§R§§ = §defVal§R§§
+      else
+         @X_GLOB_PFX@_§parName§R§§ = §retParam§R§§  ; husk til neste gang
+§if nullOK§R§
+         @X_GLOB_PFX@_§parName§R§§_FLG = True  ; husk at verdi er hentet
+§fi
+      end if
+§else
+      §retParam§R§§ = SYS_PARAM.SPA_VERDI
+      @X_GLOB_PFX@_§parName§R§§ = §retParam§R§§     ; husk til neste gang
+§if nullOK§R§
+      @X_GLOB_PFX@_§parName§R§§_FLG = True     ; husk at verdi er hentet
+§fi
+§fi
+§fi
+   end if        ; allerede hentet
+§if isSekv§R§
+
+;  -------------------
+;  Sammenlign verdiene
+;  -------------------
+   call SFF_SYSPAR_SEKV exporting zThisSeq, :
+                                  zLastSeq  :
+                        importing W_RETSTAT
+§fi
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   terminate-label @LABEL_EXIT@
+   @PEND_PFF@
+
+end procedure  ; PFF_SYSPAR_§parName§R§§
+
+
+§if isSekv§R§
+procedure PFF_SYSPAR_§parName§R§§_OPPDATER imports zThisSeq  :
+                                          exports W_OK
+; ==========================================================================
+; PROSEDYRE:    PFF_SYSPAR_§parName§R§§_OPPDATER
+; TYPE:         Teknisk fellesrutine
+;
+; BESKRIVELSE:
+;    Oppdaterer sekvensnummer for forrige kjøring av batch for
+;    §shortDesc§R§§.
+;
+; GRENSESNITT:
+; Type          Navn                    Bruk
+; -----------   ----------------------  ------------------------------------
+; IMPORTS       zThisSeq                Sekvensnummer for denne kjøringen
+; EXPORTS       W_OK                    TRUE hvis lagring OK, ellers FALSE
+;
+; EKSEMPEL:
+;    Se felles eksempel under SFF_SYSPAR_SEKV over
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+   @PBEGIN_PFF@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+   declare @X_GLOB_PFX@_§parName§R§§ @LONG@ global
+   declare zThisSeq                 @LONG@
+
+   SYS_PARAM.SPA_ID = '@X_§parName§R§§@'
+   write zThisSeq to SYS_PARAM.SPA_VERDI
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+   call PGF_SYSPARAM_OPPDATER exporting SYS_PARAM.SPA_ID,   :
+                                        SYS_PARAM.SPA_VERDI :
+                              importing W_RETSTAT
+   if W_RETSTAT >= @STAT_OK@
+      W_OK = True                               ; Verdi lagret
+      @X_GLOB_PFX@_§parName§R§§ = zThisSeq       ; Husk verdi
+   else
+      W_OK = False                              ; Ikke lagret
+   end if
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   terminate-label @LABEL_EXIT@
+   @PEND_PFF@
+
+end procedure  ; PFF_SYSPAR_§parName§R§§_OPPDATER
+
+
+
+§fi
+§done antPar
+
+================= til tvist-x.x.vsq =========================================
+
+§do antPar
+§ask SQLdesc§R§ Beskrivelse (i databasen) for #§R§
+§if isKomm§R§
+MD_KMM(§kmmId§R§§,'§defVal§R§§','§SQLdesc§R§§')
+§else
+MD_SPA('§parName§R§§','§SQLdesc§R§§','§defVal§R§§')
+§fi
+§done
+
+
+================= til DI_F_SYS_PARAM_VEDL_def.cf ============================
+§if harKomm
+Hvis det ikke bare er KOMMANDO som er lagt til...
+§fi
+; §Date§  §User§   §tillegg§
+
+================= til DI_F_SYS_PARAM_VEDL_proc.cf ===========================
+§if harKomm
+Hvis det ikke bare er KOMMANDO som er lagt til...
+§fi
+
+Et eller annet sted - forhåpentligvis der det finnes noe lurt fra før,
+legger du til
+§do antPar
+   §parName§R§§ i kommentaren og
+      or xTadIs(§parName§R§§) :
+§done

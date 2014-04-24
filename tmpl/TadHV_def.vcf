@@ -1,0 +1,270 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+/* @@(#)TVIST TadHV_def.vcf 29.3 04/08/12> */
+§ask DialogName Dialognavn (hexifisert ved behov)
+
+§ask OneLineDesc Kort beskrivelse av dialogen
+§rem    ------------------------------------------
+§rem    1-linjes beskrivelse som legges i filhodet
+§rem    ------------------------------------------
+#define TadFileDesc §OneLineDesc§
+
+§asku Kortnavn Navn på vindu i System Engineer (f.eks. AV003H)
+#define DialogShortName §Kortnavn§
+
+§ask Tittel Bildetittel i meldinger (det som vises på "ramma")
+#define §DialogName§_DescName §Tittel§
+
+§doR osNoder Antall noder i objektselektoren
+§asku osNode§R§ Navn på entitetsklasse nr.§R§ i obj.selektor
+§ask osNavn§R§ Kortnavn på entiteten til bruk i meldingstekster (1 ord)
+#define §osNode§R§§_DescName §osNavn§R§§
+§if chsNode§R§ Skal det gjøres kontroller før lagring av denne
+§rem bruker denne senere...
+§fi chsNode
+§defbool genSomeNode§R§ nil
+§if genIdNode§R§ Skal det GENERERES ID for denne
+§defbool genSomeNode§R§ t
+§else
+§if genDataNode§R§ Skal det genereres andre felter for denne ved lagring
+§defbool genSomeNode§R§ t
+§fi genDataNode
+§fi genIdNode
+§doneR
+§define osRot §osNode1§
+§ifdef osRot
+§rem fint
+§else
+§asku osRot Rotnode i objektselektoren
+§fi
+
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+§ask PMnr PM-nummer for opprettelse
+#define TadHode_Historikk \
+; §Date§  §User§   Første versjon (PM§PMnr§)
+
+/* Settes for tilpasse hvor oppdatert malkode som skal brukes
+   - se TadDefs.cf */
+#define TadGrapeLevel 4
+
+/* Inkluderer makroer for hovedvindu */
+#define TADHV_VINDU
+
+
+/*
+ * Kommentarer til AVVIK, DIVERSE og UTVIDELSER i filhodet defineres slik:
+ *    #define TadHode_Xxxx  @@\
+ *        ;   Bla bla bla... @@\
+ *        ;   mere bla
+ * der Xxxx er hhv Avvik, Diverse og Utvidelser.
+ * Det skal ikke være "hookkommentar" i topp og bunn.  Hver linje må
+ * formateres som kommentar, ikke bruk Tad______Empty.
+ */
+
+
+/* Adgangskontroll (se PX15131):
+ * Husk å definere hooks for Q_ENA-rutiner som enabler noe som skal
+ * adgangskontrolleres (bruk TadAccessCheckEnable(<op>) i
+ * HookInit_EnableObject_<objekt>.
+ * Dersom du gjør enable selv, må aksess til disse også sjekkes.
+ * Husk også å sjekke aksess foran alle databaseoperasjoner du gjør selv,
+ * samt foran kall til felles/grensesnittfunksjoner som kan endre databasen.
+ */
+
+
+§defbool selDeselHdrSet nil
+§defbool listButtons nil
+§if tripList Er det et SETT_INN/OPPDATER/SLETT-trippel UTEN prefiks
+§rem  -----------------------------------------------------------------
+§rem  Mao:  Finnes 3 knapper ved navn SETT_INN_B, OPPDATER_B, SLETT_B,
+§rem        uten prefiks?
+§rem  -----------------------------------------------------------------
+/* Når en rad i liste er valgt - eller ikke... */
+§defbool selDeselHdrSet t
+§defbool listButtons t
+#ifndef xTadStdListSelect
+#define xTadStdListSelect @@\
+	; <"xTadStdListSelect" @@\
+	TadAccessStdListSelected @@\
+	; "xTadStdListSelect">
+#endif
+
+#ifndef xTadStdListDeselect
+#define xTadStdListDeselect @@\
+	; <"xTadStdListDeselect" @@\
+	TadAccessStdListDeselected @@\
+	; "xTadStdListSelect">
+#endif
+
+#ifndef HookEnd_Cp_CD_§Kortnavn§_SETT_INN_52
+#define HookEnd_Cp_CD_§Kortnavn§_SETT_INN_52 @@\
+	; <"HookEnd_Cp_CD_§Kortnavn§_SETT_INN_52" @@\
+	xTadStdListDeselect			  @@\
+	; "HookEnd_Cp_CD_§Kortnavn§_SETT_INN_52">
+#endif
+
+#ifndef HookEnd_Cp_CD_§Kortnavn§_OPPDATER_52
+#define HookEnd_Cp_CD_§Kortnavn§_OPPDATER_52 @@\
+	; <"HookEnd_Cp_CD_§Kortnavn§_OPPDATER_52" @@\
+	xTadStdListDeselect			  @@\
+	; "HookEnd_Cp_CD_§Kortnavn§_OPPDATER_52">
+#endif
+
+#ifndef HookEnd_Cp_CD_§Kortnavn§_SLETT_52
+#define HookEnd_Cp_CD_§Kortnavn§_SLETT_52 @@\
+	; <"HookEnd_Cp_CD_§Kortnavn§_SLETT_52" @@\
+	xTadStdListDeselect			  @@\
+	; "HookEnd_Cp_CD_§Kortnavn§_SLETT_52">
+#endif
+
+
+§fi tripList
+§doR tripListPfx Antall SETT_INN/OPPDATER/SLETT-tripler MED prefiks
+§rem  -----------------------------------------------------------------
+§rem  Mao:  Hvor mange sett av knapper type KUNDE_SETT_INN_B,
+§rem        KUNDE_OPPDATER_B, KUNDE_SLETT_B?
+§rem  -----------------------------------------------------------------
+§asku tripListPfx§R§ Prefiks på sett nr. §R§
+§rem    ---------------------
+§rem    Typisk entitetsklasse
+§rem    ---------------------
+§if selDeselHdrSet
+§rem overskrift skrevet
+§else
+/* Når en rad i liste er valgt - eller ikke... */
+
+§defbool selDeselHdrSet t
+§fi selDeselHdrSet
+§defbool listButtons t
+§define listEventNo§R§ (eval (+ 52 §R§))
+#ifndef xTadList_§tripListPfx§R§§_Select
+#define xTadList_§tripListPfx§R§§_Select @@\
+	; <"xTadList_§tripListPfx§R§§_Select" @@\
+	TadAccessListPfxSelected(§tripListPfx§R§§) @@\
+	; "xTadList_§tripListPfx§R§§_Select">
+#endif
+
+#ifndef xTadList_§tripListPfx§R§§_Deselect
+#define xTadList_§tripListPfx§R§§_Deselect @@\
+	; <"xTadList_§tripListPfx§R§§_Deselect" @@\
+	TadAccessListPfxDeselected(§tripListPfx§R§§) @@\
+	; "xTadList_§tripListPfx§R§§_Select">
+#endif
+
+
+#ifndef HookEnd_Cp_CD_§Kortnavn§_SETT_INN_§listEventNo§R§§
+#define HookEnd_Cp_CD_§Kortnavn§_SETT_INN_§listEventNo§R§§ @@\
+	; <"HookEnd_Cp_CD_§Kortnavn§_SETT_INN_§listEventNo§R§§" @@\
+	xTadList_§tripListPfx§R§§_Deselect			  @@\
+	; "HookEnd_Cp_CD_§Kortnavn§_SETT_INN_§listEventNo§R§§">
+#endif
+
+#ifndef HookEnd_Cp_CD_§Kortnavn§_OPPDATER_§listEventNo§R§§
+#define HookEnd_Cp_CD_§Kortnavn§_OPPDATER_§listEventNo§R§§ @@\
+	; <"HookEnd_Cp_CD_§Kortnavn§_OPPDATER_§listEventNo§R§§" @@\
+	xTadList_§tripListPfx§R§§_Deselect			  @@\
+	; "HookEnd_Cp_CD_§Kortnavn§_OPPDATER_§listEventNo§R§§">
+#endif
+
+#ifndef HookEnd_Cp_CD_§Kortnavn§_SLETT_§listEventNo§R§§
+#define HookEnd_Cp_CD_§Kortnavn§_SLETT_§listEventNo§R§§ @@\
+	; <"HookEnd_Cp_CD_§Kortnavn§_SLETT_§listEventNo§R§§" @@\
+	xTadList_§tripListPfx§R§§_Deselect			  @@\
+	; "HookEnd_Cp_CD_§Kortnavn§_SLETT_§listEventNo§R§§">
+#endif
+§doneR tripListPfx
+§if listButtons
+
+/* NB: Detter er FORSLAG til hooker !!!!!!!!!!!!!!!!!! */
+
+#ifndef HookEnd_Cp_CD_§Kortnavn§_NY_51
+#define HookEnd_Cp_CD_§Kortnavn§_NY_51 @@\
+	; <"HookEnd_Cp_CD_§Kortnavn§_NY_51" @@\
+§if tripList
+	xTadStdListDeselect				@@\
+§fi tripList
+§doR tripListPfx
+	xTadList_§tripListPfx§R§§_Deselect		@@\
+§doneR
+	; "HookEnd_Cp_CD_§Kortnavn§_NY_51">
+#endif
+
+#ifndef HookEnd_Cp_CD_§Kortnavn§_OPPFRISK_51
+#define HookEnd_Cp_CD_§Kortnavn§_OPPFRISK_51 \
+	HookEnd_Cp_CD_§Kortnavn§_NY_51
+#endif
+
+
+§fi listButtons
+
+/* !!!!!!!  Forslag til hooker for å skru av meldinger - du må selv
+ * sjekke om de passer !!!!!!!!!!!!!! */
+
+#ifndef xTadLagreRot
+#define xTadLagreRot @@\
+	; <"xTadLagreRot" @@\
+	CallRec(Q_CHS_§osRot§|DialogName) @@\
+	If_Success @@\
+	   Start_SaveTrans(§osRot§) @@\
+	      CallRec(Q_SAV_§osRot§|DialogName) @@\
+	   End_SaveTrans(§osRot§) @@\
+	Fi_Success @@\
+	; "xTadLagreRot">
+#endif
+
+#ifndef CR_Hook_LeaveDlgWrnY_§DialogName§
+#define CR_Hook_LeaveDlgWrnY_§DialogName§ @@\
+	; <"CR_Hook_LeaveDlgWrnY_§DialogName§" @@\
+	xTadLagreRot			       @@\
+	; "CR_Hook_LeaveDlgWrnY_§DialogName§">
+#endif
+
+#ifndef CR_Hook_LeaveDlgWrnY_§osRot§
+#define CR_Hook_LeaveDlgWrnY_§osRot§ @@\
+	; <"CR_Hook_LeaveDlgWrnY_§osRot§" @@\
+	xTadLagreRot			       @@\
+	; "CR_Hook_LeaveDlgWrnY_§osRot§">
+#endif
+
+/* Ta vare på møkkel til ny forekomst i SISTE (for Ny-knapp i OL-vinduet) */
+#ifndef CR_Hook_EndStore
+#define CR_Hook_EndStore @@\
+	; <"CR_Hook_EndStore" @@\
+	SISTE.<nøkkelfelter> = §osRot§.<nøkkelfelter> ... @@\
+	; "CR_Hook_EndStore">
+#endif
+
+§doR osNoder
+§if chsNode§R§
+#ifndef HookEnd_CheckSaveEntity_§osNode§R§§
+#define HookEnd_CheckSaveEntity_§osNode§R§§ @@\
+	; <"HookEnd_CheckSaveEntity_§osNode§R§§" @@\
+	... @@\
+	; "HookEnd_CheckSaveEntity_§osNode§R§§">
+#endif
+
+§fi chsNode
+§if genIdNode§R§
+#ifndef CR_HookKeyDefined_Insert_§osNode§R§§
+#define CR_HookKeyDefined_Insert_§osNode§R§§ @@\
+	; <"CR_HookKeyDefined_Insert_§osNode§R§§" @@\
+	zzUKeyDefined = True @@\
+	; "CR_HookKeyDefined_Insert_§osNode§R§§">
+#endif
+
+§fi genIdNode
+§if genSomeNode§R§
+#ifndef CR_HookStore_Insert_§osNode§R§§
+#define CR_HookStore_Insert_§osNode§R§§ @@\
+	; <"CR_HookStore_Insert_§osNode§R§§" @@\
+	generer id, osv @@\
+	; "CR_HookStore_Insert_§osNode§R§§">
+#endif
+
+#ifndef CR_HookStore_Save_§osNode§R§§
+#define CR_HookStore_Save_§osNode§R§§ CR_HookStore_Insert_§osNode§R§§
+#endif
+
+§fi genSomeNode
+
+§doneR osNoder

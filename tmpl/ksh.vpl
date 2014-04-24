@@ -1,0 +1,331 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§ask SCCSid SCCS-ID
+§ask FileID Fil/versjonskode
+§ask ScriptName Navn på scriptet
+# FILE:
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+Selve scriptet
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# FILE: §ScriptName§
+#!/bin/ksh
+# -----------------------------------------
+# §ScriptName§
+§ask Description Beskrivelse av scriptet
+# §Description§
+# -----------------------------------------
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+# Sign.:  §User§, §Date§
+# Endret:
+#
+typeset -r I=${0##*/}   # Scriptets navn
+typeset -r Ver="§SCCSid§"
+§define OptString :h
+§define SyntaxHelp
+§do antOpt Antall opsjoner uten -h
+§ask optLtr§R§ Opsjonsbokstav nr. §R§
+§if wArg§R§ Er det argument til opsjon nr.§R§
+§append OptString §optLtr§R§§:
+§ask optArg§R§ Argumentnavn §R§
+§ask varNavn§R§ Variabelnavn for argument til nr.§R§
+§if repOpt§R§ Kan opsjon §R§ gjentas
+§define rep§R§ [...]
+§ask varDef§R§ Startverdi for var §R§
+§else repOpt
+§ask varDef§R§ Defaultverdi for var §R§
+§define rep§R§
+§fi repOptR
+§if mand§R§ Er opsjon nr.§R§ obligatorisk
+§append SyntaxHelp -§optLtr§R§§ §optArg§R§§ §rep§R§§
+§else mand
+§append SyntaxHelp [-§optLtr§R§§ §optArg§R§§ §rep§R§§]
+§fi mand
+§else not wArgR
+§define optArg§R§
+§define rep§R§
+§defbool mand§R§ nil
+§ask varNavn§R§ Variabelnavn for opsjon nr.§R§
+§define varDef§R§ 0
+§append OptString §optLtr§R§§
+§append SyntaxHelp [-§optLtr§R§§]
+§fi wArg
+§ask descOpt§R§ Beskrivelse av opsjon nr.§R§
+§done antOpt
+§defbool mandArgs nil
+§do antMandParam Antall OBLIGATORISKE tilleggsparametere
+§defbool mandArgs t
+§ask paramM§R§ Parameternavn §R§
+§ask paramMdesc§R§ Kort beskrivelse av argumentet
+§if repMandArg§R§ Kan parameter §R§ gjentas
+§append SyntaxHelp §paramM§R§§ [...]
+§else
+§append SyntaxHelp §paramM§R§§
+§fi
+§done antMandParam
+§do antParam Antall VALGFRIE tilleggsparametere
+§ask param§R§ Parameternavn §R§
+§ask paramOdesc§R§ Kort beskrivelse av argumentet
+§if repOptArg§R§ Kan parameter §R§ gjentas
+§append SyntaxHelp [§param§R§§ [...]]
+§else
+§append SyntaxHelp [§param§R§§]
+§fi
+§done antParam
+typeset -r SYNTAX="§SyntaxHelp§ | -h"
+typeset    OptString="§OptString§"
+typeset -i retStat=0
+§if wBSQLM Trengs funksjon for å kjøre bsqlm
+typeset    bsqlmP="tvist" \
+           bsqlmU="TVIST" \
+           bsqlmD="$MIMER_DATABASE"
+typeset -i bsqlmR=0 \
+           bsqlmN=1  # repDev
+§fi
+§do antOpt
+§if wArg§R§
+typeset    §varNavn§R§§=§varDef§R§§
+§else wArg
+typeset -i §varNavn§R§§=§varDef§R§§
+§fi
+§done
+
+alias Error='print -u2 "$I:"'
+
+function Help { # exitCode
+   cat <<EOF
+*** $I, versjon $Ver ***
+Syntaks:  $I $SYNTAX
+          -h: gi hjelptekst (denne)
+§do antOpt
+§if wArg§R§
+          -§optLtr§R§§ §optArg§R§§: §descOpt§R§§  (default: $§varNavn§R§§)
+§else
+          -§optLtr§R§§: §descOpt§R§§
+§fi wArgR
+§done antOpt
+§do antMandParam
+§if repMandArg§R§
+          §paramM§R§§ [...]: §paramMdesc§R§§
+§else
+          §paramM§R§§: §paramMdesc§R§§
+§fi
+§done
+§do antParam
+§if repOptArg§R§
+          §param§R§§ [...]: §paramOdesc§R§§
+§else
+          §param§R§§: §paramOdesc§R§§
+§fi
+§done
+EOF
+   exit $1
+}
+§if YesNoCancel Inkludere readYN-funksjon
+
+
+function readYN { # prompt
+   typeset -u r
+   while true; do
+      read r?"$* (j/n)? "
+      case "$r" in
+	 ([JY]) return 0;;
+	 (N)	return 1;;
+	 (*)    print -u2 "Svar J eller N!";;
+      esac
+   done
+}
+§fi
+
+
+# --------------
+# Parametersjekk
+# --------------
+while getopts $OptString opt; do
+   case "$opt" in
+      (h)  Help 0;;
+§do antOpt
+§if wArg§R§
+§if repOpt§R§
+      (§optLtr§R§§) !!! §varNavn§R§§="$§varNavn§R§§ $OPTARG" ;;  # §optArg§R§§
+§else
+      (§optLtr§R§§) !!! §varNavn§R§§="$OPTARG"        ;;  # §optArg§R§§
+§fi
+§else
+      (§optLtr§R§§) !!! §varNavn§R§§=1;;
+§fi
+§done
+      (:)  Error "mangler argument til $OPTARG  (-h for hjelp)"
+           exit 101;;
+      (\?) Error "ukjent opsjon -- $OPTARG  (-h for hjelp)"
+           exit 101;;
+   esac
+done
+shift $OPTIND-1
+
+§if mandArgs
+if [ $# -lt §antMandParam§ ]; then
+   Error "mangler parametere!\nSyntaks:  $I $SYNTAX"
+   return 1
+fi
+
+§fi mandArgs
+§if Signals Inkludere signalhåndtering
+# ----------------
+# Signalhåndtering
+# ----------------
+trap "!!!!!!" HUP INT QUIT TERM
+trap "!!!!!!" EXIT
+
+§fi Signals
+
+§if wBSQLM
+function readSysModels { # repNr
+   awk '$1=='$1' { print $2,$3,$4 }' $SYSTEMATOR5/sys_models |
+      read bsqlmD bsqlmU bsqlmP
+      bsqlmR=1
+}
+
+function runbsqlm2 {
+   bsqlm | awk '/-- BOQ/ { getline; getline; getline; getline; flag= 1 }
+	        /-- EOQ/ { flag=0}
+		/ rows? found *$/ { flag=0 }
+		flag && $0~/[^ ]/ {printf("\t%s\n", $1)}' | sort
+}
+
+function runbsqlm1 {
+   print "${bsqlmU}\n${bsqlmP}"
+   cat
+   cat <<EOF
+-- BOQ
+;
+-- EOQ
+exit;
+EOF
+}
+
+function runBsqlm {
+   [[ $bsqlmR > 0 ]] || readSysModels $bsqlmN
+   export MIMER_DATABASE=$bsqlmD
+   runbsqlm1 $* | runbsqlm2
+}
+
+§fi
+
+!!!!!!!!!!!!!!!!!!!!!
+
+exit $retStat
+
+# ---------------------
+# Slutt: §FileID§
+# ---------------------
+# FILE:
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+Så evt awk-filer
+§do antAwk Antall awk-filer
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+§ask awkName§R§ Delnavn, awk-fil nr.§R§
+§ask descAwk§R§ Beskrivelse av fila
+# FILE: §ScriptName§-§awkName§R§§.awk
+# ---------------------------------------------------------------------
+# §ScriptName§-§awkName§R§§  §SCCSid§
+# §descAwk§R§§
+#
+# Opprettet: §User§, §Date§
+# Endret:
+# ---------------------------------------------------------------------
+
+BEGIN { }
+/./   { }
+END   { }
+
+# Slutt - §SCCSid§
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+§done
+# FILE:
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+Script over, her kommer dok-fila
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# FILE: §ScriptName§.dok
+SCRIPT: §ScriptName§                                        Sign: §User§, §Date§
+========================                       Siste endring:
+
+FORMÅL
+   §Description§
+
+
+SYNTAKS
+   §ScriptName§ §SyntaxHelp§
+   §ScriptName§ -h
+
+
+BESKRIVELSE
+   §Description§
+
+
+PARAMETERE
+   -h:   §ScriptName§ gir et syntakssammendrag og avslutter
+§do antOpt
+
+§if wArg§R§
+          -§optLtr§R§§ §optArg§R§§: §descOpt§R§§  (default: §varDef§R§§)
+§else
+          -§optLtr§R§§: §descOpt§R§§
+§fi wArgR
+§done antOpt
+§do antMandParam
+
+§if repMandArg§R§
+          §paramM§R§§ [...]: §paramMdesc§R§§
+§else
+          §paramM§R§§: §paramMdesc§R§§
+§fi
+§done
+§do antParam
+
+§if repOptArg§R§
+          §param§R§§ [...]: §paramOdesc§R§§
+§else
+          §param§R§§: §paramOdesc§R§§
+§fi
+§done
+
+
+EKSEMPLER
+   1 %  §ScriptName§ §SyntaxHelp§
+
+
+MERK!
+
+
+FEILMELDINGER
+
+
+BUGS
+
+
+FILER / VARIABLE
+   §ScriptName§
+§do antAwk
+   §ScriptName§-§awkName§R§§.awk
+§done
+
+
+SE OGSÅ
+# FILE:
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+Så installasjonsfil
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# FILE: §ScriptName§.inf
+ §ScriptName§
+ _____________________________________________________________
+ §Description§ (§User§, §Date§)
+
+[divinst]
+:S:§ScriptName§
+:0:§Description§
+::%S
+:dok:%S.dok:444
+§do antAwk
+:awklib:%S-§awkName§R§§.awk
+§done
+:!:mv %S.inf $SPE_HOME/old/%S.inf

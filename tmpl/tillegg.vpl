@@ -1,0 +1,432 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§ask SCCSid SCCS-ID
+§ask FileID Fil/versjonskode
+§ASK Pict Kortnavn på bildet (f.eks. AV0017L)
+§ASK FullPict Fullt navn på bildet (f.eks. DI_K_KUNDE_VEDL)
+; ==========================================================================
+; PROSJEKT:    TVIST2000
+; FIL:         §FileID§
+; MAL:         tillegg.vpl 24.1
+;
+§ask Description Beskrivelse av fila
+; BESKRIVELSE:
+;    Egne tillegg til §FullPict§
+;    §Description§
+;
+; KALLBARE RUTINER:
+;    !!!!!!!
+;
+; HISTORIKK:
+; YYMMDD  Sign.  Endring
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+; ------  -----  -----------------------------------------------------------
+; §Date§  §User§   Opprettet
+;
+; AVVIK FRA STANDARD:
+;
+; MULIGE UTVIDELSER:
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+@GRAPE_DEFS@
+§default NoPproc 0
+§do NoPproc Antall kallbare rutiner
+§ASK PName§R§ Prosedyrenavn nr §R§, ekskl. prefiks
+
+
+procedure PD_§FullPict§_§PName§R§§ imports <Input>  :
+                                   exports <Output> :
+                                   employs CUR_§FullPict§
+; ==========================================================================
+; PROSEDYRE:    PD_§FullPict§_§PName§R§§
+; TYPE:         Kallbar prosedyre i dialog ?!?
+;
+; BESKRIVELSE:
+§ask PDesc§R§ Beskrivelse av prosedyre §R§
+;    §PDesc§R§§
+;
+; GRENSESNITT:
+; Type          Navn                    Bruk
+; -----------   ----------------------  ------------------------------------
+; IMPORTS	<Input>
+; EXPORTS	<Output>
+; IMP/EXP
+; RETURNS
+; EMPLOYS	CUR_§FullPict§
+; UNIV I
+; UNIV O
+; UNIV I/O
+; CURR I
+; CURR O
+; CURR I/O
+; GLOB I
+; GLOB O
+; GLOB I/O
+;
+; EKSEMPEL:
+;     call PD_§FullPict§_§PName§R§§ exporting <Input> :
+;                                   importing <Output>...
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+   @PBEGIN_P@
+   @UNIVERSAL@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  -------------
+;  Grapevariable
+;  -------------
+   @GRAPE_LOCAL_VARS@
+   @GRAPE_GLOB_VARS@
+
+;  --------------
+;  Lokale makroer
+;  --------------
+   @LOCAL@_<MAKRO> = <definisjon>
+
+;  -----------
+;  Universelle
+;  -----------
+   universal <ENTITET|ROLLE>
+
+;  ----------------
+;  Globale variable
+;  ----------------
+   declare ZQ_<VAR> <decl> global
+   declare XQ_<VAR> <decl> global
+
+;  --------------
+;  Automatmerking
+;  --------------
+   automark <ENTITET|ROLLE>
+
+;  ----------
+;  Referanser
+;  ----------
+   declare <REF> as reference to <ENTITET>
+
+;  ----------
+;  Funksjoner
+;  ----------
+   declare <FUN> as function
+
+;  ----------
+;  Parametere
+;  ----------
+   declare Z_<PARAM> {as <DATAELEM>|@MAKRO@}
+   <Input>...
+   <Output>...
+
+;  ----------
+;  Konstanter
+;  ----------
+   declare X_<KONST> {as <DATAELEM>|@MAKRO@}
+
+;  --------
+;  Variable
+;  --------
+   declare Z_<VAR> {as <DATAELEM>|@MAKRO@}
+   
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Init
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Versjonsstreng
+;  --------------
+   <1. prosedyre i hver fil>
+   W_SCCS_ID = '§SCCSid§'
+
+;  --------------
+;  Feilhåndtering
+;  --------------
+   default error-handling when db-error terminate from @LABEL_DB@
+   @HOOK_DEF_DBERR@
+   default error-handling when gui-error terminate from @LABEL_GUI@
+   @HOOK_DEF_GUIERR@
+
+;  ----------
+;  Konstanter
+;  ----------
+   X_<KONST> = <VERDI - Skal ikke endres>
+
+;  --------
+;  Variable
+;  --------
+   Z_<VAR> = <VERDI - husk at lokale variable ikke har noen default verdi>
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   @HOOK_DEF_LEAVE@
+   terminate from @LABEL_END@
+
+   terminate-label @LABEL_DB@
+   @ERR_DB@
+   terminate from @LABEL_END@
+
+   terminate-label @LABEL_GUI@
+   @ERR_GUI@
+
+   terminate-label @LABEL_END@
+   @HOOK_LEAVE@
+
+   terminate-label @LABEL_EXIT@
+   @PEND_P@
+
+end procedure  ; PD_§FullPict§_§PName§R§§ in §FullPict§
+§done
+§do NoCproc Antall eventprosedyrer
+§ASK cProc§R§ Suffiks for eventprosedyre §R§
+
+
+control-procedure CD_§Pict§_§cProc§R§§ employs CUR_§FullPict§
+;   =========================================================================
+;   PROSEDYRE:    CD_§Pict§_§cProc§R§§
+;   TYPE:         Eventprosedyre
+§ask Target§R§ TARGET for eventpros. nr.§R§
+§rem  ***********************************************************************
+§rem  * 'Target' er det objektet eventprosedyren ligger på, f.eks. en knapp,*
+§rem  * en blokk el.l.                                                      *
+§rem  ***********************************************************************
+;   TARGET:       §Target§R§§
+;
+;   BESKRIVELSE:
+§ask cDesc§R§ Beskrivelse av eventpros. nr.§R§
+;      §cDesc§R§§
+;
+;   GRENSESNITT:
+;   Type          Navn                    Bruk
+;   -----------   ----------------------  -----------------------------------
+;   EMPLOYS	  CUR_§FullPict§
+;   UNIV I
+;   UNIV O
+;   UNIV I/O
+;   CURR I
+;   CURR O
+;   CURR I/O
+;   GLOB I
+;   GLOB O
+;   GLOB I/O
+;
+;   DIVERSE:
+;
+;   =========================================================================
+
+   @PBEGIN_C@
+   @UNIVERSAL@
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   @GRAPE_GLOB_VARS@
+   @GRAPE_LOCAL_VARS@
+   
+;  --------------
+;  Feilhåndtering
+;  --------------
+   default error-handling when db-error terminate from @LABEL_DB@
+   @HOOK_DEF_DBERR@
+   default error-handling when gui-error terminate from @LABEL_GUI@
+   @HOOK_DEF_GUIERR@
+
+;  --------------
+;  Versjonsstreng
+;  --------------
+   <1. prosedyre i hver fil>
+   W_SCCS_ID = '§SCCSid§'
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   @HOOK_DEF_LEAVE@
+   terminate from @LABEL_END@
+   
+   terminate-label @LABEL_DB@
+   @ERR_DB@
+   terminate from @LABEL_END@
+   
+   terminate-label @LABEL_GUI@
+   @ERR_GUI@
+   terminate from @LABEL_END@
+   
+   terminate-label @LABEL_END@
+   @HOOK_LEAVE@
+   
+   terminate-label @LABEL_EXIT@
+   @PEND_C@
+
+end control-procedure ; CD_§Pict§_§cProc§R§§ on §FullPict§
+§done
+§do SecSub Antall subrutiner
+§ASK sSuff§R§ Suffiks for subrutine §R§ (uten prefiks)
+
+
+procedure SD_§Pict§_§sSuff§R§§ <Params> :
+                                employs CUR_§FullPict§
+; ==========================================================================
+; PROSEDYRE:    SD_§Pict§_§sSuff§R§§
+; TYPE:         Subrutine
+;
+; BESKRIVELSE:
+§ask SDesc§R§ Beskrivelse av subrutine §R§
+;    §SDesc§R§§
+;
+; GRENSESNITT:
+; Type          Navn                    Bruk
+; -----------   ----------------------  ------------------------------------
+; IMPORTS	<Params>
+; EXPORTS
+; IMP/EXP
+; RETURNS       CUR_§FullPict§
+; EMPLOYS
+; UNIV I
+; UNIV O
+; UNIV I/O
+; CURR I
+; CURR O
+; CURR I/O
+; GLOB I
+; GLOB O
+; GLOB I/O
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+   @PBEGIN_S@
+   @UNIVERSAL@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Lokale makroer
+;  --------------
+   @LOCAL@_<MAKRO> = <definisjon>
+
+;  -----------
+;  Universelle
+;  -----------
+   universal <ENTITET|ROLLE>
+
+;  ----------------
+;  Globale variable
+;  ----------------
+   declare ZQ_<VAR> <decl> global
+   declare XQ_<VAR> <decl> global
+
+;  --------------
+;  Automatmerking
+;  --------------
+   automark <ENTITET|ROLLE>
+
+;  ----------
+;  Referanser
+;  ----------
+   declare <REF> as reference to <ENTITET>
+
+;  ----------
+;  Funksjoner
+;  ----------
+   declare <FUN> as function
+
+;  ----------
+;  Parametere
+;  ----------
+   declare Z_<PARAM> {as <DATAELEM>|@MAKRO@}
+
+;  ----------
+;  Konstanter
+;  ----------
+   declare X_<KONST> {as <DATAELEM>|@MAKRO@}
+
+;  --------
+;  Variable
+;  --------
+   declare Z_<VAR> {as <DATAELEM>|@MAKRO@}
+   
+;  ------------------
+;  Grapedeklarasjoner
+;  ------------------
+   @GRAPE_GLOB_VARS@
+   @GRAPE_LOCAL_VARS@
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Init
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Versjonsstreng
+;  --------------
+   <1. prosedyre i hver fil:>
+   W_SCCS_ID = '§SCCSid§'
+
+;  --------------
+;  Feilhåndtering
+;  --------------
+   default error-handling when db-error terminate from @LABEL_DB@
+   @HOOK_DEF_DBERR@
+   default error-handling when gui-error terminate from @LABEL_GUI@
+   @HOOK_DEF_GUIERR@
+
+;  ----------
+;  Konstanter
+;  ----------
+   X_<KONST> = <VERDI - Skal ikke endres>
+
+;  --------
+;  Variable
+;  --------
+   Z_<VAR> = <VERDI - husk at lokale variable ikke har noen default verdi>
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   @HOOK_DEF_LEAVE@
+   terminate from @LABEL_END@
+
+   terminate-label @LABEL_DB@
+   @ERR_DB@
+   terminate from @LABEL_END@
+
+   terminate-label @LABEL_GUI@
+   @ERR_GUI@
+
+   terminate-label @LABEL_END@
+   @HOOK_LEAVE@
+
+   terminate-label @LABEL_EXIT@
+   @PEND_S@
+
+end procedure ; SD_§Pict§_§sSuff§R§§ in §FullPict§
+§done

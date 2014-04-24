@@ -1,0 +1,337 @@
+/* @@(#)TVIST TadHV_proc.vcf 29.3 04/08/12> */
+§asku Kortnavn Navn på vindu i System Engineer (f.eks. AV003H)
+
+§if NoenKodeverk Brukes kodeverk overhodet
+/* Disse  makroene må legges inn hvis KODEVERK skal benyttes, for å
+   få tilgang til KO_xxx og KV_xxx-makroer */
+
+@FI@ @SVPDIR@kv_def@SUFF_SVP@
+@FI@ @SVPLIST@alle_kode@SUFF_SVP@
+
+§fi (NoenKodeverk)
+/* Definisjon av utskriftsrutine */
+TadHVCpStart(CD|DialogShortName|SKRIV_UT_1,PrintScreen)
+	TadPrintScreen(DialogName)
+TadHVCpEnd(CD|DialogShortName|SKRIV_UT_1)
+
+
+/* Definisjon av prosedyre for hjelp om dialog */
+
+TadHVCpStart(CD|DialogShortName|HJELP_1,Hjelp)
+        TadHVHelp(DialogName)
+TadHVCpEnd(CD|DialogShortName|HJELP_1)
+
+
+/* Adgangskontroll ved åpning av vinduet.
+ * Det kan være nødvendig med ytterligere tillegg her.
+ */
+
+TadHVCpStart(CD|DialogShortName|ADG_1,Adgangskontroll)
+	TadAccessOpen  /* Hent adgangsdata */
+§if toolBar Er det standard toolbar og filmeny i dialogen
+§rem  ----------------------------------------------------------------
+§rem  Mao:  Finnes MI_SLETT, MI_LAGRE, MI_OPSJONER, SLETT_T og LAGRE_T
+§rem  ----------------------------------------------------------------
+	TadAccessStdMT /* Kontroller SLETT, LAGRE, og OPSJONER */
+§fi toolBar
+§if miHent Er det et aktivt valg på Fil|Hent
+§rem  ---------------------------------------
+§rem  Mao:  Vil Fil|Hent åpne et annet vindu?
+§rem  ---------------------------------------
+§asku miHentOL Hvilket vindu åpnes av Fil|Hent
+§rem   -------------------------------------------------------
+§rem   Angi Systematornavnet på vinduet som åpnes ved Fil|Hent
+§rem   -------------------------------------------------------
+	TadAccessHent(§miHentOL§) /* Sjekk adgang til OL-vindu */
+§fi miHent
+§if tripList Er det et SETT_INN/OPPDATER/SLETT-trippel UTEN prefiks
+§rem  -----------------------------------------------------------------
+§rem  Mao:  Finnes 3 knapper ved navn SETT_INN_B, OPPDATER_B, SLETT_B,
+§rem        uten prefiks?
+§rem  -----------------------------------------------------------------
+	/* Sjekk knapper ved liste (SETT_INN_B/OPPDATER_B/SLETT_B) */
+	TadAccessStdList
+§fi tripList
+§do tripListPfx Antall SETT_INN/OPPDATER/SLETT-tripler MED prefiks
+§rem  -----------------------------------------------------------------
+§rem  Mao:  Hvor mange sett av knapper type KUNDE_SETT_INN_B,
+§rem        KUNDE_OPPDATER_B, KUNDE_SLETT_B?
+§rem  -----------------------------------------------------------------
+§asku tripListPfx§R§ Prefiks på sett nr. §R§
+§rem    ---------------------
+§rem    Typisk entitetsklasse
+§rem    ---------------------
+	/* Sjekk listeknapper (§tripListPfx§R§§_SETT_INN_B/§tripListPfx§R§§_OPPDATER_B/§tripListPfx§R§§_SLETT_B) */
+	TadAccessStdListPfx(§tripListPfx§R§§)
+§done tripListPfx
+§if tripMany Er det et LEGG_TIL/OPPDATER/FJERN-trippel UTEN prefiks
+§rem  -----------------------------------------------------------------
+§rem  Mao:  Finnes 3 knapper ved navn LEGG_TIL_B, OPPDATER_B, FJERN_B,
+§rem        uten prefiks?
+§rem  -----------------------------------------------------------------
+	/* Sjekk knapper ved liste (LEGG_TIL_B/OPPDATER_B/FJERN_B) */
+	TadAccessStdMany
+§fi tripMany
+§do tripManyPfx Antall LEGG_TIL/OPPDATER/FJERN-tripler MED prefiks
+§rem  -----------------------------------------------------------------
+§rem  Mao:  Hvor mange sett av knapper type KUNDE_LEGG_TIL_B,
+§rem        KUNDE_OPPDATER_B, KUNDE_FJERN_B?
+§rem  -----------------------------------------------------------------
+§asku tripManyPfx§R§ Prefiks på sett nr. §R§
+§rem    ---------------------
+§rem    Typisk entitetsklasse
+§rem    ---------------------
+	/* Sjekk knapper ved liste (§tripManyPfx§R§§_LEGG_TIL_B/§tripManyPfx§R§§_OPPDATER_B/§tripManyPfx§R§§_FJERN_B) */
+	TadAccessStdManyPfx(§tripManyPfx§R§§)
+§done tripManyPfx
+§do no3dot Antall knapper med 3 prikker
+§rem  ----------------------------------------------------------
+§rem  ...-knapper må ha adgangskontroll.  Angi antall, så får du
+§rem  spørsmål om det som trengs.
+§rem -----------------------------------------------------------
+§asku bDotNm§R§ Hva heter ...-knapp nr.§R§ (i dialogeditoren)
+§asku bDotOL§R§ Hvilket vindu åpner ...-knapp nr.§R§
+§rem   -----------------------------------------------------------------
+§rem   Her angis SYSTEMATOR-navnene på ...-knappen og vinduet den åpner.
+§rem   -----------------------------------------------------------------
+	/* Sjekk adgang til §bDotOL§R§§ */
+	TadAccessItem(§bDotNm§R§§,§bDotOL§R§§)
+§done no3dot
+§do noMiscOpen Antall øvrige knapper/menyvalg som åpner andre vinduer
+§rem  -------------------------------------------------------------------
+§rem  Disse trenger også adgangskontroll.  Angi antall knapper/menyvalg
+§rem  som åpner andre vinduer (ekskl. Fil|Hent og ...-knapper), så får du
+§rem  spørsmål om det som trengs.
+§rem --------------------------------------------------------------------
+§asku bMiscNm§R§ Hva heter knapp/menyvalg nr.§R§ (i dialogeditoren)
+§asku bMiscOL§R§ Hvilket vindu åpner knapp/menyvalg nr.§R§
+§rem   -----------------------------------------------------------------
+§rem   Her angis SYSTEMATOR-navnene på knappen/menyvalget og vinduet som
+§rem   åpnes.
+§rem   -----------------------------------------------------------------
+	/* Sjekk adgang til §bMiscOL§R§§ */
+	TadAccessItem(§bMiscNm§R§§,§bMiscOL§R§§)
+§done noMiscOl
+§do noMiscDb Antall øvrige knapper/menyvalg som gjør endringer i basen
+§rem  -------------------------------------------------------------------
+§rem  Angi antall knapper/menyvalg som kan medføre databaseendringer
+§rem  (*bortsett fra* Fil|Slett, Fil|Lagre, Lagre-knapp, Slett-knapp,
+§rem  samt tripler av type SETT_INN/... eller LEGG_TIL/... som er angitt
+§rem  over), så får du spørsmål om det som trengs.
+§rem --------------------------------------------------------------------
+§asku bDbNm§R§ Hva heter knapp/menyvalg nr.§R§ (i dialogeditoren)
+§asku bDbOp§R§ Hvilket operasjonskode gjelder for  knapp/menyvalg nr.§R§
+§rem   -----------------------------------------------------------------
+§rem   Her angis operasjonskode, som må være en av SAV (lagring/endring),
+§rem   INS (bare lagring), UPD (bare endring) eller DEL (sletting).
+§rem   -----------------------------------------------------------------
+	/* Sjekk adgang til §bDbNm§R§§ */
+	TadAccessCmd(§bDbNm§R§§,§bDbOp§R§§)
+§done noMiscOl
+TadHVCpEnd(CD|DialogShortName|ADG_1)
+§do AntCombo Hvor mange combobokser er det i vinduet
+
+
+§asku Combofelt§R§ Navnet på søkefeltet som skal representeres som comboboks nr.§R§
+§rem  -----------------------------------------------------------------------
+§rem  Dvs. oppgi navnet på det feltet som står som comboboks i dialogeditoren
+§rem  - f.eks.  RO_KODE.KODE_B,
+§rem  -----------------------------------------------------------------------
+§rem
+§if Kv§R§ Er comboboksen nr.§R§ basert på kodeverk
+§rem .
+§asku KvType§R§ Hvilken kodeverksmakro (KV_xxx) skal benyttes i boks nr.§R§
+§rem    -----------------------------------------------------------------
+§rem    Angi navnet på kodeverksmakroen (@KV_xxx@) slik den er definert i
+§rem    fila kv_def.svp, uten krøllalfa rundt, men med KV-prefiks.
+§rem    F.eks.:    KV_FABRIKAT
+§rem    -----------------------------------------------------------------
+§rem .
+§if AlleK§R§ Skal utgåtte koder også være med i comboboks nr.§R§
+§rem   ------------------------------------------------------------------
+§rem   Utgåtte koder skal typisk tas med i OL-vinduer, mens de utelates i
+§rem   vedlikeholdsvinduer.
+§rem   ------------------------------------------------------------------
+§define AlleKpar§R§ True
+§else
+§define AlleKpar§R§ False
+§fi
+§rem
+§asku ComboDbFelt§R§ Navn på data-element som skal vises i comboboks (Eks: RO_KODE.KODE_B) (§R§)
+§rem
+/* Definisjon av prosedyren for fylling av comboboks. Inkluderes hvis det er
+   felter på vinduet som er representert som comboboks. Selve definisjonen
+   trengs ikke endres. Basert på kodeverk*/
+
+TadHVCpStart(CD|DialogShortName|WINDOW_§R§,Fylling av komboboks §Combofelt§R§§)
+        /* !!! Alle prosedyrene for fylling bør slås sammen til 1 !!! */
+	TadKodeFillCombo(§at§§KvType§R§§§at§,§Combofelt§R§§,§AlleKpar§R§§)
+TadHVCpEnd(CD|DialogShortName|WINDOW_§R§)
+§else
+/* Definisjon av prosedyren for fylling av comboboks. Inkluderes hvis det er
+   felter i vinduet som er representert som comboboks. Selve definisjonen
+   trengs ikke endres. Basert på relatert entitet. */
+
+§asku RelEntitet§R§ Hva er navnet på relatert entitet for boks nr.§R§
+§rem  -------------------------------------------
+§rem  Oppgi entitetsnavn, f.eks. AVG_ELEMENT_TYPE
+§rem  -------------------------------------------
+§asku ComboDbFelt§R§ Navn på felt i databasen (boks nr.§R§)
+§rem  ---------------------------------------------------------
+§rem  Oppgi navnet på det feltet som skal hentes fra databasen.
+§rem  Dette er en kolonne  i tabellen fra forrige spørsmål
+§rem  - f.eks. AVG_ELEMENT_TYPE_B.
+§rem  ---------------------------------------------------------
+§rem
+TadHVCpStart(CD|DialogShortName|WINDOW_§R§,Fylling av komboboks §Combofelt§R§§)
+        /* !!! Alle prosedyrene for fylling bør slås sammen til 1 !!! */
+        TadComboFill(§Combofelt§R§§,§ComboDbFelt§R§§,TadRelatedFindAll(§RelEntitet§R§§,§ComboDbFelt§R§§))
+TadHVCpEnd(CD|DialogShortName|WINDOW_§R§)
+§fi (Kv)
+
+
+/* Definisjon av prosedyren for valg av verdi i comboboks.
+   Inkluderes hvis det er felter på vinduet som er representert som
+   comboboks. Selve definisjonen trengs ikke endres.
+   Blanker ut verdi hvis (ingen) er valgt. */
+
+TadHVCpStart(CD|DialogShortName|COMBO_§R§,Valg av verdi i komboboks §Combofelt§R§§)
+        TadComboSelect(§Combofelt§R§§)
+TadHVCpEnd(CD|DialogShortName|COMBO_§R§)
+§done
+§if gotFocus Skal GotFoucs fanges
+§rem   -------------------------------------------------------------------
+§rem   Dersom bildet har Fil|Hent, "..."-knapper eller er et detaljvindu,
+§rem   må GotFocus benyttes for å fange at bildet er blitt aktivt, slik at
+§rem   det kan oppfriske seg.
+§rem   -------------------------------------------------------------------
+TadHVCpStart(CD|DialogShortName|WINDOW_14,GotFocus)
+   /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      ! Denne kommentaren er til hjelp ved utfylling av malen -
+      ! fjern den når du har kodet ferdig!
+      !
+      ! Ved GotFocus bør du teste på en og en betingelse i separate if/
+      ! end if-blokker - skriv koden som om flere oppfriskninger kan
+      ! komme til å skje samtidig.
+      !
+      ! For MI_HENT, HENT_T, og hver "..."-knapp, skal det være et GET-
+      ! flagg -  ZQ|DialogShortName|<ent>_GET, som er TRUE dersom brukeren har
+      ! trykket knappen/valgt i menyen.  I så tilfelle sjekkes SISTE for
+      ! nøkkelen til angitt entitet, i så fall forsøkes forekomsten vist,
+      ! flagget skal uansett settes tilbake til FALSE.
+      !
+      ! Deklarer disse variablene i toppen av prosedyren:
+      !    declare ZQ|DialogShortName|<ent1>_GET boolean global
+      !	   declare ZQ|DialogShortName|<ent2>_GET boolean global
+      !    osv...
+      ! Du kan også trenge
+      !    declare zDoDisp boolean
+      !	   declare zDoChc  boolean
+      !	   declare zNewID  as <ent1>.<ent1_ID>  ; For hovedentitet
+      !
+      ! For hver av dem skrives en kodesnutt a la dette:
+      !    if ZQ|DialogShortName|<ent1>_GET
+      !	      ZQ|DialogShortName|<ent1>_GET = False ; Skal ikke hente igjen
+      !	      if SISTE.<ent_ID> is defined
+      !		 <gjør nødv. oppslag, vis data - eller se eksempel under>
+      !	      end if ; SISTE defined
+      !	   end if    ; zq|DialogShortName|<ent1>_get
+      !
+      ! Dersom dette er et detaljvindu, vil det typisk finnes en variabel
+      ! ZQ_<hovedvindu>_<entitet>_CURR (eller flere, om nøkkelen er en
+      ! gruppe), som inneholder nøkkelen til aktiv forekomst (eller er blank,
+      ! hvis hovedvinduet er tomt).  Du må da ha en lokal variabel som husker
+      ! hvilken forekomst som er vist "her" i øyeblikket.og sammenligne denne
+      ! med det som er vist i hovedvinduet.  Eksempel på deklarasjon:
+      !    declare ZQ_<hovedvindu>_<ent>_CURR as <ent.nøkkel>   ; <beskr>
+      !	   declare ZQ|DialogShortName|<ent>_CURR as <ent.nøkkel>   ; <beskr>
+      ! Husk å kommentere variablene, SE-navnet til hovedvinduet er neppe
+      ! selvforklarende...
+      ! Deretter skriver du kode for å sjekke/vise, kanskje etter mønster av:
+      !    if ZQ|DialogShortName|<ent>_CURR <> ZQ_<hovedvindu>_<ent>_CURR
+      !	      <blank ut hele/deler av vinduet - kan innebære spørsmål
+      !	       om endringer skal lagres etc>
+      !	      if ZQ_<hovedvindu>_<ent>_CURR is defined
+      !		 <vis forekomst svarende til denne - eller se eksempel under>
+      !	      end if ; ZQ_<hovedvindu>_<ent>_CURR defined
+      !	   end if    ; ZQ_<hovedvindu>_<ent>_CURR<>ZQ|DialogShortName|<ent>_CURR
+      !
+      ! For hovedentiteten i vinduet vil det ofte også kunne være et GOTO-
+      ! flagg satt for å håndtere inngang fra liste, samt et REFRESH-flagg.
+      !  Det er da kjedelig å skrive samme visningskode flere ganger for å
+      ! håndtere dette.  Enda kjedeligere blir det dersom det er et
+      ! detaljvindu, og verdien skal vises i 4 forskjellige sammenhenger...
+      ! Da utvider vi typisk koden slik:
+      !
+      ! -------------------------------------------------------------------
+      !    declare ZQ|DialogShortName|<ent1>_GET boolean global
+      !    declare zDoDisp			 boolean
+      !	   declare zDoChc			 boolean
+      !	   declare zNewID  as <ent1>.<ent1_ID>  ; For hovedentitet
+      !
+      !    zDoDisp = False ; Skal ikke vise ny
+      !	   zDoChc  = True  ; Men hvis vi likevel skal vise noe,
+      !			     sjekker vi ulagrede endringer
+      !
+      ! ;  -------------------------------------
+      ! ;  Sjekker Fil|Hent / overgang fra liste
+      ! ;  -------------------------------------
+      !    if ZQ|DialogShortName|<ent1>_GET or ZQ|DialogShortName|GOTO
+      !	      ZQ|DialogShortName|<ent1>_GET = False ; Skal ikke hente igjen
+      !	      ZQ|DialogShortName|GOTO       = False
+      !	      if SISTE.<ent_ID> is defined
+      !		 zDoDisp = True
+      !		 zNewID  = SISTE.<ent_ID>
+      !	      end if ; SISTE defined
+      !	   end if    ; zq|DialogShortName|GOTO/<ent1>_GET
+      !
+      ! ;  -----------------
+      ! ;  Synk m/hovedvindu
+      ! ;  -----------------
+      !    if ZQ|DialogShortName|<ent1>_CURR <> ZQ_<hovedvindu>_<ent1>_CURR
+      !	      zNewID  = ZQ_<hovedvindu>_<ent1>_CURR
+      !       zDoDisp = True
+      !	   end if
+      !
+      ! ;  ------------
+      ! ;  Oppfriskning
+      ! ;  ------------
+      !    if ZQ|DialogShortName|REFRESH
+      !	      ZQ|DialogShortName|REFRESH = False
+      !	      obtain value of <ent1>.<ent_ID> into zNewID in DialogName
+      !       zDoDisp = True
+      !	   end if
+      !
+      !  <dersom det ikke er lov å lagre, settes zDoChc til False, slik
+      !   at bruker ikke får tilbud om å lagre endringer>
+      !
+      ! ; ---------
+      !	; Sjekk/vis
+      ! ; ---------
+      !	  if zDoDisp
+      !	     if zDoChc       ;  Utfør endringskontroll
+      !		CallFindCheck(<ent1>,Q_CHF_<ent1>|DialogName)
+      !	     else
+      !		Success
+      !	     end if
+      !						   Tad______Empty
+      !	     If_Success
+      !;	 ---------------
+      !;        Blanker vinduet
+      !;	 ---------------
+      !		call Q_CLR_<ent1>|DialogName
+      !						   Tad______Empty
+      !		display <ent1>.<ent_ID> equal to zNewID in DialogName
+      !		call Q_FIN_<ent1>|DialogName   ; Frisker opp data i vindu
+      !						   Tad______Empty
+      !		ZQ|DialogShortName|<ent1>_CURR = zNewID
+      !	     Fi_Success
+      !	  end if
+      !
+      ! -------------------------------------------------------------------
+      !
+      ! Dette var ingen absolutt fasit, men det kan kanskje hjelpe deg på
+      ! vei?
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+TadHVCpEnd(CD|DialogShortName|WINDOW_14)
+§fi

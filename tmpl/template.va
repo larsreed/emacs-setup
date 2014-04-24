@@ -1,0 +1,194 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§rem bruk lre-spe-konv (F12) i EMACS på hver fil før inklusjon !
+§default scriptnavn  (eval (tplsub-buffer-name))
+§ask scriptnavn
+@DEFINE_NAME@ §scriptnavn§
+§ask beskrivelse
+@DEFINE_DESC@ §beskrivelse§
+@DEFINE_ID@   $Id: template.va,v 1.2 2004/03/15 21:18:21 larsr Exp $
+@DEFINE_HIST@ '#
+# Sign.:  LRE, ?????????????????
+# Endret: ????'
+*V ; §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+*V INCLUDE IF ftype=INFO
+*V ; §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+Modul:
+   @I@
+
+Beskrivelse:
+   @I_DESC@
+
+Versjon:
+   $Revision: 1.2 $
+   $State: Exp $
+
+Filliste:
+	std
+§if inclCSH Inkludere CSH
+§else
+	-.csh
+§fi
+§if inclKSH Inkludere KSH
+	+.ksh
+§fi
+§if inclAWK Inkludere AWK
+	+.awk
+§fi
+§if inclC Inkludere C
+	+.c
+§fi
+§if inclSGML Inkludere SGML
+§else
+	-.sgml
+§fi
+§if inclDOK Inkludere DOK
+§else
+	-.dok
+§fi
+§if inclMAN Inkludere MAN
+§else
+	-.man
+§fi
+§if inclHTML Inkludere HTML
+§else
+	-.html
+§fi
+
+Pakker:
+§default pakke std
+§ask pakke
+	§pakke§
+
+RCS-info:
+   $RCSfile: template.va,v $ ($Source: /cvsroot/emacs/site-lisp/tmpl/template.va,v $)
+   $Author: larsr $, $Date: 2004/03/15 21:18:21 $
+   $Locker:  $
+
+Historikk:
+   $Log: template.va,v $
+   Revision 1.2  2004/03/15 21:18:21  larsr
+   hi-lock / mode / LF-mode
+
+   Revision 1.1.1.1  2004/03/15 21:07:54  larsr
+   Initial CVS version
+
+§if inclCSH
+*V ; §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+§if CSHmain CSH=MAIN
+*V OR-INCLUDE IF ftype=CSH,MAIN
+§else
+*V OR-INCLUDE IF ftype=CSH
+§fi
+*V ; §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+@CSH@
+@SCRIPT_HDR_LINE@
+# Navn:   @I@
+# Ver.:   @I_VER@
+# Beskr.: @I_DESC@
+@I_HIST@
+@SCRIPT_HDR_LINE@
+@SET_MY_NAME@
+???Ta vekk #!,hode, I=, source stdcmd,flytt endringer over i loggen over
+?????????????????????????????+
+@SIG@
+§fi inclCSH
+§if inclKSH
+*V ; §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+§if CSHmain CSH=MAIN
+*V OR-INCLUDE IF ftype=KSH
+§else
+*V OR-INCLUDE IF ftype=KSH,MAIN
+§fi
+*V ; §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+@KSH@
+@SCRIPT_HDR_LINE@
+# Navn:   @I@
+# Ver.:   @I_VER@
+# Beskr.: @I_DESC@
+@I_HIST@
+@SCRIPT_HDR_LINE@
+@SET_MY_NAME@
+??? Ta vekk I,#!,logg
+?????????????????????????????+
+@SIG@
+§fi inclKSH
+§if inclC
+*V ; §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+*V OR-INCLUDE IF ftype=C,MAIN
+*V ; §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+@CDEFS@
+/*
+ * @SCRIPT_HDR_LINE@
+ * Navn:   @I@
+ * Ver.:   @I_VER@
+ * Beskr.: @I_DESC@
+ * @I_HIST@
+ *
+ * Kompilering:
+ *    cc -O @I@.c -o @I@
+ *
+ * @SCRIPT_HDR_LINE@
+ */
+?????
+
+@SIG@
+§fi inclC
+§if inclAWK
+*V ; §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+*V OR-INCLUDE IF ftype = AWK
+*V ; §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+@AWK@
+@SCRIPT_HDR_LINE@
+# Navn:   @I@.awk ????
+# Ver.:   @I_VER@
+§ask awkDesc Beskrivelse av awk-fila
+# Beskr.: §awkDesc§
+@SCRIPT_HDR_LINE@
+?????????????????????
+@SIG@
+§fi inclAWK
+§if inclSGML
+*V ; §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+*V OR-INCLUDE IF ftype = SGML
+*V ; §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+@DEFINE_BROWSER@ 'bseq="MAIN" bno=1 bnext="2" bprev="0"'
+@SGML@
+????????????????????? MANBODY, std.komm., APPDEF,BROWSER,NAME,AVAIL
+????????????????????? dekkes i makroen
+?????????????????????
+????????????????????? SIG dekker alt fra </HTABEND> og ut
+@SIG@
+§fi inclSGML
+§if inclDOK
+*V ; §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+*V OR-INCLUDE IF ftype = dok
+*V ; §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+@DOK@
+????DOK inneholder NAME/NAVN og SYSTEM - begynn med SYNTAKS her
+??????????????????????
+@SIG@
+§fi inclDOK
+§if inclMAN
+*V ; §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+*V OR-INCLUDE IF ftype=man
+*V ; §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+@MAN@
+@MAN_INTRO@
+????MAN_INTRO dekker til og med linja med @I@ etter Synopsis
+?????????????????????????
+????MAN_END dekker fra linja etter .TE etter historikken og ut
+@SIG@
+@MAN_END@
+§fi inclMAN
+§if inclHTML
+*V ; §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+*V OR-INCLUDE IF ftype=HTML
+*V ; §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+@HTML@
+@HTML_INTRO@
+????HTML_INTRO dekker hode+NAME og AVAILABILITY
+????????????????????????????????
+????HTML_END dekker SIG, /BODY etc
+@HTML_END@
+§fi inclHTML
+*V END-INCLUDE ; ftype

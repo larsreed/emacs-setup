@@ -1,0 +1,41 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§ask PMnr PM-nr til historikken
+§ask SCCSid SCCS-ID
+§ask FileID Fil/versjonskode
+§ASK ApplShort Kortnavn på batchen (type abf01)
+§ASK Appl Applikasjonsnavn (type M_ABF01)
+; =========================================================================
+; PROSJEKT:    TVIST2000
+; FIL:         §FileID§
+; APPLIKASJON: §Appl§
+; MAL:         m2.vpl 27.4
+;
+; BESKRIVELSE:
+§ask Desc Beskrivelse av hovedprogrammet
+;    §Desc§
+;
+; KALLBARE RUTINER:
+;
+; HISTORIKK:
+; YYMMDD  Sign.  Endring
+; ------  -----  ----------------------------------------------------------
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+; §Date§  §User§   Opprettet (§PMnr§)
+;
+; AVVIK FRA STANDARD:
+;
+; MULIGE UTVIDELSER:
+;
+; DIVERSE:
+;
+; =========================================================================
+
+
+@LOCAL@_program = §Appl§
+@LOCAL@_short   = §ApplShort§
+§ASK BatchName Navn på batchen (type PJA_ABF01)
+@LOCAL@_batch   = §BatchName§
+@LOCAL@_ver_id  = '§xSCCSid§'
+
+@FI@ @SVPDIR@batch_main@SUFF_SVP@

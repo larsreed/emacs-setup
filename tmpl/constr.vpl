@@ -1,0 +1,79 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§ask PMnr PM-nr til historikken
+/*****************************************************************************
+
+§ask SCCSid SCCS-ID
+ Versjon:       §SCCSid§
+§asku tabell
+§asku TBF
+ Beskrivelse: 	Check constraints for tabellen §tabell§ (§TBF§)
+
+ Historikk:
+ YYMMDD  Sign.  Endring
+ ------  -----  -----------------------------------------------------------
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+ §Date§  §User§   Opprettet (§PMnr§)
+
+*****************************************************************************/
+
+/* NB! Det må IKKE være go mellom hver drop constraint -
+       *BARE* etter den siste av dem!!! */
+§do numChecks Antall kontroller
+alter table §tabell§
+drop constraint ch§TBF§§R§
+§done
+go
+
+§do numChecks
+
+alter table §tabell§ add constraint ch§TBF§§R§ check (
+§if IDcheck§R§ Er nr.§R§ sjekk på ID
+   §TBF§_ID > 0
+§else
+§if Lnr§R§ Er nr.§R§ sjekk på linjenummer
+   LINJENR > 0
+§else
+§if FraTil§R§ Er nr.§R§ sjekk på dato fra/til
+   DATO_FRA <= DATO_TIL
+§else
+§if Bool§R§ Er nr.§R§ sjekk på boolean
+   xxx in (0,1)
+§else
+   x
+§fi
+§fi
+§fi
+§fi
+)
+go
+§if IDcheck§R§
+sp_bindmsg ch§TBF§§R§, 30278
+§else
+§if Lnr§R§
+sp_bindmsg ch§TBF§§R§, 30464
+§else
+§if FraTil§R§
+sp_bindmsg ch§TBF§§R§, 30100
+§else
+sp_bindmsg ch§TBF§§R§, <!meldingsnummer!>
+§fi
+§fi
+§fi
+go
+§done
+
+-- Her er noen eksempler:
+--    LINJENR > 0
+--    SLETTET in (0,1)
+--    DATO_FRA <= DATO_TIL
+--    DATO_UTGATT > getdate()
+--    POSTNR like "[ 0-9][ 0-9][ 0-9][ 0-9][ 0-9][ 0-9]"
+--    ER_HJELPEBAT != 1 or HAR_HJELPEBAT != 1
+--    DATO_FRA between "19800101" and "19991231"
+--    FORSTE_REG_AR <= datepart(year,getdate())
+--
+-- Noen meldinger
+--    30100 Ulovlig dato! (Lovlig dato_fra <= dato_til)
+--    30278 Ugyldg verdi - ID-feltet må være større enn 0
+--    30464 Linjenr må være større enn 0

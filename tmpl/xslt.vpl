@@ -1,0 +1,173 @@
+§rem -*-xml-*-
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- ==================================================================== -->
+<!--                                                                      -->
+<!--                                                                      -->
+<!-- ==================================================================== -->
+
+<xsl:stylesheet version="1.0"
+		xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+§do antParamSty Number of stylesheet parameters
+§ask styPar§R§ Name of parameter §R§
+§ask stySel§R§ Select-expr for parameter §R§ or blank
+§ifdef stySel§R§
+    <xsl:param name="§styPar§R§§" select="§stySel§R§§"/>
+§else
+    <xsl:param name="§styPar§R§§"/>
+§fi stySel def
+§done
+
+    <xsl:output
+§defbool ishtml nil
+§if html
+	        method="html"
+		version="4.0"
+		media-type="text/html; ISO-8859-1"
+		doctype-public="-//W3C//DTD HTML 4.0//EN"
+§defbool xhtml nil
+§defbool xml nil
+§defbool text nil
+§defbool ishtml t
+§else
+§if xhtml
+	        method="xml"
+                media-type="text/xhtml; ISO-8859-1"
+                version="1.0"
+                doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN"
+                doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
+§defbool xml nil
+§defbool text nil
+§defbool ishtml t
+§else
+§if xml
+	        method="xml"
+		version="1.0"
+§ask pubdoctype Public doctype or blank
+§ifdef doctype
+		doctype-public="§pubdoctype§"
+§fi doctype def
+§defbool text nil
+§else
+	        method="text"
+§defbool text t
+§fi xml
+§fi xhtml
+§fi html
+		encoding="ISO-8859-1"/>
+§if stripSpace
+§def1 stripElem *
+§ask stripElem Element list for strip-space
+
+    <xsl:strip-space elements="§stripElem§"/>
+§fi strip-space
+§if preserveSpace
+§def1 preserveElem *
+§ask preserveElem Element list for preserve-space
+
+    <xsl:preserve-space elements="§preserveElem§"/>
+§fi preserve-space
+
+§do noImp Number of imports
+§ask hrefImp§R§ href #§R§
+    <xsl:import href="§hrefImp§R§§"/>
+§done
+§do noInc Number of includes
+§ask hrefInc§R§ href #§R§
+    <xsl:include href="§hrefInc§R§§"/>
+§done
+
+    <!-- :::::::::::::::::::: Callable templates :::::::::::::::::::: -->
+§if varSP Include SP-variable
+    <xsl:variable name="SP"><xsl:text> </xsl:text></xsl:variable>
+§fi varSP
+§if varNL Include NL-variable
+    <xsl:variable name="NL"><xsl:text>
+</xsl:text></xsl:variable>
+§fi varNL
+§if nbsp Include nbsp-template
+
+    <xsl:template name="nbsp" match="nbsp">&#160;</xsl:template>
+§fi nbsp
+§if q Include q-template
+
+    <xsl:template match="q">&#147;<xsl:apply-templates/>&#148;</xsl:template>
+§fi q
+§if ishtml
+§if htmlconv Include b/i/tt-conversion
+
+    <xsl:template match="i">
+        <em class="i"><xsl:apply-templates/></em>
+    </xsl:template>
+
+    <xsl:template match="b">
+        <strong class="b"><xsl:apply-templates/></strong>
+    </xsl:template>
+
+    <xsl:template match="tt">
+        <code class="tt"><xsl:apply-templates/></code>
+    </xsl:template>
+§fi htmlconv
+§fi ishtml
+
+    <!-- ::::::::::::::::::::::: Root element ::::::::::::::::::::::: -->
+
+    <xsl:template match="/">
+§if html
+        <html>
+§else
+§if xhtml
+        <html xmlns="http://www.w3.org/1999/xhtml">
+§fi xhtml
+§fi html
+§if ishtml
+            <head>
+§ask css CSS style sheet or blank
+§ifdef css
+                <link href="§css§" rel="stylesheet" type="text/css" />
+§fi
+§if style Style section
+                <style>
+                    <xsl:comment>
+                        STYLE SHEET HERE
+                    </xsl:comment>
+                </style>
+§fi style
+§ask title
+                <title>§title§</title>
+§if metagen Include meta generated elements
+                <xsl:call-template name="metaGen">
+                    <xsl:with-param name="xslid"
+                        select="'(LRE) !!!!!!.xsl'"/>
+		</xsl:call-template>
+§fi metagen
+            </head>
+            <body>
+		<xsl:apply-templates/>
+	    </body>
+	</html>
+§else ishtml
+	<xsl:apply-templates/>
+§fi ishtml
+    </xsl:template>
+§if IDrule Include identity rule (copy)
+
+    <xsl:template match="text()|comment()|processing-instruction()|@*|*">
+        <xsl:copy>
+	    <xsl:apply-templates
+		select="text()|comment()|processing-instruction()|@*|*" />
+        </xsl:copy>
+    </xsl:template>
+§fi IDrule
+§if recRule Include standard recursion rule
+
+    <xsl:template match="text()|comment()|processing-instruction()|@*|*">
+	<xsl:apply-templates/>
+    </xsl:template>
+§fi recRule
+§if ignRule Include standard ignore rule
+
+    <xsl:template match="text()|comment()|processing-instruction()|@*|*"/>
+§fi ignRule
+
+</xsl:stylesheet>

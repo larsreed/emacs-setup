@@ -1,0 +1,38 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§ask PMnr PM-nr til historikken
+§ask SCCSid SCCS-ID
+§ask FileID Fil/versjonskode
+/*
+ * ==========================================================================
+ * PROSJEKT:    TVIST2000
+ * FIL:         §FileID§
+ * MAL:         h.vpl 27.5
+ * TYPE:        Includefil, C
+ *
+ * BESKRIVELSE:
+§ask Description Beskrivelse av innholdet
+ *    §Description§
+ *
+ * HISTORIKK:
+ * YYMMDD  Sign.  Endring
+ * ------  -----  -----------------------------------------------------------
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+ * §Date§  §User§   Opprettet (§PMnr§)
+ *
+ * AVVIK FRA STANDARD:
+ *
+ * MULIGE UTVIDELSER:
+ *
+ * DIVERSE:
+ *
+ * ==========================================================================
+ */
+
+§asku HeaderName Filnavn uten suffiks
+#ifndef TVIST_H_§HeaderName§
+#define TVIST_H_§HeaderName§ "§SCCSid§"
+
+<body>
+
+#endif /* TVIST_H_§HeaderName§ */

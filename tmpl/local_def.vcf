@@ -1,0 +1,35 @@
+/* @@(#)TVIST local_def.vcf 24.1 03/05/27> */
+
+§ask OneLineDesc Kort beskrivelse av dialogen
+§rem    ------------------------------------------
+§rem    1-linjes beskrivelse som legges i filhodet
+§rem    ------------------------------------------
+#define TadFileDesc §OneLineDesc§
+
+§ASK Kortnavn Navn på vindu i System Engineer (f.eks. AV003H)
+#define DialogShortName §Kortnavn§
+
+/* Settes for tilpasse hvor oppdatert malkode som skal brukes
+   - se TadDefs.cf */
+#define TadGrapeLevel 4
+
+/*
+ * Kommentarer til AVVIK, DIVERSE og UTVIDELSER i filhodet defineres slik:
+ *    #define TadHode_Xxxx  @@\
+ *        ;   Bla bla bla... @@\
+ *        ;   mere bla
+ * der Xxxx er hhv Avvik, Diverse og Utvidelser.
+ * Det skal ikke være "hookkommentar" i topp og bunn.  Hver linje må
+ * formateres som kommentar, ikke bruk Tad______Empty.
+ */
+
+/*
+ * Endringslogg legges inn slik:
+ *    #define TadHode_Historikk @@\
+ *    ; 970430  LaRe   Fikset coredump ved tilordning av returstatus @@\
+ *    ; 970501  LaRe   Fikset fiksen...
+ * Her skal det heller ikke være "hookkommentar" i topp og bunn.
+ */
+
+
+§quit Resten må du lage selv!

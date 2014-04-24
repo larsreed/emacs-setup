@@ -1,0 +1,63 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§ask SCCSid SCCS-ID
+§ask FileID Fil/versjonskode
+§defbool inclOld nil
+§define hist Opprettet
+§define ForG F
+§asku FileGrp Fellesnavn på prosedyrene (NNN i PFx_NNN_SSS)
+§ask PMnr PM-nr til historikken
+§if isFel Er dette en teknisk fellesrutine (PFF_...)
+§define System F
+§define subrType Teknisk fellesrutine
+§define macSfx PFF
+§else
+§asku System Systembokstav (K=FKR osv)
+§define subrType Systemavhengig fellesrutine (§System§)
+§define macSfx PF
+§default Description Grensesnittfunksjoner mot §FileGrp§
+§fi isFel
+; ==========================================================================
+; PROSJEKT:    TVIST
+; FIL:         §FileID§
+; MAL:         fx.vpl 27.12
+;
+§ask Description Beskrivelse av fila
+; BESKRIVELSE:
+;    §Description§
+;
+; KALLBARE RUTINER:
+§doP nProcs Antall prosedyrer som skal lages
+§asku mSuff§P§ Siste del av navn på prosedyre #§P§ (SSS i PFx_NNN_SSS)
+§ask Design§P§ Ref. til designdok. #§P§
+;    PF§System§_§FileGrp§_§mSuff§P§§
+§append hist , §mSuff§P§§
+§doneP
+;
+; HISTORIKK:
+; YYMMDD  Sign.  Endring
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+; ------  -----  -----------------------------------------------------------
+; §Date§  §User§   PM§PMnr§ - §hist§
+;
+; REFERANSE TIL DESIGN:
+§doP nProcs
+;    §Design§P§§ = §mSuff§P§§
+§doneP
+;
+; AVVIK FRA STANDARD:
+;
+; MULIGE UTVIDELSER:
+;
+; DIVERSE:
+;
+; ==========================================================================
+§if useCset Bruke currency set
+§default CurSet CUR_§FileGrp§
+§asku CurSet Navn på currency set
+§define employs employs
+§append employs \ §CurSet§
+§else
+§define employs
+§fi
+§include tvistproc.inc

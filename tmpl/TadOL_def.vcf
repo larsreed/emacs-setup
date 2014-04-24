@@ -1,0 +1,326 @@
+/* @@(#)TVIST TadOL_def.vcf 24.2 03/07/14> */
+
+§ask OneLineDesc Kort beskrivelse av dialogen
+§rem    ------------------------------------------
+§rem    1-linjes beskrivelse som legges i filhodet
+§rem    ------------------------------------------
+#define TadFileDesc §OneLineDesc§
+
+§ASK Kortnavn Navn på vindu i System Engineer (f.eks. AV003H)
+#define DialogShortName §Kortnavn§
+
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+#define TadHode_Historikk \
+; §Date§  §User§   Første versjon
+
+/* Settes for tilpasse hvor oppdatert malkode som skal brukes
+   - se TadDefs.cf */
+#define TadGrapeLevel 4
+§if TadOLHide Skal denne dialogen spesialhåndtere lukking som hiding
+
+/* Be om HIDE i stedet for lukk */
+#define TADOL_HIDE 2
+#define TADOL_HUSK_INIT False
+#define TADOL_HUSK_ENT @X_ENT_NAME@
+§fi
+
+/*
+ * Kommentarer til AVVIK, DIVERSE og UTVIDELSER i filhodet defineres slik:
+ *    #define TadHode_Xxxx  @@\
+ *        ;   Bla bla bla... @@\
+ *        ;   mere bla
+ * der Xxxx er hhv Avvik, Diverse og Utvidelser.
+ * Det skal ikke være "hookkommentar" i topp og bunn.  Hver linje må
+ * formateres som kommentar, ikke bruk Tad______Empty.
+ */
+
+
+/* Flagg for å inkludere makroer for oppslag/liste-vindu */
+#define TADOL_VINDU
+
+§if GotoList Er dette et vindu som kan startes fra Gå-til menyen
+/* Tar med kode for å gå fra systemvindu via listevindu til hovedvindu */
+#define TADGOTOLIST
+
+§fi
+
+§if autoSiste Generere kode for å sette SISTE ved lukking
+/* Sett SISTE ved OK */
+#ifndef HookUniversalPKeyDefine
+#define HookUniversalPKeyDefine      @@\
+	; <"HookUniversalPKeyDefine" @@\
+§do antSisteFelt Antall felt som skal settes i SISTE
+§ASK sisteFelt§R§ Feltnavn nr.§R§ i SISTE
+§ASK sisteRolle§R§ Rollenavn for felt nr.§R§ i lista
+	  SISTE.§sisteFelt§R§§ = §sisteRolle§R§§.§sisteFelt§R§§ @@\
+§done
+	;  "HookUniversalPKeyDefine">
+#endif
+
+/* Blank SISTE ved Avbryt */
+#ifndef HookUniversalPKeyBlank
+#define HookUniversalPKeyBlank      @@\
+	; <"HookUniversalPKeyBlank" @@\
+§do antSisteFelt
+	  SISTE.§sisteFelt§R§§ = LAVESTE.§sisteFelt§R§§ @@\
+§done
+     ;   "HookUniversalPKeyBlank">
+#endif
+
+§else
+/* --------------Disse må endres!!!!!!!!-------------------------------------*/
+
+/* Dette er hook som tilordner SISTE som holder primærnøkkel til den
+   forekomsten som er valgt i en liste. Settes ved overføring fra et vindu til
+   ett annet. Aktiveres på OK og DoubleClick i liste.
+
+   Eksempel:
+     #ifndef HookUniversalPKeyDefine
+     #define HookUniversalPKeyDefine @@\
+     ; < "HookUniversalPKeyDefine" @@\
+       Tad______Empty @@\
+       SISTE.AVG_ELEMENT_TYPE_ID = RO_AVG_ELEMENT_TYPE.AVG_ELEMENT_TYPE_ID @@\
+       SISTE.AVG_ELEMENT_ID	 = AVG_ELEMENT.AVG_ELEMENT_ID	      @@\
+     ;  "HookUniversalPKeyDefine" >
+     #endif
+ */
+
+#ifndef HookUniversalPKeyDefine
+#define HookUniversalPKeyDefine ; "HookUniversalPKeyDefine"
+#endif
+
+/* Dette er hook som blanker ut SISTE sine verdier til primærnøkkel for den
+   entiteten som er hovedentiteten i vinduet.
+   Settes ved overføring fra et vindu til ett annet, slår til på WMClose
+   eller Avbryt
+
+   Eksempel:
+     #ifndef HookUniversalPKeyBlank
+     #define HookUniversalPKeyBlank @@\
+     ; < "HookUniversalPKeyBlank" @@\
+     	 SISTE.AVG_ELEMENT_TYPE_ID = LAVESTE.AVG_ELEMENT_TYPE_ID @@\
+     	 SISTE.AVG_ELEMENT_ID      = LAVESTE.AVG_ELEMENT_ID @@\
+     ;   "HookUniversalPKeyBlank" >
+     #endif
+ */
+
+#ifndef HookUniversalPKeyBlank
+#define HookUniversalPKeyBlank ; "HookUniversalPKeyBlank"
+#endif
+
+§fi
+
+§if NotSok  Er det søkefelter i vinduet
+
+/* Her legges inn hook som setter opp utvalget ifm søk.
+   Søkefelter må valideres, riktig nøkkel må benyttes og identifisering
+   av utvalget må gjøres.
+   Kan gjøres på to måter - enten å gjøre kall til en prosedyre som gjør
+   utvalget, f.eks. slik:
+
+   #define HookIdentifyForSearch call_my_identify_proc exp. <var1> imp. <var2>
+
+   eller det kan gjøres på måten som vist i eksempel under.
+
+*/
+
+#define HookIdentifyForSearch @@\
+; < "HookIdentifyForSearch" @@\
+;    !!! Legg inn kode for å sette opp søk mot databasen, @@\
+;    !!! alternativt legg inn en call "my_identify_proc". @@\
+;    !!! Det anbefales å kalle en egen prosedyre fordi da @@\
+;    !!! unngås å kjøre grape for hver endring. Se eksempel under på kode. @@\
+; "HookIdentifyForSearch" >
+
+/*--------------------------------------------------------------------------*/
+
+/* ----------------------------------------------------------
+   Eksempel på å sette opp søk i oppslag/listevindu
+   ----------------------------------------------------------
+   #define HookIdentifyForSearch @@\
+     ; < "HookIdentifyForSearch" @@\
+                                                       Tad______Empty  @@\
+     	LAV.AVG_ELEMENT_TYPE_ID = LAVESTE.AVG_ELEMENT_TYPE_ID	       @@\
+     	HØY.AVG_ELEMENT_TYPE_ID = HØYESTE.AVG_ELEMENT_TYPE_ID	       @@\
+     	LAV.AVG_ELEMENT_ID      = LAVESTE.AVG_ELEMENT_ID               @@\
+     	HØY.AVG_ELEMENT_ID      = HØYESTE.AVG_ELEMENT_ID               @@\
+                                                       Tad______Empty  @@\
+     	if AVG_ELEMENT_TYPE.AVG_ELEMENT_TYPE_B is defined	       @@\
+     	   find AVG_ELEMENT_TYPE with AVG_ELEMENT_TYPE_B :	       @@\
+				 and get AVG_ELEMENT_TYPE_ID	       @@\
+     	   if found						       @@\
+     	      LAV.AVG_ELEMENT_TYPE_ID = AVG_ELEMENT_TYPE.AVG_ELEMENT_TYPE_ID @@\
+     	      HØY.AVG_ELEMENT_TYPE_ID = AVG_ELEMENT_TYPE.AVG_ELEMENT_TYPE_ID @@\
+     	   end if						       @@\
+     	end if							       @@\
+                                                       Tad______Empty  @@\
+     	if RO_AVG_ELEMENT.AVG_ELEMENT_ID is defined		       @@\
+     	   LAV.AVG_ELEMENT_ID = RO_AVG_ELEMENT.AVG_ELEMENT_ID	       @@\
+     	   HØY.AVG_ELEMENT_ID = RO_AVG_ELEMENT.AVG_ELEMENT_ID	       @@\
+     	end if							       @@\
+                                                       Tad______Empty  @@\
+     	identify all CUR_DI_A_AVG_ELEMENT_OL.AVG_ELEMENT	     : @@\
+     		 with   AVG_ELEMENT_DG				     : @@\
+     		 from   LAV.AVG_ELEMENT_TYPE_ID ! LAV.AVG_ELEMENT_ID : @@\
+     		 to	HØY.AVG_ELEMENT_TYPE_ID ! HØY.AVG_ELEMENT_ID : @@\
+     		 select AVG_ELEMENT_ID,	     AVG_ELEMENT_B,          : @@\
+     			ØVRE_GRENSE,	     NEDRE_GRENSE,	     : @@\
+     			DATO_UTGÅTT,         ENHET,                  : @@\
+     			AET_AEL.AVG_ELEMENT_TYPE_ID,                 : @@\
+     			AET_AEL.AVG_ELEMENT_TYPE_B		       @@\
+                                                       Tad______Empty  @@\
+   ;   "HookIdentifyForSearch" >
+    */
+
+/* I HookRelatedElementsPgdwn kan Sysdulvariabel zz_Accept settes til
+   False for å indikere at man ikke vil ha med en forekomst selv om den
+   er med i IDENTIFY-løkka. */
+§fi NotSok
+
+§if Combo Er det noen felter i lista som ikke hentes direkte fra basen
+§if FlerLkv Er det BARE kodeverk som skiller seg fra databasefeltene
+/* 
+   Hook som benyttes for å slå opp i på kodeverk for å finne et element
+   som skal vises i listen.
+ */
+#define HookRelatedElementsPgdwn @@\
+	; < "HookRelatedElementsPgdwn" @@\
+§do AntListKv Antall kodeverksfelter i listen
+§ASK KvTypeL§R§ Hvilken kodeverksmakro (KV_xxx) skal benyttes for felt nr.§R§
+§rem    -----------------------------------------------------------------
+§rem    Angi navnet på kodeverksmakroen (@KV_xxx@) slik den er definert i
+§rem    fila kv_def.svp, uten @-tegn rundt, men med KV-prefiks.
+§rem    -----------------------------------------------------------------
+§ASK KvField§R§ Hvilket databasefelt skal representeres i listen (felt §R§)
+§rem    ---------------------------------------------------------------
+§rem    Angi navnet på det feltet i databasen som skal "oversettes" til
+§rem    en KODE_B.  Angi fullt kvalifisert navn, type KUNDE.KILDE_KODE.
+§rem    ---------------------------------------------------------------
+§ASK KvDispField§R§ Hva heter visningsfeltet (nr.§R§) i listen
+§rem    --------------------------------------------------------------------
+§rem    Angi navnet på feltet slik det vises i listen, typisk RO_KODE.KODE_B
+§rem    --------------------------------------------------------------------
+§if KvNum§R§ Er felt nr.§R§ numerisk
+	TadKodeFind_ID_Num(@§KvTypeL§R§§@,§KvField§R§§,§KvDispField§R§§) @@\
+§else
+	TadKodeFind_ID_Alfa(@§KvTypeL§R§§@,§KvField§R§§,§KvDispField§R§§) @@\
+§fi KvNum
+§done AntListKv
+	; "HookRelatedElementsPgdwn" >
+§else  FlerLkv
+§if FlerLfelt Er det mer enn ett felt som må "oversettes"
+
+/* ---------NB----------------NB------------NB------------NB-------------
+
+   Hook som benyttes for å slå opp i flere relatert entiteter eller kodeverk
+   for å finne elementer som skal vises i listen. Denne må manuellt tilpasses
+   da det ikke er mulig å generere automatisk
+   Eksempel på mal på bruk av to combobbokser:
+
+#define HookRelatedElementsPgdwn @@\
+	; < "HookRelatedElementsPgdwn" @@\
+        TadKodeFind_ID_Num(KodeverkId,EntName.RelField,RelDisplayField) @@\
+        TadRelatedFind(EntName,RelEntName,RelKey,Relfield,RelDbField,ReldisplayField) @@\
+	;  "HookRelatedElementsPgdwn" >
+
+   I dette eksempelet må parameterne byttes ut med de verdiene som
+   skal benyttes.
+        KodeverkId: - Makroen for kodeverket som skal benyttes (@KV_xxxx@).
+        EntName:    - Navnet på hovedentiteten i vinduet.
+        RelField:   - Navnet på relasjonsfelt i hovedentitet,
+                      gjelder også kodeverk.
+        RelDisplayField: - Navn på felt som skal vises i liste.
+                           (Hvis dette er numerisk, brukes
+			   TadRelatedNumericFind i stedet for TadRelatedFind.)
+        RelEntName: - Navn på relatert entitet.
+        RelKey:     - Navn på primærnøkkel på relatert entitet
+        RelDbField: - Navn på databasefelt på relatert entitet som
+                      tilsvarer felt i liste
+
+-----------NB--------------NB------------NB--------------NB----------------
+*/
+#define HookRelatedElementsPgdwn @@\
+	; < "HookRelatedElementsPgdwn" @@\
+§if KvFlereRel Er det noen av disse feltene som er fra kodeverk
+§rem ---------------------------------------------------------- 
+§rem                                                          .
+Du har glemt å fullføre hook for relatert entitet/kodeverk!!! @@\
+§do AntListKv Antall kodeverksfelter i listen
+§ASK KvTypeL§R§ Hvilken kodeverksmakro (KV_xxx) skal benyttes for felt nr.§R§
+§rem    -----------------------------------------------------------------
+§rem    Angi navnet på kodeverksmakroen (@KV_xxx@) slik den er definert i
+§rem    fila kv_def.svp, uten @-tegn rundt, men med KV-prefiks.
+§rem    -----------------------------------------------------------------
+§ASK KvField§R§ Hvilket databasefelt skal representeres i listen (felt §R§)
+§rem    ---------------------------------------------------------------
+§rem    Angi navnet på det feltet i databasen som skal "oversettes" til
+§rem    en KODE_B.  Angi fullt kvalifisert navn, type KUNDE.KILDE_KODE.
+§rem    ---------------------------------------------------------------
+§ASK KvDispField§R§ Hva heter visningsfeltet (nr.§R§) i listen
+§rem    --------------------------------------------------------------------
+§rem    Angi navnet på feltet slik det vises i listen, typisk RO_KODE.KODE_B
+§rem    --------------------------------------------------------------------
+§if KvNum§R§ Er felt nr.§R§ numerisk
+	TadKodeFind_ID_Num(@§KvTypeL§R§§@,§KvField§R§§,§KvDispField§R§§) @@\
+§else
+	TadKodeFind_ID_Alfa(@§KvTypeL§R§§@,§KvField§R§§,§KvDispField§R§§) @@\
+§fi KvNum
+§done AntListKv
+§else
+Du har glemt å legge inn hook for relatert entitet/kodeverk!!! @@\
+§fi KvFlereRel
+	; "HookRelatedElementsPgdwn" >
+
+§else FlerLfelt
+/* Hook som benyttes for å slå opp i en relatert entitet for å finne et element
+   som skal vises i listen. Slår opp for hver rad som vises i listen.
+   I denne hooken legges også inn tilordninger til listefeltene hvis
+   databasefeltene er hentet ut med en join.
+
+   I det første tilfellet vil det se slik ut:
+   #define HookRelatedElementsPgdwn TadRelatedFind(EntName,RelEntName,RelKey,RelField,RelDbField,RelDisplayField)
+
+   Her må parameterne byttes ut med de verdiene som skal benyttes.
+        EntName:    - Navnet på hovedentiteten i vinduet.
+        RelField:   - Navnet på relasjonsfelt i hovedentite, gjelder også
+                      kodeverk.
+        RelDisplayField: - Navn på felt som skal vises i liste.
+                           (Hvis dette er numerisk, brukes
+			   TadRelatedNumericFind i stedet for TadRelatedFind.)
+        RelEntName: - Navn på relatert entitet.
+        RelKey:     - Navn på primærnøkkel på relatert entitet
+        RelDbField: - Navn på databasefelt på relatert entitet som tilsvarer
+                      felt i liste
+
+  I det andre tilfellet vil det feks. se slik ut:
+
+   #define HookRelatedElementsPgdwn ADRESSE.LAN_ADR.LAND_NAVN = LAND.LAND_NAVN
+*/
+
+#define HookRelatedElementsPgdwn @@\
+	; < "HookRelatedElementsPgdwn" @@\
+Her må kode for relatert entitets felter legges inn!!! @@\
+	; "HookRelatedElementsPgdwn" >
+§fi FlerLfelt
+§fi FlerLkv
+§else Combo
+#define HookRelatedElementsPgdwn ; "HookRelatedElementsPgdwn"
+§fi Combo
+
+/* Nullstill SISTE før NY */
+#ifndef HookInit_Cp_CD_§Kortnavn§_NY_51
+#define HookInit_Cp_CD_§Kortnavn§_NY_51	     @@\
+	; <"HookInit_Cp_CD_§Kortnavn§_NY_51" @@\
+	HookUniversalPKeyBlank		     @@\
+	; "HookInit_Cp_CD_§Kortnavn§_NY_51">
+#endif
+
+/* Adgangskontroll (se PX15131):
+ * Husk å definere hooks for Q_ENA-rutiner som enabler noe som skal
+ * adgangskontrolleres (bruk TadAccessCheckEnable(<op>) i
+ * HookInit_EnableObject_<objekt>.
+ * Dersom du gjør enable selv, må aksess til disse også sjekkes.
+ * Husk også å sjekke aksess foran alle databaseoperasjoner du gjør selv,
+ * samt foran kall til felles/grensesnittfunksjoner som kan endre databasen.
+ */

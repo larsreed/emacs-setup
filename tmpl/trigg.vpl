@@ -1,0 +1,283 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§ask PMnr PM-nr til historikken
+/*****************************************************************************
+§rem trigger<--filnavn u/suffiks
+§ask trigger Triggernavn
+ Trigger: 	§trigger§
+ Mal:		trigg.vpl 29.3 04/08/13
+ Versjon:       §SCCSid§
+ Filnavn:	§FileID§
+
+§asku tabell Tabellnavn
+ Beskrivelse: 	Trigger på §tabell§
+
+ Kalles ved: 	IUD
+
+ Endringslogg:
+ Dato	Sign	Beskrivelse
+ ------	----	-----------
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+ §Date§ §User§    Opprettet (§PMnr§)
+*****************************************************************************/
+§if sjekkTollsted Skal tollsted settes for bruker
+§defbool callProc t
+§defbool inclInsCursor t
+§asku tStedMFelt Tollstedfelt
+§asku tStedBFelt Brukerfelt
+§fi sjekkTollsted
+
+#include "tvist.hql"
+#include "trigger.hql"
+#include "kv_def.hql"
+§if callProc Skal prosedyrer kalles
+#include "proc.hql"
+§fi callProc
+
+§asku TBF
+§asku sys Systembokstav
+§if noenEndr Skal endringslogging utføres
+§do antEfelt Antall felt med endringslogg
+§asku eFelt§R§ Feltnavn nr.§R§ i basen
+§ask eFeltB§R§ Feltnavn nr.§R§ til endringsloggen
+§if isNumEfelt§R§ Er feltnavn nr. §R§ numerisk
+§asku TBF Denne linja er dummy og kreves for at ikke tblsub skal gå i frø...
+§fi
+§done antEfelt
+§fi
+§rem .
+§rem .
+§rem .
+§asku entKey0 Navn på første nøkkelfelt
+§define entKeyInsList §tabell§.§entKey0§=INSERTED.§entKey0§
+§define entKeyDelList INSERTED.§entKey0§=DELETED.§entKey0§
+§if noenEndr
+§if isNumEntKey0 Er nøkkelfelt nr.0 numerisk
+§define entKeyInsList2 convert(char(???),Tab##.§entKey0§)
+§else
+§define entKeyInsList2 Tab##.§entKey0§
+§fi numerisk
+§define entKeyInsDelList DELETED.§entKey0§=INSERTED.§entKey0§
+§fi noenEndr
+§do numKeyFields Antall nøkkelfelt utover det første
+§asku entKey§R§ Nøkkelfelt nr.§R§
+§append entKeyInsList  and §tabell§.§entKey§R§§=INSERTED.§entKey§R§§
+§append entKeyDelList  and INSERTED.§entKey§R§§=DELETED.§entKey§R§§
+§if noenEndr
+§if isNumEntKey0 Er nøkkelfelt nr.§R§ numerisk
+§append entKeyInsList2  + convert(char(???),Tab##.§entKey§R§§)
+§else
+§append entKeyInsList2  + Tab##.§entKey§R§§
+§fi numerisk
+§append entKeyInsDelList  and DELETED.§entKey§R§§=INSERTED.§entKey§R§§
+§fi noenEndr
+§done
+§rem .
+§rem .
+§rem .
+§if noenEndr
+/* Nøkkel til endringsloggen */
+#define MX_CONC_ID(Tab) §entKeyInsList2§
+
+/* WHERE-klausul til endringsloggen */
+#define MX_WHERE §entKeyInsDelList§
+
+/* Makroer for nøkkelverdier */
+§do antEfelt
+§if isNumEfelt§R§
+#define MX_OLD_VAL_§R§ convert(varchar(150),DELETED.§eFelt§R§§)
+#define MX_NEW_VAL_§R§ convert(varchar(150),INSERTED.§eFelt§R§§)
+§else
+#define MX_OLD_VAL_§R§ DELETED.§eFelt§R§§
+#define MX_NEW_VAL_§R§ INSERTED.§eFelt§R§§
+§fi isNumEfelt§R§
+
+§done antEfelt
+§fi noenEndr
+§if inclInsCursor Kjøre cursor på nye rader
+§if sjekkTollsted
+#define MX_INS_CURSOR_FIELDS @c_bruker, \
+                             @c_!!!§entKey0§!!!, \
+§else
+#define MX_INS_CURSOR_FIELDS @c_xxx0, \
+§fi
+§do numInsCurF Antall felt som skal hentes fra basen i cursoren minus 1
+                             @c_xxx§R§, \
+§done
+  Fjern siste komma!
+
+§fi inclInsCursor
+
+create trigger §trigger§
+on §tabell§
+for insert, update, delete
+as begin
+M_TRG_START("§trigger§")
+§if sjekkTollsted
+   declare @v_dato	 datetime
+   declare @v_dist	 smallint
+   declare @v_sted	 smallint
+§fi sjekkTollsted
+§if inclInsCursor
+
+§if sjekkTollsted
+   declare @c_bruker	 char(8)
+   declare @c_!!!§entKey0§!!! int???
+§fi sjekkTollsted
+   declare @c_xxx0 int?
+§do numInsCurF
+   declare @c_xxx§R§ int?
+§done
+§fi inclInsCursor
+
+§if datoOGbruker Sette DATO_ENDRET & co
+   M_HENT_BRUKER(@v_bruker_id)
+   M_HENT_DATO_TID(@v_tid)
+
+   if @trgtype = "U"
+   begin
+      M_VK_BRUKER_DATO_ENDRET(§tabell§,@v_bruker_id,@v_tid,\
+		§entKeyInsList§,\
+                §entKeyDelList§)
+   end
+   else if @trgtype="I"
+   begin
+      M_VK_BRUKER_DATO_REG(§tabell§,@v_bruker_id,@v_tid,\
+		§entKeyInsList§)
+   end
+§fi datoOGbruker
+§if noenEndr
+   M_HENT_TAB_ID(@v_tab_id,'§TBF§')
+§fi noenEndr
+§if sjekkBruker Skal øvrige gyldige brukerfelt sjekkes
+
+   if @trgtype in ("I") -- Hvis INSERT -------------------------------------
+   begin
+      -- BRUKER ------------------------------------------------------------
+§do antBruker Antall brukerfelt
+§asku bruFelt§R§ Feltnavn nr.§R§
+      M_VK_BRUKER(§bruFelt§R§§)
+§done antBruker
+§fi sjekkBruker
+§if noenKv Skal kodeverkstester utføres
+
+   if @trgtype in ("I","U") -- Hvis UPDATE eller INSERT --------------------
+   begin
+      -- KODEVERK ----------------------------------------------------------
+§do antKv Antall kodeverkstester
+§asku kFelt§R§ Feltnavn nr.§R§
+§ask kvMakro§R§ Kodeverksmakro (kv_xxx) nr.§R§
+§ask kvErr§R§ Feilmelding nr.§R§
+§if numKv§R§ Er kodeverdi nr.§R§ numerisk
+      M_VK_KV_NUM(§kFelt§R§§,§kvMakro§R§§,§kvErr§R§§)
+§else
+      M_VK_KV_ALFANUM(§kFelt§R§§,§kvMakro§R§§,§kvErr§R§§)
+§fi numKv
+§done antKv
+   end
+§fi noenKv
+§if noenMyn Skal myndighetsstester utføres
+
+   if @trgtype in ("I","U") -- Hvis UPDATE eller INSERT --------------------
+   begin
+      -- MYNDIGHET ---------------------------------------------------------
+§do antMyn Antall myndighetstester
+§asku mFelt§R§ Feltnavn nr.§R§
+§ask mTypeA§R§ 1. myndighetstype for nr. §R§
+§ask mTypeB§R§ 2. myndighetstype for nr. §R§
+§ask mTypeC§R§ 3. myndighetstype for nr. §R§
+      M_VK_MYN(§mFelt§R§§,§mTypeA§R§§,§mTypeB§R§§,§mTypeC§R§§)
+§done antMyn
+   end -- MYNDIGHET SLUTT --------------------------------------------------
+§fi noenMyn
+§if noenLand Skal landtester utføres
+
+   if @trgtype in ("I","U") -- Hvis UPDATE eller INSERT --------------------
+   begin
+      -- LAND --------------------------------------------------------------
+§do antLand Antall landtester
+§asku lFelt§R§ Feltnavn nr.§R§
+      M_VK_LAND(§lFelt§R§§)
+§done antLand
+   end -- LAND SLUTT -------------------------------------------------------
+§fi noenLand
+§if noenEndr
+
+   -- ENDRINGSLOGG----------------------------------------------------------
+   if @trgtype in ("I","U") -- Hvis UPDATE eller INSERT --------------------
+   begin
+
+§do antEfelt
+      M_VK_ELOGG(§eFelt§R§§,"§eFeltB§R§§",§sys§_ENDR_LOGG,        \
+		 MX_CONC_ID(INSERTED),MX_OLD_VAL_§R§,MX_NEW_VAL_§R§,\
+                 @v_tab_id,@v_tid,@v_bruker_id,MX_WHERE and \
+                 isnull(INSERTED.§eFelt§R§§,???) <>      \
+                 isnull(DELETED.§eFelt§R§§,???))
+§done antEfelt
+   end
+   else if @trgtype="D" -- Hvis DELETE -------------------------------------
+   begin
+      M_VK_ELOGG_DEL(§sys§_ENDR_LOGG,@v_tab_id,MX_CONC_ID(DELETED))
+   end -- ENDRINGSLOGG SLUTT------------------------------------------------
+§fi noenEndr
+§if inclInsCursor Kjøre cursor på nye rader
+
+§if sjekkTollsted
+      --- Sett blankt tollsted til pålogget brukers tollsted ---------------
+§fi
+      declare cur_inserted cursor for
+              select <f0>,
+§do numInsCurF
+                     <f§R§>,
+§done
+  Fjern siste komma!
+	        from INSERTED i
+§if sjekkTollsted
+               where isnull(§tStedMFelt§,0)=0
+§fi
+	         for read only
+      open  cur_inserted
+      -- Les første rad fra cursor --
+      fetch cur_inserted into MX_INS_CURSOR_FIELDS
+      
+      while @@sqlstatus = 0 -- For hver rad satt inn --------------------------
+      begin
+         < kode her ! >
+§if sjekkTollsted
+         -- Sett tollsted basert på bruker hvis ikke definert --------------
+         if isnull(@c_!!!§tStedMFelt§!!!,0)=0
+         begin
+            select @v_dato=getdate()
+            M_EXEC_PROC(pBMY_Finn)
+                  ,@v_dist out
+                  ,@v_sted out
+                  ,@c_bruker
+                  ,@v_dato
+            if @m_retstat != M_STAT_OK
+            begin
+               M_TRG_FEIL(30417) -- Feil ved henting
+            end
+            if isnull(@v_sted,0) = 0
+            begin
+               M_TRG_FEIL(30417) -- Feil ved henting
+            end
+            update §tabell§ set §tStedMFelt§=@v_sted
+             where §entKey0§=@c_!!!! and ???
+            M_TRG_UT_VED_FEIL(30409) -- feil ved setting lik brukers tollsted
+         end
+§fi sjekkTollsted
+         -- Les neste rad fra cursor --
+         fetch cur_inserted into MX_INS_CURSOR_FIELDS
+      end  -- while status=0 for hver rad satt inn -------------------------
+      
+      close             cur_inserted
+      deallocate cursor cur_inserted
+§fi inclInsCursor
+§do antAndre Antall øvrige kontroller
+
+!!! Kontroll nr. §R§ - ??? !!!
+§done antAndre
+
+M_TRG_SLUTT
+end
+go

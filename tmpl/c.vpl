@@ -1,0 +1,103 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§if OneOnly Er du sikker på at ikke tillegg.vpl er bedre
+§rem  ***********************************************************************
+§rem  * Denne malen er beregnet på å lage prosedyrer som skal pastes inn
+§rem  * i andre filer.  Dersom du skal ha en frittstående fil, bør du benytte
+§rem  * malen tillegg.vpl!
+§rem  ***********************************************************************
+§ask SCCSid SCCS-ID
+§ASK Pict Kortnavn på bildet (f.eks. AV0017L)
+§ASK FullPict Fullt navn på bildet (f.eks. DI_K_KUNDE_VEDL)
+§do NoCproc Antall eventprosedyrer
+§ASK cProc§R§ Suffiks for eventprosedyre nr.§R§
+control-procedure CD_§Pict§_§cProc§R§§ employs CUR_§FullPict§
+;   =========================================================================
+;   PROSEDYRE:    CD_§Pict§_§cProc§R§§
+;   TYPE:         Eventprosedyre (c.vpl 24.1)
+§ask Target§R§ TARGET for eventpros. nr.§R§
+§rem  ***********************************************************************
+§rem  * 'Target' er det objektet eventprosedyren ligger på, f.eks. en knapp,*
+§rem  * en blokk el.l.                                                      *
+§rem  ***********************************************************************
+;   TARGET:       §Target§R§§
+;
+;   BESKRIVELSE:
+§ask cDesc§R§ Beskrivelse av eventpros. nr.§R§
+;      §cDesc§R§§
+;
+;   GRENSESNITT:
+;   Type          Navn                    Bruk
+;   -----------   ----------------------  -----------------------------------
+;   EMPLOYS	  CUR_§FullPict§
+;   UNIV I
+;   UNIV O
+;   UNIV I/O
+;   CURR I
+;   CURR O
+;   CURR I/O
+;   GLOB I
+;   GLOB O
+;   GLOB I/O
+;
+;   DIVERSE:
+;
+;   =========================================================================
+
+   @PBEGIN_C@
+   @UNIVERSAL@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   @GRAPE_GLOB_VARS@
+   @GRAPE_LOCAL_VARS@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Init
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Versjonsstreng
+;  --------------
+   <1. prosedyre i hver fil>
+   W_SCCS_ID = '§SCCSid§'
+
+;  --------------
+;  Feilhåndtering
+;  --------------
+   default error-handling when db-error terminate from @LABEL_DB@
+   @HOOK_DEF_DBERR@
+   default error-handling when gui-error terminate from @LABEL_GUI@
+   @HOOK_DEF_GUIERR@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ !!!
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   @HOOK_DEF_LEAVE@
+   terminate from @LABEL_END@
+
+   terminate-label @LABEL_DB@
+   @ERR_DB@
+   terminate from @LABEL_END@
+
+   terminate-label @LABEL_GUI@
+   @ERR_GUI@
+   terminate from @LABEL_END@
+
+   terminate-label @LABEL_END@
+   @HOOK_LEAVE@
+
+   terminate-label @LABEL_EXIT@
+   @PEND_C@
+
+end control-procedure ; CD_§Pict§_§cProc§R§§ on §FullPict§
+§done
+§else
+§include tillegg.vpl
+§fi

@@ -1,0 +1,719 @@
+§rem ; Hi-lock: (("^§[a-z]+[0-9]*" (0 (quote hi-yellow) t)))
+§ask SCCSid SCCS-ID
+§ask FileID Fil/versjonskode
+§defbool inclOld nil
+§define hist Opprettet
+§define ForG G
+§define xDesign
+§defbool useCset t
+§define macSfx PG
+§ask PMnr PM-nr til historikken
+§asku System Systembokstav (K=FKR osv)
+§define subrType Systemavhengig fellesrutine (§System§)
+§if StdFunk Benytte mal med standard funksjoner
+§rem  *********************************************************************
+§rem  * Svar JA (y) på dette spørsmålet dersom du vil benytte deg av      *
+§rem  * standardskjelettene for oppslagsfunksjoner (FINN/HENT(ALLE)).     *
+§rem  * Hvis du svarer NEI (n), må alle prosedyrer lages helt fra bunnen. *
+§rem  * (Du mister ikke denne muligheten selv om du svarer ja.)           *
+§rem  *********************************************************************
+§asku FileGrp Entitetsklasse
+§else
+§asku FileGrp Fellesnavn på prosedyrene (NNN i P§ForG§§System§_NNN_SSS)
+§fi StdFunk
+§default Description Grensesnittfunksjoner mot §FileGrp§
+; ==========================================================================
+; PROSJEKT:    TVIST2000
+; FIL:         §FileID§
+; MAL:         g.vpl 27.5
+;
+; BESKRIVELSE:
+§ask Description Beskrivelse av fila
+;    §Description§
+;
+; KALLBARE RUTINER:
+§if StdFunk
+§if FinnProc Lage 1 og bare 1 prosedyre for direkte oppslag på primærnøkkel
+§rem  ***********************************************************************
+§rem  * Svar JA (y) dersom det bare er aktuelt å lage 1 funksjon for        *
+§rem  * direkte oppslag på nøkkel (type PGX_FISK_FINN).                     *
+§rem  * Svar NEI (n) dersom det kan være aktuelt å slå opp med forskjellige *
+§rem  * nøkler (f.eks. PGX_FISK_FINN_ID & PGX_FISK_FINN_NAVN), eller hvis   *
+§rem  * det ikke skal lages noen FINN-rutiner i det hele tatt.              *
+§rem  ***********************************************************************
+§asku EKey Nøkkelfelt(er)
+§ask desEKey Designreferanse for FINN
+;    P§ForG§§System§_§FileGrp§_FINN
+§append hist , FINN
+§append xDesign \ §desEKey§ = FINN
+§else
+§do FinnAnt Antall pros. for oppslag på navngitt nøkkel
+§asku EKey§R§ Nøkkelnavn  nr. §R§
+§ask desEKey§R§ Designreferanse for FINN_§EKey§R§§
+;    P§ForG§§System§_§FileGrp§_FINN_§EKey§R§§
+§append hist , FINN_§EKey§R§§
+§append xDesign \ §desEKey§R§§ = FINN_§EKey§R§§,
+§done
+§fi FinnProc
+§do AllProc Antall pros. for å hente intervall av forekomster
+§asku IKey§R§ Nøkkelnavn nr. §R§
+§ask desIKey§R§ Designreferanse for HENT_ALLE_§IKey§R§§
+;    P§ForG§§System§_§FileGrp§_HENT_ALLE_§IKey§R§§
+§append hist , HENT_ALLE_§IKey§R§§
+§append xDesign \ §desIKey§R§§ = HENT_ALLE_§IKey§R§§,
+§done
+§fi StdFunk
+§doP nProcs Antall prosedyrer som skal lages
+§asku mSuff§P§ Siste del av navn på prosedyre #§P§ (SSS i PFx_NNN_SSS)
+§ask Design§P§ Ref. til designdok. #§P§
+;    P§ForG§§System§_§FileGrp§_§mSuff§P§§
+§append hist , §mSuff§P§§
+§doneP
+;
+; HISTORIKK:
+; YYMMDD  Sign.  Endring
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+; ------  -----  -----------------------------------------------------------
+; §Date§  §User§   PM§PMnr§ - §hist§
+;
+; REFERANSE TIL DESIGN:
+;    §xDesign§
+§doP nProcs
+;    §Design§P§§ = §mSuff§P§§
+§doneP
+;
+; AVVIK FRA STANDARD:
+;
+; MULIGE UTVIDELSER:
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+§default CurSet CUR_§FileGrp§_GRSN
+§asku CurSet Navn på currency set
+§define employs employs §CurSet§
+
+§if StdFunk
+§definel FileGrpLower §FileGrp§
+< Sjekk at den angitte filen
+  finnes (ellers må den opprettes (mal allesvp.tpl)!) >
+@FI@ @SVPLIST@alle_§FileGrpLower§@SUFF_SVP@
+
+§if FinnProc
+procedure P§ForG§§System§_§FileGrp§_FINN imports RO_§FileGrp§_GRSN.§EKey§  :
+                              exports @ALLE_§FileGrp§@, :
+                                      W_RETSTAT        :
+                              §employs§
+; ==========================================================================
+; PROSEDYRE:    P§ForG§§System§_§FileGrp§_FINN
+; TYPE:         §subrType§, oppslag på nøkkel
+;
+; BESKRIVELSE:
+;    Slår opp i §FileGrp§ vha §EKey§,
+;    returnerer alle felt hvis funnet
+;
+;
+; GRENSESNITT:
+; Type          Navn                    Bruk
+; -----------   ----------------------  ------------------------------------
+; IMPORTS	RO_§FileGrp§_GRSN.§EKey§ Nøkkel til forekomsten
+; EXPORTS	@@ALLE_§FileGrp§@@       Alle felter i funnet forekomst
+; EXPORTS       W_RETSTAT               Status:
+;                                          @STAT_OK@   = OK
+;                                          @STAT_NULL@ = Ikke funnet
+;                                          @STAT_ERR@  = Annen feil
+; CURR OUT	§CurSet§.§FileGrp§ Udefinert
+;
+; EKSEMPEL:
+;     zEntKey = §FileGrp§.§EKey§
+;     call P§ForG§§System§_§FileGrp§_FINN exporting zEntKey :
+;                              importing @@ALLE_§FileGrp§@@, :
+;                                        W_RETSTAT
+;     if W_RETSTAT > @STAT_NULL@
+;        ; OK!
+;     end if
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+   @PBEGIN_PG@
+   @UNIVERSAL@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Lokale makroer
+;  --------------
+   @LOCAL@_<MAKRO> = <definisjon>
+
+;  -----------
+;  Universelle
+;  -----------
+   universal <ENTITET|ROLLE>
+
+;  ----------
+;  Parametere
+;  ----------
+   declare Z_<PARAM> {as <DATAELEM>|@MAKRO@}
+   <Input>...
+   <Output>...
+
+;  ----------
+;  Konstanter
+;  ----------
+   declare x<Konst> {as <DATAELEM>|@MAKRO@}
+
+;  --------
+;  Variable
+;  --------
+   declare z<Var> {as <DATAELEM>|@MAKRO@}
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Init
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+§ifdef SCCSset
+§rem    har gjort det før...
+§else
+;  --------------
+;  Versjonsstreng
+;  --------------
+   <1. prosedyre i hver fil>
+   W_SCCS_ID = '§SCCSid§'
+§define SCCSset Yes
+§fi
+
+;  --------------
+;  Feilhåndtering
+;  --------------
+   default error-handling when db-error terminate from @LABEL_DB@
+
+;  ----------
+;  Konstanter
+;  ----------
+   x<Konst> = <VERDI - Skal ikke endres>
+
+;  --------
+;  Variable
+;  --------
+   W_RETSTAT = @STAT_ERR@                       ; Feil!
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+   find §FileGrp§ with §EKey§ equal to RO_§FileGrp§_GRSN.§EKey§ :
+                 and get @ALLE_§FileGrp§@
+   if DB-error or not found
+      W_RETSTAT = @STAT_NULL@                   ; Ikke funnet
+   else
+      W_RETSTAT = @STAT_OK@                     ; Suksess!
+   end if
+
+   note that §FileGrp§ is undefined             ; Fjern currency
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   terminate from @LABEL_EXIT@
+
+   terminate-label @LABEL_DB@
+   @ERR_DB@
+
+   terminate-label @LABEL_EXIT@
+   @PEND_PG@
+
+end procedure  ; P§ForG§§System§_§FileGrp§_FINN
+
+
+§else
+§doR FinnAnt
+procedure P§ForG§§System§_§FileGrp§_FINN_§EKey§R§§ imports RO_§FileGrp§_GRSN.§EKey§R§§, :
+§doP nEkeyPari§R§ Antall INN-param for P§ForG§§System§_§FileGrp§_FINN_§EKey§R§§
+§ask eKeyPariNa§P§_§R§ Element for parameter nr.§P§
+§ask eKeyPariDsc§P§_§R§ Bruk av §eKeyPariNa§P§_§R§§
+                                      §eKeyPariNa§P§_§R§§, :
+§doneP
+§backspace 3 \ :
+                              exports @ALLE_§FileGrp§@, :
+§doP nEkeyParo§R§ Antall UT-param for P§ForG§§System§_§FileGrp§_FINN_§EKey§R§§
+§ask eKeyParoNa§P§_§R§ Element for parameter nr.§P§
+§ask eKeyParoDsc§P§_§R§ Bruk av §eKeyParoNa§P§_§R§§
+                                      §eKeyParoNa§P§_§R§§, :
+§doneP
+                                      W_RETSTAT        :
+                              §employs§
+; ==========================================================================
+; PROSEDYRE:    P§ForG§§System§_§FileGrp§_FINN_§EKey§R§§
+; TYPE:         §subrType§, oppslag på navngitt nøkkel
+;
+; BESKRIVELSE:
+;    Slår opp på §FileGrp§ vha §EKey§R§§,
+;    returnerer alle felt hvis funnet
+;
+;
+; GRENSESNITT:
+; Type          Navn                    Bruk
+; -----------   ----------------------  ------------------------------------
+; IMPORTS	RO_§FileGrp§_GRSN.§EKey§R§§ Nøkkel til forekomsten
+§doP nEkeyPari§R§
+; IMPORTS	§eKeyPariNa§P§_§R§§       §eKeyPariDsc§P§_§R§§
+§doneP
+; EXPORTS	@@ALLE_§FileGrp§@@       Alle felter i funnet forekomst
+
+§doP nEkeyParo§R§
+; EXPORTS       §eKeyParoNa§P§_§R§§       §eKeyParoDsc§P§_§R§§
+§doneP
+; EXPORTS       W_RETSTAT               Status:
+;                                          @STAT_OK@   = OK
+;                                          @STAT_NULL@ = Ikke funnet
+;                                          @STAT_ERR@  = Annen feil
+; CURR OUT	§CurSet§.§FileGrp§  Udefinert
+;
+; EKSEMPEL:
+;     zEntKey = §FileGrp§.§EKey§R§§
+§doP nEkeyPari§R§
+;     §eKeyPariNa§P§_§R§§ = ?
+§doneP
+;     call P§ForG§§System§_§FileGrp§_FINN_§EKey§R§§ exporting zEntKey :
+§doP nEkeyPari§R§
+;                                        §eKeyPariNa§P§_§R§§, :
+§doneP
+§backspace 3  \ :
+;                              importing @@ALLE_§FileGrp§@@, :
+§doP nEkeyParo§R§
+;                                        §eKeyParoNa§P§_§R§§, :
+§doneP
+;                                        W_RETSTAT
+;     if W_RETSTAT > @STAT_NULL@
+;        ; OK!
+;     end if
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+   @PBEGIN_PG@
+   @UNIVERSAL@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Lokale makroer
+;  --------------
+   @LOCAL@_<MAKRO> = <definisjon>
+
+;  -----------
+;  Universelle
+;  -----------
+   universal <ENTITET|ROLLE>
+
+;  ----------
+;  Parametere
+;  ----------
+   declare Z_<PARAM> {as <DATAELEM>|@MAKRO@}
+   <Input>...
+   <Output>...
+
+;  ----------
+;  Konstanter
+;  ----------
+   declare X_<KONST> {as <DATAELEM>|@MAKRO@}
+
+;  --------
+;  Variable
+;  --------
+   declare z<Var> {as <DATAELEM>|@MAKRO@}
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Init
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+§ifdef SCCSset
+§rem    har gjort det før...
+§else
+;  --------------
+;  Versjonsstreng
+;  --------------
+   <1. prosedyre i hver fil>
+   W_SCCS_ID = '§SCCSid§'
+§define SCCSset Yes
+§fi
+
+;  --------------
+;  Feilhåndtering
+;  --------------
+   default error-handling when db-error terminate from @LABEL_DB@
+
+;  ----------
+;  Konstanter
+;  ----------
+   X_<KONST> = <VERDI - Skal ikke endres>
+
+;  --------
+;  Variable
+;  --------
+   W_RETSTAT = @STAT_ERR@                       ; Feil!
+   z<Var>  = ...
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+   find §FileGrp§ with §EKey§R§§ equal to RO_§FileGrp§_GRSN.§EKey§R§§ :
+§doP nEkeyPari§R§
+                   and §eKeyPariNa§P§_§R§§ :
+§doneP
+                 and get @ALLE_§FileGrp§@
+   if DB-error or not found
+      W_RETSTAT = @STAT_NULL@                   ; Ikke funnet
+   else
+      W_RETSTAT = @STAT_OK@                     ; Suksess!
+   end if
+
+   note that §FileGrp§ is undefined             ; Fjern currency
+
+§doP nEkeyParo§R§
+   §eKeyParoNa§P§_§R§§ = ???
+§doneP
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   terminate from @LABEL_EXIT@
+
+   terminate-label @LABEL_DB@
+   @ERR_DB@
+
+   terminate-label @LABEL_EXIT@
+   @PEND_PG@
+
+end procedure  ; P§ForG§§System§_§FileGrp§_FINN_§EKey§R§§
+
+
+§doneR FinnAnt
+§fi  Finn-prosedyrer
+§rem #######################################################
+§doR AllProc Antall pros. for å hente intervall av forekomster
+§asku IKey§R§ Nøkkelnavn nr. §R§
+procedure P§ForG§§System§_§FileGrp§_HENT_ALLE_§IKey§R§§ imports W_PARTYPE, :
+                                      RO_§FileGrp§_GRSN.§IKey§R§§, :
+§doP nIkeyPari§R§ Antall INN-param for P§ForG§§System§_§FileGrp§_HENT_ALLE_§IKey§R§§
+§ask iKeyPariNa§P§_§R§ Element for parameter nr.§P§
+§ask iKeyPariDsc§P§_§R§ Bruk av §iKeyPariNa§P§_§R§§
+                                      §iKeyPariNa§P§_§R§§, :
+§doneP
+§backspace 3 \ :
+                              exports @ALLE_§FileGrp§@, :
+§doP nIkeyParo§R§ Antall UT-param for P§ForG§§System§_§FileGrp§_HENT_ALLE_§IKey§R§§
+§ask iKeyParoNa§P§_§R§ Element for parameter nr.§P§
+§ask iKeyParoDsc§P§_§R§ Bruk av §iKeyParoNa§P§_§R§§
+                                      §iKeyParoNa§P§_§R§§, :
+§doneP
+                                      W_RETSTAT        :
+                              §employs§
+; ==========================================================================
+; PROSEDYRE:    P§ForG§§System§_§FileGrp§_HENT_ALLE_§IKey§R§§
+; TYPE:         §subrType§, alle i intervall
+;
+; BESKRIVELSE:
+;    Henter alle §FileGrp§ for §IKey§R§§.
+;
+;    Kalles første gang med W_PARTYPE lik @OP_INIT@ eller @OP_INITGET@, og
+;    nøkkelfeltene utfylt.
+;    I senere kall er W_PARTYPE lik @OP_GET@, og nøkkelfeltene ignoreres.
+;    Dersom W_PARTYPE er @OP_INITGET@ eller @OP_GET@, returneres alle
+;    felt i neste forekomst om noen - ellers er feltene urørt.
+;    Kan også kalles med @OP_QUIT@, for å terminere søket før tiden.
+;
+;    Prosedyren kan ikke kalles i parallell fra flere moduler - den holder
+;    kun 1 peker til databasen av gangen!
+;
+;
+; GRENSESNITT:
+; Type          Navn                    Bruk
+; -----------   ----------------------  ------------------------------------
+; IMPORTS       W_PARTYPE               En av:
+;                                          @OP_INIT@ - init. søk
+;                                          @OP_GET@  - hent data for neste
+;                                                      forekomst
+;                                          @OP_INITGET@ - de 2 over slått
+;                                                         sammen i 1 kall
+;                                          @OP_QUIT@ - opphev søk
+; IMPORTS	RO_§FileGrp§_GRSN.§IKey§R§§ Oppslagsnøkkel
+§doP nIkeyPari§R§
+; IMPORTS	§iKeyPariNa§P§_§R§§       §iKeyPariDsc§P§_§R§§
+§doneP
+; EXPORTS	@@ALLE_§FileGrp§@@       Alle felter i funnet forekomst
+§doP nIkeyParo§R§ Antall UT-param
+; EXPORTS       §iKeyParoNa§P§_§R§§       §iKeyParoDsc§P§_§R§§
+§doneP
+; EXPORTS       W_RETSTAT               Status:
+;                                          @STAT_OK@   = OK
+;                                          @STAT_NULL@ = Ikke funnet
+;                                          @STAT_ERR@  = Annen feil
+;                                          -9          = Hent uten forutgående
+;                                                        søk
+;                                          -10         = Ukjent parameter
+;                                       De to siste er programmeringsfeil
+; EMPLOYS	§CurSet§.
+;                        §FileGrp§       Peker til funnet forekomst av
+;                                       §FileGrp§ ved suksess,
+;                                        ellers udefinert
+;
+; EKSEMPEL:
+;     zEntKey = §FileGrp§.§IKey§R§§
+§doP nIkeyPari§R§
+;     §iKeyPariNa§P§_§R§§ = ?
+§doneP
+;     W_PARTYPE = @OP_INITGET@
+;     call P§ForG§§System§_§FileGrp§_HENT_ALLE_§IKey§R§§ exporting W_PARTYPE, :
+;                                        zEntKey, :
+§doP nIkeyPari§R§
+;                                        §iKeyPariNa§P§_§R§§, :
+§doneP
+§backspace 3  \ :
+;                              importing @@ALLE_§FileGrp§@@, :
+§doP nIkeyParo§R§
+;                                        §iKeyParoNa§P§_§R§§, :
+§doneP
+;                                        W_RETSTAT
+;     while W_RETSTAT > @STAT_NULL@
+;        <behandle forekomst>
+;        W_PARTYPE = @OP_GET@
+;        call P§ForG§§System§_§FileGrp§_HENT_ALLE_§IKey§R§§ exporting W_PARTYPE, :
+;                                           zEntKey, :
+§doP nIkeyPari§R§
+;                                        §iKeyPariNa§P§_§R§§, :
+§doneP
+§backspace 3  \ :
+;                                 importing @@ALLE_§FileGrp§@@, :
+§doP nIkeyParo§R§
+;                                        §iKeyParoNa§P§_§R§§, :
+§doneP
+;                                           W_RETSTAT
+;     end while
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+   @PBEGIN_PG@
+   @UNIVERSAL@
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Deklarasjoner
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  --------------
+;  Lokale makroer
+;  --------------
+   @LOCAL@_<MAKRO> = <definisjon>
+
+;  -----------
+;  Universelle
+;  -----------
+   universal <ENTITET|ROLLE>
+
+;  ----------------
+;  Globale variable
+;  ----------------
+   declare ZQ_§FileGrp§_GRSN_OK boolean global   ; Husker status
+
+;  ----------
+;  Parametere
+;  ----------
+   declare Z_<PARAM> {as <DATAELEM>|@MAKRO@}
+   <Input>...
+   <Output>...
+
+;  ----------
+;  Konstanter
+;  ----------
+   declare X_<KONST> {as <DATAELEM>|@MAKRO@}
+
+;  --------
+;  Variable
+;  --------
+   declare z<Var> {as <DATAELEM>|@MAKRO@}
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Init
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+§ifdef SCCSset
+§rem    har gjort det før...
+§else
+;  --------------
+;  Versjonsstreng
+;  --------------
+   <1. prosedyre i hver fil>
+   W_SCCS_ID = '§SCCSid§'
+§define SCCSset Yes
+§fi
+
+;  --------------
+;  Feilhåndtering
+;  --------------
+   default error-handling when db-error terminate from @LABEL_DB@
+
+;  ----------
+;  Konstanter
+;  ----------
+   X_<KONST> = <VERDI - Skal ikke endres>
+
+;  --------
+;  Variable
+;  --------
+   W_RETSTAT = @STAT_ERR@                       ; Feil!
+   z<Var> = ???
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Kode
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+;  ---------------------------------------
+;  Om nødvendig - identifiser ny forekomst
+;  ---------------------------------------
+   if ( W_PARTYPE equal to @OP_INITGET@ ) or :
+      ( W_PARTYPE equal to @OP_INIT@    )
+
+§if ign0§R§ Skal udefinerte ignoreres i P§ForG§§System§_§FileGrp§_HENT_ALLE_§IKey§R§§
+§if inclOld
+;     ------------------
+;     Ignorer tomme felt
+;     ------------------
+      call PFF_NULL_WHERE_ON importing W_OK
+      if not W_OK
+         terminate from @LABEL_EXIT@
+      end if
+§define ifdefS§R§
+§else
+§define ifdefS§R§ @IF_DEFINED@
+§fi
+§else
+§define ifdefS§R§
+§fi
+< -------------------------------------------------------------------------- >
+      Her må du sette opp en IDENTIFY ALL som setter opp søket.
+      Husk å ta hensyn til udefinerte deler av nøkkelen.
+      F.eks. (men dette er bare et eksempel - reell kode avhenger av nøkkel
+      og hvordan søk skal utføres):
+
+Tidligere gjorde vi mye av dette, men nå kan man oppnå mye med ignorering:
+      if RO_§FileGrp§_GRSN.felt1 is defined
+         LAV.felt1 = RO_§FileGrp§_GRSN.felt1
+         HØY.felt1 = RO_§FileGrp§_GRSN.felt1
+      else
+         LAV.felt1 = LAVESTE.felt1
+         HØY.felt1 = HØYESTE.felt1
+      end if
+
+      if RO_§FileGrp§_GRSN.felt2 is defined
+         LAV.felt2 = RO_§FileGrp§_GRSN.felt2
+         HØY.felt2 = RO_§FileGrp§_GRSN.felt2
+      else
+         LAV.felt2 = LAVESTE.felt2
+         HØY.felt2 = HØYESTE.felt2
+      end if
+
+      identify all §FileGrp§ with §FileGrp§.§IKey§R§§ :
+                            from LAV.felt1 ! LAV.felt2 :
+                              to HØY.felt1 ! HØY.FELT2 :
+§doP nIkeyPari§R§
+                            and §FileGrp§.§iKeyPariNa§P§_§R§§ = :
+                                §iKeyPariNa§P§_§R§§ §ifdefS§R§§ :
+§doneP
+                            select ALL
+      if DB-error
+         W_RETSTAT = @STAT_ERR@
+         terminate from @LABEL_EXIT@
+      end if
+< -------------------------------------------------------------------------- >
+
+§if ign0§R§
+§if inclOld
+;     ------------------
+;     Skru av ignorering
+;     ------------------
+      call PFF_NULL_WHERE_OFF importing W_OK
+§fi
+§fi
+      ZQ_§FileGrp§_GRSN_OK = True
+      if W_PARTYPE equal to @OP_INIT@
+         W_RETSTAT = @STAT_OK@ ; Ferdig med alt som skulle gjøres
+         terminate from @LABEL_EXIT@
+      end if
+
+;  -------------------------
+;  Eller avslutt gammelt søk
+;  -------------------------
+   or if ( W_PARTYPE equal to @OP_QUIT@ )
+      ZQ_§FileGrp§_GRSN_OK = False
+      note that selection for §FileGrp§ is undefined
+      W_RETSTAT = @STAT_OK@                     ; Suksess
+      terminate from @LABEL_EXIT@
+
+;  -------------------------------------------------
+;  Da sjekker vi like godt parameter i samme slengen
+;  -------------------------------------------------
+   or if ( W_PARTYPE <> @OP_GET@ )
+      W_RETSTAT = -10                           ; Ukjent parameter
+      terminate from @LABEL_EXIT@
+   end if
+
+;  --------------------------------------------
+;  Om nødvendig - hent data for neste forekomst
+;  --------------------------------------------
+   if ( W_PARTYPE equal to @OP_INITGET@ ) or :
+      ( W_PARTYPE equal to @OP_GET@     )
+      if not ZQ_§FileGrp§_GRSN_OK
+         W_RETSTAT = -9                         ; Ingen kjent
+      else
+         identify next §FileGrp§ :
+                       and get @ALLE_§FileGrp§@
+         if not identified
+            W_RETSTAT = @STAT_NULL@             ; Ingen (flere) forekomster
+            ZQ_§FileGrp§_GRSN_OK = False
+            note that selection for §FileGrp§ is undefined
+         else
+            W_RETSTAT = @STAT_OK@
+§doP nIkeyParo§R§
+            §iKeyParoNa§P§_§R§§ = ???
+§doneP
+         end if  ; (Not) identified
+      end if     ; Selection OK
+   end if        ; initget/get
+
+
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;  Avslutning
+;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   terminate from @LABEL_EXIT@
+
+   terminate-label @LABEL_DB@
+   @ERR_DB@
+
+   terminate-label @LABEL_EXIT@
+   @PEND_PG@
+
+end procedure  ; P§ForG§§System§_§FileGrp§_HENT_ALLE_§IKey§R§§
+
+
+§doneR  HENT_ALLE-prosedyre
+§fi  StdFunk
+§include tvistproc.inc

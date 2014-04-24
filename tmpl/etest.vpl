@@ -1,0 +1,532 @@
+§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§default notttused (eval (progn (make-variable-buffer-local 'tplsub-enable-eval) (setq tplsub-enable-eval t) ""))
+§rem ' Lur emacs...
+§default nroffs 0
+§ask SCCSid SCCS-ID
+§ask FileID Fil/versjonskode
+§ask Date Dagens dato
+§ask User Brukernavnet ditt
+§ask PMnr PM-nr til historikken
+; ==========================================================================
+; PROSJEKT:    TVIST2000
+; FIL:         §FileID§
+; MAL:         etest.vpl 29.8
+;
+; BESKRIVELSE:
+;    Program for å teste funksjonen(e)
+§doR antFunk Antall funksjoner som skal testes
+§rem Tom
+§doneR
+§aski nroffs Antall tester som finnes i filen fra før
+§doR antFunk
+§asku funkN§R§ Navn på funksjon nr.§R§
+§define nr§R§ (eval (+ §R§ §nroffs§))
+§define defLab§R§ (eval (+ §R§ -1 1240 §nroffs§))
+§define defStart§R§ (eval (+ §R§ -1 1280 §nroffs§))
+§doneR
+§doR antFunk
+;       (§nr§R§§) §funkN§R§§
+§doneR
+;
+;
+; HISTORIKK:
+; YYMMDD  Sign.  Endring
+; ------  -----  -----------------------------------------------------------
+; §Date§  §User§   Opprettet (PM§PMnr§)
+;
+; DIVERSE:
+;
+; ==========================================================================
+
+@FI@ @SVPDIR@testbody@SUFF_SVP@
+
+ !!!!!!!!!!!!!!!!!!
+    bruk gjerne makroene @TEST_ERR@, @TEST_PROGRESS@ og @TEST_RETUR@
+    i testbody.svp for å melde feil, progresjon samt avslutte
+    automatisk test
+!!!!!!!!!!!!!!!!!!!!!!
+
+
+program PM_TEST employs automarking
+    @PBEGIN_M@
+
+;   -------------
+;   Deklarasjoner
+;   -------------
+    declare X_BATCH boolean
+    declare X_APP   as SYSFLG.APP_NAME
+    declare X_SYS   as SYSFLG.SYS_NAME
+    declare zValg   A3
+    declare zNull   @VARCHAR@
+    declare zCont   boolean
+    declare zInt    @INT@
+
+;   ----
+;   Init
+;   ----
+    X_SYS              = '@APP@'
+    X_APP              = 'test'
+    X_BATCH            = True   ; batch-applikasjon
+    SYSFLG.DEBUG       = 0
+    SYSFLG.INIT_STATUS = 0
+    W_SCCS_ID          = '§SCCSid§'
+
+;   ---------------
+;   ((( K o d e )))
+;   ---------------
+    call PFF_STARTUP exporting X_BATCH, :
+                               X_APP,   :
+                               X_SYS    :
+                     importing W_OK
+    if W_OK
+       zNull = 'Vil ikke teste likevel'
+       W_RETSTAT = @BATCH_ENULL@
+       zCont = True
+       while zCont
+          write 1X, 'Velg funksjon som skal testes' to terminal
+          write 1X, '  [0] ', zNull, '...' to terminal
+§doR antFunk
+          write 1X, '  [§nr§R§§] §funkN§R§§' to terminal
+§doneR
+          write '$','Valg: '  to terminal
+          read zValg from terminal
+          if zValg equal to '0' or zValg is undefined
+             zCont = False
+§doR antFunk
+          or if zValg equal to '§nr§R§§'
+§if varCall§R§ Kan §funkN§R§§ kalles med flere varianter (f.eks. autotest)
+             write 1X, 'Velg test for §funkN§R§§:' to terminal
+             write 1X, '  [0] ', zNull, '...' to terminal
+§doX noCall§R§ Antall kallvarianter
+§ask descVar§R§_§X§ Kort beskrivelse av varianten §X§
+             write 1X, '  [§X§] §descVar§R§_§X§§' to terminal
+§doneX
+             write '$','Undervalg: '  to terminal
+             read zValg from terminal
+             read zInt from zValg
+             if zValg equal to '0' or zValg is undefined
+                zCont = False
+             else
+                call SM_TEST_§nr§R§§ exporting zInt importing W_RETSTAT
+             end if
+§else
+             call SM_TEST_§nr§R§§ importing W_RETSTAT
+§fi varCall
+§doneR
+          else
+             write 1X, 'FEIL! Skjønte ikke valg ', zValg to terminal
+             W_RETSTAT = @BATCH_ECRIT@
+          end if
+          zNull = 'Vil ikke teste mer'
+       end while
+    end if
+
+    call PFF_SHUTDOWN
+    call P__MAIN_BATCH_EXIT exporting W_RETSTAT
+
+    terminate-label @LABEL_EXIT@
+    @PEND_M@
+
+end program
+
+§doX antFunk
+
+
+; ---------------------------------
+; Test av §funkN§X§§
+; ---------------------------------
+§if varCall§X§
+procedure SM_TEST_§nr§X§§ imports xSubTest exports W_RETSTAT employs AUTOMARKING
+   declare xSubTest @INT@
+§else
+procedure SM_TEST_§nr§X§§ exports W_RETSTAT employs AUTOMARKING
+§fi
+   @UNIVERSAL@
+§defbool declDate§X§ nil
+§defbool declBool§X§ nil
+§if interTest Vil du lese verdier fra terminal (anbefalt)
+   declare zCont A5
+   declare zSvar A150
+§if useDefV Vil du at testprogrammet skal huske default (anbefalt)
+   declare zFileNo @FILENO@
+§fi useDefV
+§do noPara§X§ Hvor mange verdier (innparam) skal leses for §funkN§X§§?
+§ask parNa§X§_§R§ Variabel nr.§R§ (rutine §X§)
+§ask type§X§_§R§ Deklarasjon for variabel §parNa§X§_§R§§
+§ask prompt§X§_§R§ Prompt for variabel §parNa§X§_§R§§
+§if isDate§X§_§R§ Er §parNa§X§_§R§§ en dato
+§defbool declDate§X§ t
+§else
+§if isBool§X§_§R§ Er §parNa§X§_§R§§ en boolean
+§defbool declBool§X§ t
+§fi isBool
+§fi isDate
+§ifdef type§X§_§R§
+   declare §parNa§X§_§R§§ §type§X§_§R§§
+§fi ifdef
+§if useDefV
+§ifdef type§X§_§R§
+   declare §parNa§X§_§R§§_def §type§X§_§R§§
+§else
+   declare §parNa§X§_§R§§_def as §parNa§X§_§R§§
+§fi ifdef
+§fi useDefV
+§done noPara
+§do outPara§X§ Hvor mange returverdier skal skrives for §funkN§X§§?
+§ask oparNa§X§_§R§ Returvariabel nr.§R§ (rutine §X§)
+§ask otype§X§_§R§ Deklarasjon for variabel §oparNa§X§_§R§§
+§ifdef otype§X§_§R§
+   declare §oparNa§X§_§R§§ §otype§X§_§R§§
+§fi ifdef
+§done outPara
+§if declDate§X§
+   declare zDateStr @DATESTR@
+§fi
+§if declBool§X§
+   declare zBoolStr @CHAR@
+§fi
+§if useDefV
+
+   W_FILENAME = 'def§funkN§X§§.txt'
+   call PFF_FNO_GET importing zFileNo
+   open file      W_FILENAME :
+        with unit zFileNo    :
+        for       read
+   if IO-error
+§do noPara§X§
+§if useDefFor§X§_§R§ Huske default for parameter §parNa§X§_§R§§
+§ask defFor§X§_§R§ Initiell standardverdi for param.§R§
+      §parNa§X§_§R§§_def = §defFor§X§_§R§§
+§fi useDefFor§R§
+§done noPara
+   else
+§do noPara§X§
+§if useDefFor§X§_§R§
+§if isDate§X§_§R§
+      read zDateStr from zFileNo
+      call PFF_DATE_YYYYMMDD_TO_DATE exporting zDateStr :
+                                     importing §parNa§X§_§R§§_def,W_OK
+      if not W_OK
+         §parNa§X§_§R§§_def = LAVESTE.DATO
+      end if
+§else
+§if isBool§X§_§R§
+      read zBoolStr from zFileNo
+      if zBoolStr is defined
+         §parNa§X§_§R§§_def = True
+      else
+         §parNa§X§_§R§§_def = False
+      end if
+§else
+      read §parNa§X§_§R§§_def from zFileNo
+§fi isBool
+§fi isDate
+§fi useDefFor§R§
+§done noPara
+      close file with unit zFileNo
+   end if
+§fi useDefV
+§if varCall§X§
+§doZ noCall§X§
+
+   if xSubTest equal to §Z§
+      !!! spesiell oppførsel for variant §Z§
+§if doSubr§X§_§Z§ Lage subrutine for kallvariant §descVar§X§_§Z§§
+      call SM_TEST_§nr§X§§_§Z§ importing W_RETSTAT
+      terminate from §defLab§X§§ ; Lagre defaults
+§else
+      !!! evt call SM_TEST_§nr§X§§_§Z§ importing W_RETSTAT
+      !!!     terminate from §defLab§X§§ ; Lagre defaults
+§fi doSubrXZ
+   end if
+§doneZ
+§fi varCall
+
+   zCont = 'Ja'
+   terminate from §defStart§X§§
+   while zCont is defined
+§do noPara§X§
+      write 1X, 'INPUT §parNa§X§_§R§§=[',§parNa§X§_§R§§,']' to terminal
+§done noPara
+      call §funkN§X§§ !!! legg på exporting/importing etter behov !!! :
+           exporting :
+§do noPara§X§
+                   §parNa§X§_§R§§, :
+§done noPara
+§backspace 3 \ :
+           importing :
+§do outPara§X§
+                   §oparNa§X§_§R§§, :
+§done outPara
+§backspace 3
+
+§do noPara§X§
+      write 1X, 'OUTPUT §parNa§X§_§R§§=[',§parNa§X§_§R§§,']' to terminal
+§done noPara
+§do outPara§X§
+      write 1X, 'OUTPUT §oparNa§X§_§R§§=[',§oparNa§X§_§R§§,']' to terminal
+§done outPara
+
+      write '$', 'Blank for å avslutte, X for å fortsette: ' to terminal
+      read zCont from terminal
+      if zCont is defined
+terminate-label §defStart§X§§
+§do noPara§X§
+§if useDefV
+§if useDefFor§X§_§R§
+§if isDate§X§_§R§
+         write '$§prompt§X§_§R§§ [',§parNa§X§_§R§§_def,'] ', :
+               '(YYYYMMDD, # for blank): ' to terminal
+§else
+§if isBool§X§_§R§
+         write '$§prompt§X§_§R§§ [',§parNa§X§_§R§§_def,'] ', :
+               '(blank for default, # for false, X for true): ' to terminal
+§else
+         write '$§prompt§X§_§R§§ [',§parNa§X§_§R§§_def,'] (# for blank): ' to terminal
+§fi isBool
+§fi isDate
+         read zSvar from terminal
+         if zSvar equal to '#'
+§if isDate§X§_§R§
+            §parNa§X§_§R§§ = LAVESTE.DATO_BLANK
+§else
+§if isBool§X§_§R§
+            §parNa§X§_§R§§ = False
+§else
+            zSvar = ''
+            read §parNa§X§_§R§§ from zSvar
+§fi isBool
+§fi isDate
+         or if zSvar is defined
+§if isDate§X§_§R§
+            zDateStr = zSvar
+            call PFF_DATE_YYYYMMDD_TO_DATE exporting zDateStr :
+                                           importing §parNa§X§_§R§§,W_OK
+            if not W_OK
+               §parNa§X§_§R§§ = §parNa§X§_§R§§_def
+               write 1X, 'Ulovlig dato, bruker ',§parNa§X§_§R§§  to terminal
+            end if
+§else
+§if isBool§X§_§R§
+            §parNa§X§_§R§§ = zSvar is defined
+§else
+            read §parNa§X§_§R§§ from zSvar
+§fi isBool
+§fi isDate
+            §parNa§X§_§R§§_def = §parNa§X§_§R§§
+         else
+            §parNa§X§_§R§§ = §parNa§X§_§R§§_def
+         end if
+§else useDefFor
+         write '$', '§prompt§X§_§R§§: ' to terminal
+         read §parNa§X§_§R§§ from terminal
+§fi useDefFor
+§else useDefV
+         write '$', '§prompt§X§_§R§§: ' to terminal
+         read §parNa§X§_§R§§ from terminal
+§fi useDefV
+§done
+      end if
+   end while
+§if useDefV
+
+terminate-label §defLab§X§§
+
+   open file      W_FILENAME :
+        with unit zFileNo    :
+        for       write
+   if IO-error
+   else
+§do noPara§X§
+§if useDefFor§X§_§R§
+§if isDate§X§_§R§
+      write §parNa§X§_§R§§_def in "yyyymmdd" to zFileNo
+§else
+§if isBool§X§_§R§
+      if §parNa§X§_§R§§_def
+         write 'X' to zFileNo
+      else
+         write '@BLANK@' to zFileNo
+      end if
+§else
+      write §parNa§X§_§R§§_def to zFileNo
+§fi isBool
+§fi isDate
+§fi useDefFor§R§
+§done noPara
+      close file with unit zFileNo
+   end if
+   call PFF_FNO_FREE exporting zFileNo
+§fi useDefV
+§else interTest
+   !!!!!!  legg inn testprogrammet ditt her !!!
+   declare ...
+   write 1X, <input> to terminal
+   call ProcTest ...
+   write 1X, <output> to terminal
+§fi interTest
+   W_RETSTAT = @BATCH_EOK@ ; Juster denne dersom du legger opp til
+;                            automatisk testing!
+end procedure ; SM_TEST_§nr§X§§
+§if varCall§X§
+§doW noCall§X§
+§if doSubr§X§_§W§
+
+procedure SM_TEST_§nr§X§§_§W§ exports W_RETSTAT employs AUTOMARKING
+;  Test "§descVar§X§_§W§§" for §funkN§X§§
+
+   @UNIVERSAL@
+   declare zOk  @INT@
+   declare zErr @INT@
+§do noPara§X§
+§ifdef type§X§_§R§
+   declare §parNa§X§_§R§§ §type§X§_§R§§
+§fi ifdef
+§done noPara
+§do outPara§X§
+§ifdef otype§X§_§R§
+   declare §oparNa§X§_§R§§ §otype§X§_§R§§
+§fi ifdef
+§done outPara
+
+   zOk  = 0
+   zErr = 0
+
+§if autoTips Ta med tips for autotest
+§do outPara§X§
+§ifdef otype§X§_§R§
+   declare zExp_§oparNa§X§_§R§§ §otype§X§_§R§§
+§fi ifdef
+§done outPara
+
+   declare zi    @INT@
+   declare zPass boolean
+   declare zId   @VARCHAR@
+
+!!!! Dette er bare tips - tilpass som det passer   !!!!
+
+@LOCAL@_§nr§X§§_§W§_max = 10???  ; Antall testcase
+   define  zInputRec  as record of :
+§doZ noPara§X§
+                   §parNa§X§_§Z§§, :
+§doneZ noPara
+§backspace 3
+   define  zOutputRec as record of :
+§doZ outPara§X§
+                   zExp_§oparNa§X§_§Z§§, :
+§doneZ outPara
+§backspace 3
+
+   declare zInput  as zInputRec  numbered from 1 to @X_§nr§X§§_§W§_MAX@
+   declare zOutput as zOutputRec numbered from 1 to @X_§nr§X§§_§W§_MAX@
+
+;  -------------------------------
+;  Søk frem nødvendige testdata...
+;  -------------------------------
+   find first ??? with ???
+   if DB-error or not found
+      @TEST_ERR@ 'Finner ingen passende ???' to terminal
+      terminate from @LABEL_EXIT@
+   end if
+
+;  ---------------------------
+;  Opprett nødvendige testdata
+;  ---------------------------
+   store ??? with ???
+   if not stored
+      @TEST_ERR@ 'Kan ikke opprette ???' to terminal
+      terminate from @LABEL_EXIT@
+   end if
+
+;  ---------------------------------
+;  Definer input og forventet output
+;  ---------------------------------
+   zi = 1
+   while zi <= @X_§nr§X§§_§W§_MAX@
+      !!! lag records...
+§doZ noPara§X§
+      §parNa§X§_§Z§§ = ...
+§doneZ noPara
+§doZ outPara§X§
+      zExp_§oparNa§X§_§Z§§ = ...
+§doneZ outPara
+      move to number zi in zInput
+      move to number zi in zOutput
+      zi = zi + 1
+   end while
+
+;  ------------------
+;  Kjør selve testene
+;  ------------------
+   zi = 1
+   while zi <= @X_§nr§X§§_§W§_MAX@
+      @TEST_PROGRESS@
+      move from number zi in zInput
+      move from number zi in zOutput
+
+      write '[',zi,']',1x,<idfelter>, to zId
+      string-function BfStrip zId
+
+;     -----------------
+;     Forventer suksess
+;     -----------------
+      zPass = True
+      zOk = zOk + 1
+
+;     ---------------
+;     Kjør funksjonen
+;     ---------------
+      call §funkN§X§§ :
+           exporting :
+§doZ noPara§X§
+                   §parNa§X§_§Z§§, :
+§doneZ noPara
+§backspace 3 \ :
+           importing :
+§doZ outPara§X§
+                   §oparNa§X§_§Z§§, :
+§doneZ outPara
+§backspace 3
+
+;     -------------------
+;     Sammenlign resultat
+;     -------------------
+§doZ outPara§X§
+      if §oparNa§X§_§Z§§ <> zExp_§oparNa§X§_§Z§§
+         zPass = False
+         @TEST_ERR@ zId,' §oparNa§X§_§Z§§ - forventet ', zExp_§oparNa§X§_§Z§§, :
+                    ', fikk ', §oparNa§X§_§Z§§ :
+                    to terminal
+      end if
+§doneZ outPara
+      if not zPass
+         zOk = zOk - 1 ; Gikk ikke likevel...
+      end if
+      zi = zi + 1 ; Ny runde!
+   end while
+
+;  --------
+;  Rydd opp
+;  --------
+   @TEST_PROGRESS@
+   delete all ??? where ???
+
+§fi autoTips
+
+   @TEST_RETUR@
+terminate-label @LABEL_EXIT@
+end procedure ; SM_TEST_§nr§X§§_§W§
+§fi doSubr
+§doneW
+§else
+§doW subr§X§ Antall subrutiner for SM_TEST_§nr§X§§
+
+procedure SM_TEST_§nr§X§§_§W§ exports W_RETSTAT employs AUTOMARKING
+;  Test §funkN§X§§ - subrutine???
+   @UNIVERSAL@
+
+terminate-label @LABEL_EXIT@
+end procedure ; SM_TEST_§nr§X§§_§W§
+§doneW
+§fi varCall
+§doneX

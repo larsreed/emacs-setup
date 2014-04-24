@@ -1,0 +1,66 @@
+/* @@(#)TVIST TadMDI_proc.vcf 24.1 03/05/27>
+  Mal for MDI-vindu */
+
+@FI@ @SVPLIST@alle_gruppe@SUFF_SVP@
+
+
+/* Definisjon av utskriftsrutine */
+TadHVCpStart(CD|DialogShortName|SKRIV_UT_1,PrintScreen)
+	TadPrintScreen(DialogName)
+TadHVCpEnd(CD|DialogShortName|SKRIV_UT_1)
+
+/* Definisjon av prosedyre for hjelp om dialog */
+TadHVCpStart(CD|DialogShortName|HJELP_1,Hjelp)
+        TadHVHelp(DialogShortName)
+TadHVCpEnd(CD|DialogShortName|HJELP_1)
+
+/* Prosedyre for adgangskontroll */
+#define xTadQuit \
+	dispatch C__MAIN_ABORT @@\
+	SYSFLG.IKKE_START_MENY = True ; Trenger ikke meny - vi skal avbryte @@\
+	TadExitProc
+
+/* Adgangskontroll ved åpning av vinduet.
+ * Det kan være nødvendig med ytterligere tillegg her. */
+§ASK sysBokst Systembokstav
+TadHVProcStart(PD§sysBokst§_ADG|DialogName,Adgangskontroll i systemvinduet,n/a)
+                                                            Tad______Empty
+;  --------
+;  Variable
+;  --------
+   declare zGrp as GRUPPE.GRUPPE_ID
+                                                            Tad______Empty
+;  ------------------------------------------------------
+;  Avbryt applikasjonen dersom ingen tilgang til systemet
+;  ------------------------------------------------------
+   zGrp = SYSFLG.GRUPPE_ID
+   call PGG_GRUPPE_FINN_ID exporting zGrp           :
+			   importing @ALLE_GRUPPE@, :
+				     W_RETSTAT
+   if W_RETSTAT < @STAT_OK@
+      TadErrorMsg_Find(GRUPPE,zGrp)
+      xTadQuit
+   end if
+                                                            Tad______Empty
+   W_OBJECT = SYSFLG.SYS_NAME
+   call PFF_ACCESS_ANY exporting W_OBJECT :
+		       importing W_OK
+   if not W_OK
+      @MSG_INIT@
+      W_MNO   = 10114  ; Ingen adgang til systemet
+      W_MVAR1 = W_OBJECT
+      @MSG_DISPLAY@
+      xTadQuit
+   end if
+                                                            Tad______Empty
+;  --------------------------------------------------
+;  Deaktiverer valg for opsjoner ved manglende aksess
+;  --------------------------------------------------
+   TadAccessItem(MI_OPSJONER,DI_F_BRUKER_OPSJONER)
+                                                            Tad______Empty
+;  ---------------------------------------------
+;  Deaktiverer valg i GåTil ved manglende aksess
+;  ---------------------------------------------
+;; !!!!! Dette må du fylle ut selv !!!!!!!
+                                                            Tad______Empty
+TadHVProcEnd(PD§sysBokst§_ADG|DialogName)

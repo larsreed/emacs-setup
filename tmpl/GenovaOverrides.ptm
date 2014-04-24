@@ -1,0 +1,26 @@
+@reserved
+@types
+@template
+%REM: Templates for overrides in a dbmodel.%
+//////////////////////////////////////////////////////////////
+// This file containes overrides for a Genova Database Mapping
+//////////////////////////////////////////////////////////////
+MODEL;%ID:LogicalName%;%ID:ModelName%;%ID:Overrides%
+%ITERATE:Table%
+TABLE;%ID:LogicalName%;%ID:TableName%;%ID:Overrides%
+%ITERATE:Column%
+COLUMN;%ID:LogicalName%;%ID:ColumnName%;%ID:Overrides%
+%ENDITERATE%
+%ITERATE:Group%
+GROUP;%ID:LogicalName%;%ID:GroupName%;%ID:Overrides%
+%ITERATE:Member%
+MEMBER;%ID:LogicalName%;%MemberName%
+%ENDITERATE%
+%ENDITERATE%
+%ITERATE:Method%
+METHOD;%ID:LogicalName%;%ID:ProcName%;%ID:Overrides%
+%ITERATE:Parameter%
+PARAMETER;%ID:LogicalName%;%ID:ParameterName%;%ID:Overrides%
+%ENDITERATE%
+%ENDITERATE%
+%ENDITERATE%
