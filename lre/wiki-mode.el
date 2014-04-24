@@ -2,8 +2,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Author:		Lars Reed <Lars@kalars.net>
-;; Last-Modified:	$Date: 2007/06/19 20:06:43 $
-;; Version:		$Id: wiki-mode.el,v 1.1 2007/06/19 20:06:43 larsr Exp $
+;; Version:		X
 ;; Keywords:		Wiki Confluence
 ;;
 ;;; History:

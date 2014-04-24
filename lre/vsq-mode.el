@@ -2,8 +2,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Author:		Lars Reed <Lars@kalars.net>
-;; Last-Modified:	$Date: 2004/09/10 19:24:52 $
-;; Version:		$Id: vsq-mode.el,v 1.2 2004/09/10 19:24:52 larsr Exp $
+;; Version:		1.3
 ;; Keywords:		programming SQL
 ;;
 ;;; History:

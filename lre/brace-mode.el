@@ -3,8 +3,7 @@
 ;;; Copyright (as of yet) (C) 1995-2004 Lars Reed
 
 ;; Author:		Lars Reed <Lars@kalars.net>
-;; Last-Modified:	$Date: 2007/06/19 20:06:54 $
-;; Version:		$Id: brace-mode.el,v 1.3 2007/06/19 20:06:54 larsr Exp $
+;; Version:		1.4
 ;; Keywords:		keys setup european
 
 ;;; Commentary:

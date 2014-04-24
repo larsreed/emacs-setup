@@ -2,9 +2,7 @@
 
 ;; Author: Olav M. Bjørnås <omb@sysdeco.no>
 ;; Author-2: Lars Reed <Lars@kalars.net>
-;; Version 1.0.1 (Sept 6, 1994)
-;; Local-ID: $Id: sysdul.el,v 1.5 2005/10/19 05:19:17 larsr Exp $
-;; Last-Modified: $Date: 2005/10/19 05:19:17 $
+;; Version 2014.01
 ;; Keywords: languages Sysdul
 ;;
 ;; Added changes from Øyvind Mossin <omo@sysdeco.no>
@@ -25,7 +23,6 @@
 ;;     sysdul-split-long, sysdul-next-error
 ;; 7.  Misc. cleanup.
 ;;
-;; $Log: sysdul.el,v $
 ;; Revision 1.5  2005/10/19 05:19:17  larsr
 ;; run-mode-hooks
 ;;

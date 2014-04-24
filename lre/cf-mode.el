@@ -2,8 +2,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Author:		Lars Reed <Lars@kalars.net>
-;; Last-Modified:	$Date: 2007/06/19 20:06:54 $
-;; Version:		$Id: cf-mode.el,v 1.3 2007/06/19 20:06:54 larsr Exp $
+;; Version:		1.4
 ;; Keywords:		programming C Sysdul grape
 ;;
 ;;; History:

@@ -1,6 +1,6 @@
 ;; lresetup.el --- Lars Reed - Emacs init file
 
-;; Copyright (C) 1993-2004 Lars Reed @@(#) LRE %M% %I% %E%>
+;; Copyright (C) 1993-2014 Lars Reed
 ;; Author: Lars Reed <Lars@kalars.net>
 ;; Maintainer: Lars Reed
 ;; Keywords: Emacs setup

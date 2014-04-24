@@ -1,11 +1,9 @@
 ;;; lre-lisp.el --- Lars Reed - Emacs init file
 ;; Lisp utilities
 
-;; Copyright (C) 2002 Lars Reed @@(#) LRE %M% %I% %E%>
+;; Copyright (C) 2002-2014 Lars Reed
 ;;   See lresetup.el
 ;; Author:		Lars Reed <Lars@kalars.net>
-;; Last-Modified:	$Date: 2005/10/19 05:19:52 $
-;; Version:		$Id: lre-lisp.el,v 1.4 2005/10/19 05:19:52 larsr Exp $
 ; Hi-lock: (("^;;; lre.*\\.el[^\n]*" (0 (quote hi-black-hb) t)))
 ; Hi-lock: (("Lars.*R[e]ed" (0 (quote hi-blue) t)))
 ; Hi-lock: (("^;;; [^\n]+" (0 (quote hi-green) t)))

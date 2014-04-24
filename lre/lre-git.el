@@ -1,11 +1,9 @@
 ;;; lre-git.el --- Lars Reed - Emacs init file
 ;; Setup for git
 
-;; Copyright (C) 2011 Lars Reed @@(#) LRE %M% %I% %E%>
+;; Copyright (C) 2011-2014 Lars Reed
 ;;   See lresetup.el
 ;; Author:		Lars Reed <Lars@kalars.net>
-;; Last-Modified:	$Date$
-;; Version:		$Id$
 ;; Source:		http://stackoverflow.com/questions/1817370/using-ediff-as-git-mergetool
 ; Hi-lock: (("^;;; lre.*\\.el[^\n]*" (0 (quote hi-black-hb) t)))
 ; Hi-lock: (("Lars.*R[e]ed" (0 (quote hi-blue) t)))

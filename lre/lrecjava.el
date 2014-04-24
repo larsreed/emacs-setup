@@ -1,9 +1,7 @@
 ;;; lrecjava.el --- Lars Reed - Emacs init file for C/C++/Java
 
-;; Copyright (C) 1993-2004 Lars Reed @@(#) LRE %M% %I% %E%>
+;; Copyright (C) 1993-2014 Lars Reed @@(#) LRE %M% %I% %E%>
 ;; Author:		Lars Reed <Lars@kalars.net>
-;; Last-Modified:	$Date: 2007/06/19 20:06:54 $
-;; Version:		$Id: lrecjava.el,v 1.4 2007/06/19 20:06:54 larsr Exp $
 ;; Keywords: Emacs setup
 
 ;; This file is NOT part of GNU Emacs.

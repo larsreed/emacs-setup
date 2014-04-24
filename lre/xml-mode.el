@@ -1,7 +1,6 @@
 ;; Simple XML-mode
 ;; Author:		Lars Reed <Lars@kalars.net>
-;; Last-Modified:	$Date: 2004/09/10 19:24:52 $
-;; Version:		$Id: xml-mode.el,v 1.2 2004/09/10 19:24:52 larsr Exp $
+;; Version:		1.3
 
 (require 'sgml-mode)
 (require 'derived)

@@ -13,7 +13,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 §ask MailTo Mail address
 ;; Author:		(c) §Author§ <§MailTo§>
-;; Version:		$Id: tpl.el,v 1.1.1.1 2004/03/15 20:50:35 larsr Exp $
+;; Version:		TODO 0.1 ???
 §ask Keywords
 ;; Keywords:		§Keywords§
 ;; Adapted-By:

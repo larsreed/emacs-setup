@@ -1,11 +1,9 @@
 ;;; lre-net.el --- Lars Reed - Emacs init file
 ;; Setup for Gnus/VM/RMAIL/...
 
-;; Copyright (C) 2002 Lars Reed @@(#) LRE %M% %I% %E%>
+;; Copyright (C) 2002-2014 Lars Reed
 ;;   See lresetup.el
 ;; Author:		Lars Reed <Lars@kalars.net>
-;; Last-Modified:	$Date: 2004/09/10 19:24:52 $
-;; Version:		$Id: lre-net.el,v 1.2 2004/09/10 19:24:52 larsr Exp $
 ; Hi-lock: (("^;;; lre.*\\.el[^\n]*" (0 (quote hi-black-hb) t)))
 ; Hi-lock: (("Lars.*R[e]ed" (0 (quote hi-blue) t)))
 ; Hi-lock: (("^;;; [^\n]+" (0 (quote hi-green) t)))

@@ -3,13 +3,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Author:              (c) Lars Reed <Lars@kalars.net>
-;; Last-Modified:       $Date: 2007/06/19 20:06:55 $
-;; Version:             $Id: tplsub-x.el,v 1.11 2007/06/19 20:06:55 larsr Exp $
+;; Version:             1.12
 ;; Keywords:            see tplsub.el
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Code:
-(defconst tplsub-x--mode-version "$Revision: 1.11 $")
+(defconst tplsub-x--mode-version "1.12")
 
 (defconst tplsub-x-mode-version (substring tplsub-x--mode-version
                                            11

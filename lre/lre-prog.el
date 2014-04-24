@@ -1,11 +1,9 @@
 ;;; lre-prog.el --- Lars Reed - Emacs init file
 ;; Some less frequently used programming utilities
 
-;; Copyright (C) 2002 Lars Reed @@(#) LRE %M% %I% %E%>
+;; Copyright (C) 2002-2014 Lars Reed
 ;;   See lresetup.el
 ;; Author:              Lars Reed <Lars@kalars.net>
-;; Last-Modified:       $Date: 2007/06/19 20:06:54 $
-;; Version:             $Id: lre-prog.el,v 1.8 2007/06/19 20:06:54 larsr Exp $
 ; Hi-lock: (("^;;; lre.*\\.el[^\n]*" (0 (quote hi-black-hb) t)))
 ; Hi-lock: (("Lars.*R[e]ed" (0 (quote hi-blue) t)))
 ; Hi-lock: (("^;;; [^\n]+" (0 (quote hi-green) t)))

@@ -2,8 +2,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Author:		Lars Reed <Lars@kalars.net>
-;; Last-Modified:	$Date: 2004/09/10 19:24:52 $
-;; Version:		$Id: wml-mode.el,v 1.2 2004/09/10 19:24:52 larsr Exp $
+;; Version:		1.2
 ;; Keywords:		WAP WML HTML
 ;;
 ;;; History:

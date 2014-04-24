@@ -2,13 +2,11 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Author:		Lars Reed <Lars@kalars.net>
-;; Last-Modified:	$Date: 2005/11/09 14:01:08 $
-;; Version:		$Id: commbox.el,v 1.5 2005/11/09 14:01:08 larsr Exp $
+;; Version:		1.6
 ;; Keywords:		programming comments
 ;; Adapted-By:
 ;;
 ;;; History:
-;;    $Log: commbox.el,v $
 ;;    Revision 1.5  2005/11/09 14:01:08  larsr
 ;;    Misc
 ;;

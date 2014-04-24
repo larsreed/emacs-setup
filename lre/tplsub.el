@@ -2,8 +2,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Author:              Lars Reed <Lars@kalars.net>
-;; Last-Modified:       $Date: 2007/06/19 20:06:55 $
-;; Version:             $Id: tplsub.el,v 1.7 2007/06/19 20:06:55 larsr Exp $   %M% %I% %E%
+;; Version:             1.8
 ;; Keywords:  programming templates help abbrev
 ;; Copyright: (c) Lars Reed
 ;;

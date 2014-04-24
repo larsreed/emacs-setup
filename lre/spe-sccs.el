@@ -3,8 +3,7 @@
 ;;; Copyright (C) 1995-2004 Lars Reed
 
 ;; Author:		Lars Reed <Lars@kalars.net>
-;; Last-Modified:	$Date: 2004/09/10 19:24:52 $
-;; Version:		$Id: spe-sccs.el,v 1.2 2004/09/10 19:24:52 larsr Exp $
+;; Version:		1.3
 ;; Keywords:		SPE SCCS
 ;; Adapted-By:
 

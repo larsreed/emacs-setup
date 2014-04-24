@@ -3,8 +3,7 @@
 ;;; Copyright (c) 1995 Lars Reed
 
 ;; Author:		Lars Reed <Lars@kalars.net>
-;; Last-Modified:	$Date: 2007/06/19 20:06:54 $
-;; Version:		$Id: fe-mode.el,v 1.3 2007/06/19 20:06:54 larsr Exp $
+;; Version:		1.4
 ;; Keywords:		SCCS FE SPE
 ;; Adapted-By:
 
