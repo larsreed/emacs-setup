@@ -11,6 +11,7 @@
 ;; --------------------------------------------------------------
 
 (require 'cl)
+(require 'easymenu)
 
 (defvar outline-regexp)
 (defvar outline-level)
@@ -948,6 +949,90 @@ o  Otherwise insert tag at point."
   (save-excursion
     (insert "</description>\n        </histrec>\n"))
   (if comment (insert comment)))
+
+;;; Markdown
+
+
+(defvar tplsub-markup-tmpl-list
+  (append '(
+            ("a"    "[" | "](" ("URL")")")
+            ("b"    "**" | "**")
+            ("bq"   o "> ")
+            ("c"    "`" | "`")
+            ("co"   o "    ")
+            ("ext"  "[" | "|" ("link" . "http://www.") "]")
+            ("fn"   "{footnote}" | "{footnote}")
+            ("h1 "   o "# " |" #")
+            ("h2 "   o "## " |" ##")
+            ("h3 "   o "### " |" ###")
+            ("h4 "   o "#### " |" ####")
+            ("h5 "   o "##### " |" #####")
+            ("h6 "   o "###### " |" ######")
+            ("hr"   "----------" n)
+            ("i"    "_" | "_")
+            ("img"  "![" | "](" ("file") ")")
+            ("ol"   o (for "?antall items" ("1. " | n)))
+            ("sub"  "<sub>" | "</sub>")
+            ("sup"  "<sup>" | "</sup>")
+            )
+          tplsub-Xml-tmpl-list)
+  "Templates for markup-mode.")
+
+(defvar tplsub-markup-help-list '()
+  "Help for markup-mode.")
+
+
+(defconst markdown-imenu-expression
+  (list nil "^[#]+\\(.*?\\)\\( +[#]+\\)?" 1)
+  "Menu builder")
+
+
+(defun lre--markdown-br()
+  (interactive)
+  (insert "<br />")
+  (markdown-enter-key))
+
+(defun lre-markdown-mode()
+"Additions to `markdown-mode' setup."
+  (lre-colors)
+  (auto-fill-mode 0)
+  (easy-menu-add-item
+   nil
+   '("Markdown")
+   ["Insert <br/>" lre--markdown-br (not buffer-read-only)]
+   "Insert footnote")
+  (when (fboundp 'tplsub-register-mode)
+      (tplsub-register-mode 'markup-mode
+			    tplsub-markup-tmpl-list
+			    tplsub-markup-help-list
+			    'default  ; template regexp
+			    'default  ; case sens.
+			    'default  ; cont string
+			    'default  ; expansion key
+			    )
+      (tplsub-register-mode 'gfm-mode
+			    tplsub-markup-tmpl-list
+			    tplsub-markup-help-list
+			    'default  ; template regexp
+			    'default  ; case sens.
+			    'default  ; cont string
+			    'default  ; expansion key
+			    )
+      (tplsub-mode t))
+  (when buffer-file-name
+    (add-hook 'after-save-hook
+              'check-parens
+              nil t))
+  (make-local-variable 'imenu-generic-expression)
+  (make-local-variable 'imenu-sort-function)
+  (setq imenu-generic-expression (list markdown-imenu-expression))
+  (setq imenu-sort-function nil)
+  (lre--imenu-add)
+  (when (lre-memb 'keys)
+    (local-set-key (kbd "C-c C-<return>") 'lre--markdown-br)
+    )
+  )
+
 
 (provide 'lre-doc)
 

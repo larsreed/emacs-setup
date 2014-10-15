@@ -1048,6 +1048,8 @@ and launch or redirect a browser to the specified URL."
       magic-mode-alist                nil
       mail-archive-file-name          "~/Mail/outbox.VM"
       mail-yank-prefix                "> "
+      markdown-italic-underscore      t
+      markdown-open-command           (lre-fixed :markdown)
       max-lisp-eval-depth             1000
       max-specpdl-size                2000
       message-log-max                 500
@@ -1822,6 +1824,7 @@ and can edit it until it has been confirmed."
 (autoload 'find-function "find-func" nil t)
 (autoload 'find-function-on-key "find-func" nil t)
 (autoload 'format-lisp-code-directory "lispdir" nil t)
+(autoload 'gfm-mode "markdown-mode" "Mode for editing GitHub markdown files" t)
 (when (lre-memb 'inet)
   (autoload 'gnus "gnus" "Read network news." t)
   (autoload 'gnus-post-news "gnuspost" "Post a news." t))
@@ -2212,6 +2215,7 @@ and can edit it until it has been confirmed."
     ("[Mm]ake\\(file\\).*" . makefile-mode)
     ("\\.htt$" . html-mode)
     ("\\.markdown$" . markdown-mode)
+    ("\\.md$" . gfm-mode)
     ("\\.scala$" . lre-scala-mode)
     ("\\.\\(wsf\\|sgml?\\)$" . lre-choose-sgml-mode)
     ("\\.\\(dtd\\|mod\\)$" . lre-choose-dtd-mode)
@@ -3182,6 +3186,7 @@ Return only one group for each buffer."
   )
 
 (lre-setup-lib 'lre-doc
+  (autoload 'lre-markdown-mode "lre-doc" "Additions to `markdown-mode' setup.")
   (autoload 'lre-nroff-mode "lre-doc" "Additions to `nroff-mode' setup.")
   (autoload 'lre-choose-sgml-mode "lre-doc" "Select the right SGML-mode" t)
   (autoload 'lre-choose-dtd-mode "lre-doc" "Select the right XML-mode for DTDs" t)
@@ -3320,7 +3325,7 @@ Return only one group for each buffer."
      wml-mode        ksh-mode         sql-mode         psgml-mode
      pxml-mode       xml-mode         diff-mode        vsq-mode
      css-mode        xsl-mode         nxml-mode        Info-mode
-     apropos-mode    awk-mode         simula-mode
+     apropos-mode    awk-mode         simula-mode      markdown-mode
      ))
   "Modes that support font-lock.")
 
@@ -5116,6 +5121,7 @@ Dvs.:
 (add-hook 'Info-mode-hook 'lre-info-mode)
 (add-hook 'makefile-mode-hook 'lre-makefile-mode)
 ;; ??? (add-hook 'minibuffer-setup-hook 'iswitchb-minibuffer-setup)
+(add-hook 'markdown-mode-hook 'lre-markdown-mode)
 (add-hook 'nroff-mode-hook 'lre-nroff-mode)
 (add-hook 'nxml-mode-hook 'lre-nxml-mode)
 (add-hook 'psgml-mode-hook 'lre-sgml-keys)

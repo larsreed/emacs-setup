@@ -79,6 +79,7 @@
         (:shell-ex . "shelex.exe") ; 18
         (:scala . "C:/tools/scala-2.10") ; 19
         (:clojure . "C:/tools/clojure-1.3.0/clojure-1.3.0.jar") ; 20
+        (:markdown . "C:/Program Files (x86)/MarkdownPad 2/MarkdownPad2.exe") ; 21
         ))
 
 (setq lre-office-path (cond ((eq LRE-this-cfg 'lreibm)

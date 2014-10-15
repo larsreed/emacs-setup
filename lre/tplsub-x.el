@@ -10,12 +10,6 @@
 ;;; Code:
 (defconst tplsub-x--mode-version "1.12")
 
-(defconst tplsub-x-mode-version (substring tplsub-x--mode-version
-                                           11
-                                           (- (length tplsub-x--mode-version)
-                                              2))
-  "Current version of tplsub mode.")
-
 (defvar tplsub-sysdul-tmpl-list
         '(
           ("++"    (tplsub--inc "+"))
@@ -581,7 +575,7 @@
                                                 ("C" . "center"))))))
     ("addl"  "<dt>" ("Description") / "<dd><a href=\"" ("URL") "\">" /
              "\t" ("URL") "</a>" /)
-    ("ah"    "<a href=\"" ("URL") "\"" 
+    ("ah"    "<a href=\"" ("URL") "\""
              (yn "target" (" target=\"_"
                            (opt "Target" (("B" . "blank") ("S" . "self")
                                           ("P" . "parent") ("T" . "top")))
