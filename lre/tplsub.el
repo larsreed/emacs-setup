@@ -1914,7 +1914,7 @@ See `tplsub-mode-list' for details."
 (defsubst tplsub-reregister-mode (modesym &optional t-list h-list regex t-case
                                                     cont-str h-key)
   (tplsub-unregister-mode modesym)
-  (tplsub-reregister-mode modesym t-list h-list regex t-case cont-str h-key))
+  (tplsub-register-mode modesym t-list h-list regex t-case cont-str h-key))
 
 (defmacro tplsub---swap-nil-default (sym)
   "Swap nil and default, otherwise leave alone"
