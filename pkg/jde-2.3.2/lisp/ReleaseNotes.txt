@@ -1,0 +1,163 @@
+JDE 2.3.2
+
+***************************************************************
+*                         PLEASE READ                         *
+***************************************************************
+*                                                             *
+* This release requires semantic 1.4beta13 (or later),        *
+* speedbar 0.14beta2 (or later), and                          *
+* eieio-0.17beta3 (or later). You can obtain all three        *
+* packages at http://cedet.sourceforge.net                    *
+*                                                             *
+* This release requires version 1.2.2 (or later) of the       *
+* JDK.                                                        *
+*                                                             *
+* This release also requires avltree.el, which is part of the *
+* elib 1.0 package. You can obtain elib at the JDE web site   *
+* in compressed tar (http://jdee.sunsite.dk/elib.tar.gz)      *
+* or zip (http://sunsite.dk/jde/elib.zip) format.             *
+*                                                             *
+* JDEbug runs on Windows 2000 only if Service Pack 2 (or      *
+* later) is installed.                                        *
+*                                                             *
+* If syntax-coloring does not work, download and install      *
+* overlay-fix.el from the semantic web site.                  *
+*                                                             *
+***************************************************************
+
+* Fixes incompatibility between jde-ant-enable-find and
+  jde-ant-read-buildfile. If both are enabled, the value for
+  jde-ant-read-buildfile is used as a default if it is valid.
+        
+* Fixes bug in the Java ant invocation method. Quoting the classpath 
+  with double quotes was not working in Windows systems.
+
+* Fixes ant target history to be buildfile specific.
+
+* Fixes bug that caused the compile command to fail when jikes
+  is the compiler and jde-compiler does not specify the path of the
+  jikes executable.
+
+* Fixes bug that cause the interface wizard to incorrectly
+  generate names of method parameters that are arrays of
+  user-defined types.
+
+  Thanks to Alphonse Bendt for reporting this bug.
+
+* Fixed bug in definition for 
+  jde-checkstyle-option-illegal-instantiations.
+
+  Thanks to Paul Krause.
+
+* Enhance the following code templates
+
+    - jde-gen-interface-buffer-template
+    - jde-gen-console-buffer-template
+    - jde-gen-jfc-app-buffer-template
+    - jde-gen-junit-test-class-buffer-template
+
+  to use the following javadoc templates instead of
+  literal text
+
+    - jde-javadoc-author-tag-template
+    - jde-javadoc-version-tag-template
+    - jde-javadoc-end-block-template
+
+  Thanks to Peter Dobratz.
+
+* Fixes bug that caused inadvertent setting of transient mark mode
+  on some user's systems when the user executes the JDE->Help->Symbol
+  at Point command.
+
+  Thanks to James Cox.
+
+* Fixed a bug in the jde-project-update command caused by treating 
+  "." as a standard relative path character instead of a project 
+  file relative path character.
+
+* Added the jde-update-package command to the JDEE's Code Generation
+  menu as JDE->Code Generation->Wizards->Update Package Statement.
+
+* The JDEE now loads the jde-package-update command on demand instead
+  of at startup. This change is intended to help reduce the JDEE
+  startup time.
+
+* Project-relative paths now work for jde-javadoc-gen-destination-directory.
+
+* Fix bug in generation of jde-checkstyle-option-lcurly-method option. 
+  
+  Thanks to ABE Yasushi.
+
+* The JDEE now comes with the latest version (1.2.7) of the BeanShell.
+
+* The JDEE distribution now include jde-ejb.el, which was inadvertently
+  omitted from the previous release.
+
+
+
+JDE 2.3.1
+
+* Normalizes jde-ant-buildfile before using it.
+  Thanks to Luis Miguel Hernanz <luish@germinus.com> 
+
+* Adds jde-ant-working-directory.
+
+* Fixes infinite recursion bug when a project file specifies
+  jde-ant-build as the jde-build-function. 
+
+* Enhances interface wizard to support implementation of
+  interfaces that reference inner classes.
+
+JDE 2.3.0
+
+* This release supports the correct vm command line arguments
+  for the version of the JDK specified by the jde-jdk
+  customization variable.
+
+* Fixed bug wherein the JDEE was generating the wrong
+  command line switch for the display classes option of the
+  jde-run-option-verbose option for post JDK 1.1.x vms.
+
+* The name of the jde-run-option-connect-to-debugger variable
+  has changed to jde-run-option-debug.
+
+* Adds the following run application customization variables:
+
+  - jde-run-option-boot-classpath
+  - jde-run-option-interpret-mode
+  - jde-run-option-jar
+  - jde-run-option-hotspot-type
+  - jde-run-option-enable-assertions
+  - jde-run-option-disable-assertions
+  - jde-run-option-enable-system-assertions
+  - jde-run-option-disable-system-assertions
+
+* The JDEE now builds the class list used by its wizards
+  to resolve unqualified class names from the CLASSPATH
+  environment variable if jde-global-classpath for
+  the current project is nil.
+
+* Fixed regression introduced in JDEE 2.2.9.2 that 
+  caused symbols to be listed more than once in the 
+  jde-symbol-list variable under some circumstances. This in turn 
+  caused symbols to be set multiple times in a prj.el file.
+
+* Changes the default value for jde-gen-class-buffer-template to
+  use the relevant tempo-template-jde-javadoc instead of literal 
+  text. This way jde-gen-class-buffer reflects, for example, a 
+  change to tempo-template-jde-javadoc-author-tag. Thanks to 
+  Peter Dobratz <dobratzp@ele.uri.edu>.
+
+* Patched the class list code to change dollar signs ($) to
+  periods (.) in converting class paths to class names. 
+  This is intended to fix a bug in the interface wizard.
+
+  Thanks to Petter Mahlen.
+
+
+
+
+
+
+
+

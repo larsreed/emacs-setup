@@ -1,0 +1,44 @@
+Changes since version 1.17 (2000-08-08)
+
+Changes to docbook/*
+
+  | 2000-08-29  Norman Walsh  <ndw@nwalsh.com>
+  | 
+  | 	* VERSION: Version 1.18 released
+  | 
+
+Changes to docbook/bin/*
+
+  | 2000-08-29  Norman Walsh  <ndw@nwalsh.com>
+  | 
+  | 	* chunk.pl: Fixed mode on mkdir
+  | 
+
+Changes to docbook/common/*
+
+  | 2000-08-29  Norman Walsh  <ndw@nwalsh.com>
+  | 
+  | 	* nl.xml: Updated
+  | 
+
+Changes to docbook/fo/*
+
+  | 2000-08-29  Norman Walsh  <ndw@nwalsh.com>
+  | 
+  | 	* biblio.xsl, component.xsl, division.xsl: Fixed erroneous
+  | 	  flow-name
+  | 
+  | 	* graphics.xsl: Fixed fo:external-graphic so that it's a
+  | 	  proper URI
+  | 
+
+Changes to docbook/html/*
+
+  | 2000-08-29  Norman Walsh  <ndw@nwalsh.com>
+  | 
+  | 	* docbook.xsl: Support html.base parameter
+  | 
+  | 	* param.xsl: Made parameters into xsl:params instead of
+  | 	  xsl:variables
+  | 
+

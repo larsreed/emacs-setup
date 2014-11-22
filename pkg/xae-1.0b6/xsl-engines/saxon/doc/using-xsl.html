@@ -1,0 +1,382 @@
+<html>
+
+<head>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<meta NAME="GENERATOR" CONTENT="Microsoft FrontPage 3.0">
+<title>Using Stylesheets</title>
+
+<body leftmargin="150" bgcolor="#ddeeff"><font face="Arial, Helvetica, sans-serif">
+
+<div align=right><a href="index.html">SAXON home page</a></div>
+
+<b><font FACE="Arial, Helvetica, sans-serif" SIZE="4">
+
+<p></font><font FACE="Arial, Helvetica, sans-serif" color="#FF0080" size="7">Using Stylesheets</font><font FACE="Arial, Helvetica, sans-serif" SIZE="4"></p>
+</font></b>
+
+<hr>
+
+<p>This page describes how to use SAXON XSLT Stylesheets, either from the command line,
+or from the Java API.</p>
+
+<table width="723">
+  <tr>
+    <td colspan=2 width="719" bgcolor="#0000FF"><font color="#FFFFFF"><big><b>Contents</b></big></font></td>
+  </tr>
+  <tr>
+    <td width="350" bgcolor="#0000FF"><font color="#FFFFFF"><big>Using Stylesheets</big></font></td>
+    <td  bgcolor="#0000FF"><font color="#FFFFFF"><big>Reference</big></font></td>
+  </tr>
+  </tr>
+
+  <tr>
+    <td VALIGN="top"  bgcolor="#00FFFF">
+    <a href="#Command-line">Using the XSL interpreter from the command line</a><br>
+    <a href="#Embedding">Embedding the interpreter in an application</a><br>
+    </td>
+    <td VALIGN="top"  bgcolor="#00FFFF">
+    See also:<br>
+    <a href="xsl-elements.html">XSL Elements</a><br>
+    <a href="expressions.html">XSL Expressions</a><br>
+    <a href="patterns.html">XSL Patterns</a><br>
+    <a href="extensibility.html">SAXON Extensibility</a><br>
+    <a href="conformance.html">SAXON XSL Conformance</a><br>
+    </td>
+  </tr>
+</table>
+
+
+<h2><a name="Command-line">Using the XSL interpreter from the command line</a></h2>
+
+<font size="3"><p>The Java class com.icl.saxon.StyleSheet has a main program that
+may be used to apply a given style sheet to a given source XML document. The form of
+command is:</p>
+
+<p><strong><font color="#FF0080">java&nbsp; com.icl.saxon.StyleSheet 
+&nbsp; [options]&nbsp;&nbsp; source-document&nbsp;&nbsp; stylesheet&nbsp;&nbsp; [ <i>params&#133;</i>]</font></strong></p>
+
+<p>The options must come first, then the two file names, then the params.
+The stylesheet is omitted if the -a option is present.</p>
+
+<p>The options are as follows (in any order): </p>
+
+<table>
+
+<tr><td valign="top" width="20%">-a</td>
+<td>Use the xml-stylesheet processing instruction in the source document
+to identify the stylesheet to be used. The stylesheet argument should be omitted.</td></tr>
+
+<tr><td valign="top">-l</td>
+<td>Switches line numbering on for the source document. Line numbers are accessible
+through the extension function saxon:line-number(), or from a trace listener.</td></tr>
+
+<tr><td valign="top">-m classname</td>
+<td>Use the specified Emitter to process the output from xsl:message. The class must implement
+the com.icl.saxon.output.Emitter class. This interface is similar to a SAX ContentHandler,
+it takes a stream of events to generate output. In general the content of a message is an XML
+fragment. By default the standard XML emitter is used, configured to write to the standard error
+stream, and to include no XML declaration. Each message is output as a new document.</td></tr>
+
+<tr><td valign="top">-o filename</td>
+<td>Send output to named file. In the absence of this option, output goes to standard output.
+If the source argument identifies a directory, this option is mandatory and must also identify
+a directory; on completion it will contain one output file for each file in the source directory.
+</td></tr>
+
+<tr><td valign="top">-r classname</td>
+<td>Use the specified URIResolver to process all URIs. The URIResolver is a user-defined class,
+that extends the com.icl.saxon.URIResolver class, whose function is to take a URI supplied as
+a string, and return a SAX InputSource. It is invoked to process URIs used in the document() function,
+in the xsl:include and xsl:import elements, and (if -u is also specified) to process the URIs
+of the source file and stylesheet file provided on the command line.</td></tr>
+
+<tr><td valign="top">-t</td>
+<td>Display version and timing information to the standard error output</td></tr>
+
+<tr><td valign="top">-T</td>
+<td>Display stylesheet tracing information to the standard error output.
+Also switches line numbering on for the source document.</td></tr>
+
+<tr><td valign="top">-TL classname</td>
+<td>Run the stylesheet using the specified TraceListener. The classname names a user-defined
+class, which must implement com.icl.saxon.trace.TraceListener</td></tr>
+
+<tr><td valign="top">-u</td>
+<td>Indicates that the names of the source document and the style document are URLs;
+otherwise they are taken as filenames, unless they start with "http:" or "file:", in which
+case they are taken as URLs</td></tr>
+
+<tr><td valign="top">-w0, w1, or w2</td>
+<td>Indicates the policy for handling recoverable errors in the stylesheet: w0 means
+recover silently, w1 means recover after writing a warning message to the system error
+output, w2 means signal the error and do not attempt recovery. (Note, this does not
+currently apply to all errors that the XSLT recommendation describes as recoverable).
+The default is w1.</td></tr>
+
+<tr><td valign="top">-x classname</td>
+<td>Use specified SAX parser for source file and any files loaded using the document() function.
+ The parser must be the fully-qualified class name
+of a Java class that implements the org.xml.sax.Parser or org.xml.sax.XMLReader interface</td></tr>
+
+<tr><td valign="top">-y classname</td>
+<td>Use specified SAX parser for stylesheet file, including any loaded using xsl:include
+or xsl:import. The parser must be the fully-qualified class name
+of a Java class that implements the org.xml.sax.Parser or org.xml.sax.XMLReader interface</td></tr>
+
+<tr><td valign="top">-?</td><td>Display command syntax</td></tr>
+
+<tr><td valign="top">source-document</td>
+<td>Identifies the source file or directory. Mandatory. If this is a directory, all the
+files in the directory will be processed individually. In this case the -o option is
+mandatory, and must also identify a directory, to contain the corresponding output files.
+A directory must be specified as a filename, not as a URL.</td></tr>
+
+<tr><td valign="top">stylesheet</td>
+<td>Identifies the stylesheet. Mandatory unless the -a option is used.</td></tr>
+
+</table>
+
+<p>A param takes the form <i>name=value</i>, <i>name</i> being the
+name of the parameter, and <i>value</i> the value of the parameter. These parameters are
+accessible within the stylesheet as normal variables, using the $name syntax, provided
+they are declared using a top-level xsl:param element. If there is no such declaration, the supplied
+ parameter value is silently ignored.</p>
+
+<p>Under Windows it is possible to supply a value containing
+spaces by enclosing it in double quotes, for example <b>name="John Smith"</b>. This is a feature
+of the operating system shell, not something Saxon does, so it may not work the
+same way under every operating system.</p>
+ 
+<p>If the -a option is used, the name of the stylesheet is
+omitted. The source document must contain a &lt;?xml-stylesheet?&gt; processing instruction
+before the first element start tag; this processing instruction must have a pseudo-attribute <b>href</b> that
+identifies the relative or absolute URL of the stylsheet document, and a pseudo-attribute type whose
+value is "text/xml", "application/xml", or "text/xsl". For example:
+
+<p><strong><font color="#FF0080">&lt;?xml-stylesheet type="text/xsl" href="../style3.xsl" ?&gt;
+</font></strong></p>
+
+
+</font>
+
+<hr>
+<font FACE="Arial, Helvetica, sans-serif">
+
+<h2><a name="Embedding">Embedding the interpreter in an application</a></h2>
+</font>
+
+<p>Rather than using the interpreter from the command line, you may want to include it in your
+own application, perhaps one that enables it to be used within an applet or servlet. If you run
+the interpreter repeatedly, this will always be much faster than running it each time from
+ a command line.</p>
+
+<p>Saxon incorporates initial support for the <a href="http://trax.openxml.org/">TRAX</a>
+API, which is designed to become a standard API for invoking XSLT processors. TRAX is not yet
+fully stable, and is not yet fully implemented in Saxon, but I intend eventually that it should
+replace Saxon's proprietary API. For the moment, the discussion here describes both the TRAX
+interfaces and the Saxon implementation.</p>
+
+<p>Running a transformation is a two-stage process. First you need to create a TRAX Templates object,
+which in Saxon is called a PreparedStyleSheet. Then you can
+run this as often as you like; for each run you must create a new TRAX Transformer object:
+in Saxon this is called a Controller. You can run the transformation by invking one of
+the TRAX transform() methods on the Transformer object, or one of the render() methods in the Saxon
+implementation.</p>
+
+<p>The <b>Templates</b> or <b>PreparedStyleSheet</b> object represents a compiled stylesheet
+ in memory. In the TRAX interface you create it using the Processor object:</p>
+
+<code><pre>
+Processor processor = Processor.newInstance("xslt");
+Templates templates = processor.process(new InputSource(stylesheetURL);
+</pre></code>
+
+<p>The Saxon version of the TRAX Processor class automatically gives you a Saxon XSLT processor,
+but the class is designed so that it can create any TRAX Processor given appropriate configuration
+information.</p>
+
+<p>Using the Saxon interface, you can also create a PreparedStylesheet directly:</p>
+
+<code><pre>
+PreparedStyleSheet templates = new PreparedStyleSheet();
+templates.prepare(new InputSource(stylesheetURL));
+</pre></code>
+
+
+<p>The main methods on PreparedStyleSheet are:</p>
+
+<table>
+
+<tr><td valign=top width="30%">prepare()</td>
+<td>The stylesheet is supplied as a SAX InputSource object. This method causes the stylesheet to
+be parsed, validated, and readied for execution. Once prepared, it can be used repeatedly
+to process a sequence of source documents.</td></tr>
+
+<tr><td valign=top>newTransformer()</td>
+<td>The PreparedStyleSheet can now be used repeatedly to process a sequence of source documents. Each
+time you use the stylesheet, you must make a new Transformer object.</td></tr>
+
+</table>
+
+<p>The <b>Transformer</b> object contains the context for a single execution of a
+ stylesheet. The Saxon implementation is called <b>Controller</b>.
+ The methods you are most likely to use on the Controller object are:</p>
+
+<table>
+
+<tr><td valign=top width="30%">setParameter(name, namespace, value)</td>
+<td>Sets the value of a global parameter declared in the stylesheet. The name is the
+local name of the parameter (the part ofthe QName after any colon). The second argument is
+the namespace URI of the parameter name: set this to "" in the common case where the parameter
+name has no namespace prefix. The value may be any Java object, and it is converted to an XPath
+value using the same rules as for the return types of Java extension functions. For example,
+a Java string is converted to an XPath string; a Java int, float, or double is converted to
+an XPath number, and a Java boolean is converted to an XPath boolean. It is also possible to supply
+Java objects that cannot be used directly in XPath, but that can only be passed to extension functions:
+for example, you might pass in a connection to an SQL database.</td></tr>
+
+
+<tr><td valign=top width="30%">setParams()</td>
+<td>This is the Saxon native alternative to setParameter(): it
+sets the value of all the global parameters declared in the stylesheet in a single call.
+ These are passed in a ParameterSet object as a set of name-value pairs. If the same stylesheet is
+used several times to process different source documents, different parameters may be used for
+each one. The name of each parameter must be an unqualified name (no namespace URI can be supplied).
+The value may be any subclass of com.icl.saxon.expr.Value: specifically, StringValue, NumericValue,
+BooleanValue, NodeSetValue (unlikely), FragmentValue (also unlikely), or ObjectValue. The class
+ObjectValue is a wrapper around a Java object, which is accessible in the stylesheet
+only by using extension functions.</td></tr>
+
+<tr><td valign=top>setOutputFormat()</td>
+<td>Set the details of the initial output destination. According to the TRAX interface, any values set
+here should override those in the stylesheet, but this is not currently implemented in all cases.
+The information is supplied
+using an OutputFormat object which holds similar attributes to the xsl:output element. On exit,
+the OutputFormat object may be interrogated, for example to determine the media type (MIME type) of the output
+file.</td></tr>
+
+<tr><td valign=top>setOutputDetails()</td>
+<td>This is the Saxon native alternative to setOutputFormat(). It
+sets the details of the initial output destination. The information is supplied
+using an OutputDetails object which holds similar attributes to the xsl:output element. The
+recommended way of using this is to get the output details declared in the stylesheet itself by
+calling the getOutputDetails() method of the PreparedStyleSheet object; then make any changes
+required, for example supplying the output destination using setWriter(); then call the
+setOutputDetails() method on the Controller object with the modified OutputDetails object.</td></tr>
+
+<tr><td valign=top>transform()</td>
+<td>Transform a source document using the current stylesheet. The source document is supplied
+in the form of a SAX InputSource object.</td></tr>
+
+<tr><td valign=top>transformNode()</td>
+<td>Transform a source document using the current stylesheet. The source document is supplied
+in the form of a DOM Document object. This may be constructed using the Saxon Builder class,
+in which case the tree is already in the form Saxon can handle it, or it may come from any other DOM
+parser, in which case Saxon will copy the tree into the format it requires internally.
+This method allows you to build the source document tree once, and use it several
+times perhaps with different stylesheets and with different parameters. Note however that the
+action of stripping whitespace nodes from the tree is irreversible, so the xsl:strip-space
+and xsl:preserve-space directives on any run after the first might not have the expected
+effect. The TRAX interface allows any DOM node to be supplied, but Saxon currently insists that
+it is the Document node.</td></tr>
+
+<tr><td valign=top>getInputContentHandler()</td>
+<td>This method returns a SAX2 ContentHandler, to which you can feed the source document in a
+ sequence of SAX calls such as startDocument(), startElement(), characters(), endElement(),
+ and endDocument(). Once endDocument() is called, the transformation will be started
+ automatically.</td></tr>
+
+</table>
+
+<h3>Using the xml-stylesheet processing instruction</h3>
+
+<p>If the source document has an xml-stylesheet processing instruction which you want to use
+to identify the required stylesheet, you can instead follow the sequence below:</p>
+
+<h4>TRAX procedure</h4>
+
+<p>The TRAX procedure for doing this searches the source document to find the xml-stylesheet
+processing instructions that match the required criteria (e.g. media and title), and returns
+these as an array of InputSource objects. These may then be turned into a single composite
+stylesheet using the processMultiple() method, which can be used in the normal way. This effectively
+creates a composite stylsheet that imports the explicit stylesheet modules, as if by xsl:import.</p>
+
+<code><pre>
+
+    Processor processor = Processor.newInstance("xslt");
+    InputSource docSource = new InputSource("file:/c:/data/source.xml");
+    InputSource[] sources 
+      = processor.getAssociatedStylesheets(docSource, null, null, null);
+
+    if (sources==null) {
+        System.err.println("No stylesheet found");
+    } else {        
+        Templates templates = processor.processMultiple(sources);
+        Transformer transformer = templates.newTransformer();    
+        transformer.transform(docSource);
+    }
+
+    
+</pre></code>
+
+<p>The procedure above does not support embedded stylesheets, that is, a stylesheet embedded
+in the source document.</p>
+
+<h4>Saxon procedure</h4>
+
+<p>The equivalent procedure using native Saxon interfaces is: </p>
+
+<ol>
+<li><b>Create a Builder:</b><br>
+     Builder b = new Builder();</li>
+<li><b>Use this to build the source document:</b><br>
+     DocumentInfo doc = b.build(new InputSource(sourceURL));</li>
+<li><b>Find the name of the associated stylesheets:</b><br>
+     String[] href = doc.getAssociatedStylesheets();<br>
+     <i>Although this returns an array of stylesheet identifiers, the following
+     steps assume there is exactly one:</i>
+<li><b>Create a ParameterSet object:</b><br>
+     ParameterSet params = new ParameterSet();</li>
+<li><b>Locate and prepare the stylesheet:</b><br>
+     URL styleURL = new URL(new URL(sourceURL), href);<br>
+     InputSource sheetInput = new InputSource(styleURL.toString());<br>
+     PreparedStyleSheet sheet = new PreparedStyleSheet();<br>
+     sheet.prepare(sheetInput);</li>
+<li><b>Set up the OutputDetails:</b><br>
+     OutputDetails details = sheet.getOutputDetails();<br>
+     details.setOutputStream(new FileOutputStream(filename));<br>
+<li><b>Apply the stylesheet to the source document:</b><br>
+     Controller instance = sheet.getTransformer();<br>
+     instance.setOutputDetails(details);<br>
+     instance.setParams(params);<br>
+     instance.transformNode(sourceDoc);</li>
+</ol>
+
+<p>Unlike the TRAX procedure, this can be extended to support embedded stylesheets.
+If the "href" value contains a URL fragment identifier (e.g. "#style"), then the xsl:stylesheet
+element can be located within the source document (doc) as follows:</p>
+
+<code><pre>
+    if (href.charAt(0)=='#') {                
+        String id = href.substring(1);
+        PreparedStyleSheet sheet = sourceDoc.getEmbeddedStylesheet(id);
+        if (sheet==null) {
+            System.err.println("No stylesheet with id=#" + id + " was found");
+        } else {
+            Controller instance = sheet.getTransformer();
+            instance.setOutputDetails(details);
+            instance.setParams(params);
+            instance.transformNode(sourceDoc);           
+        }
+    }
+</pre></code>
+<hr>
+
+<p>More information and examples relating to the TRAX API can be found in the
+TestTrax application found in the samples directory.</p>
+
+
+<p align="center"><a HREF="mailto:Michael.Kay@icl.com">Michael H. Kay</a> <br>
+11 September 2000</p>
+</body>
+</html>

@@ -1,0 +1,1617 @@
+<HTML
+><HEAD
+><TITLE
+>CALS Table Model Parameter Entities</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.45"><LINK
+REL="HOME"
+TITLE="DocBook"
+HREF="docbook.html"><LINK
+REL="UP"
+TITLE="DocBook Parameter Entity Reference"
+HREF="refpent.html"><LINK
+REL="PREVIOUS"
+TITLE="*.attval Parameter Entities"
+HREF="pe-attval.html"><LINK
+REL="NEXT"
+TITLE="*.class Parameter Entities"
+HREF="pe-class.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="dbtdg.css"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>DocBook: The Definitive Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="pe-attval.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="pe-class.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+>CALS Table Model Parameter Entities</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN134854"
+></A
+><H2
+>Name</H2
+>CALS Table Model Parameter Entities&nbsp;--&nbsp;Parameter entities which control the CALS Table Model</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN134857"
+></A
+><H2
+>Synopsis</H2
+><P
+>The CALS Table Model is incorporated into DocBook by reference
+to the standard CALS Table Model DTD.  The CALS Table Model DTD,
+like DocBook, can be customized by defining a number of
+parameter entities before including it.  The parameter entities
+in the following sections are the table-model related parameter
+entities defined by DocBook for use in the CALS Table Model.</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN134860"
+></A
+><H2
+>Description</H2
+><P
+>The following parameter entities are related to the CALS Table Model:</P
+><P
+></P
+><DL
+><DT
+><A
+NAME="PENT.BODYATT"
+><B
+>%bodyatt;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN134867"
+></A
+><P
+>Parameterizes additional attributes (unrelated to table formatting)
+on the table body (see also 
+<A
+HREF="pe-cals-table.html#PENT.SECUR"
+><TT
+CLASS="SGMLTAG"
+><NOBR
+>%secur;</NOBR
+></TT
+></A
+>.  In DocBook, the label
+attribute (<A
+HREF="pe-attrib.html#DBRE.PENT.LABEL.ATTRIB"
+><TT
+CLASS="SGMLTAG"
+><NOBR
+>%label.attrib;</NOBR
+></TT
+></A
+>) is
+passed to <A
+HREF="table.html"
+><TT
+CLASS="SGMLTAG"
+>Table</TT
+></A
+> and <A
+HREF="informaltable.html"
+><TT
+CLASS="SGMLTAG"
+>InformalTable</TT
+></A
+>
+this way.</P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>Name</P
+></TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>Type</P
+></TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>Default</P
+></TH
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>Label</P
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>CDATA</P
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+><I
+CLASS="EMPHASIS"
+>None</I
+></P
+></TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DD
+><DT
+><A
+NAME="PENT.CALSTBLS"
+><B
+>%calstbls;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN134901"
+></A
+><P
+>Points to the CALS Table Model DTD via its 
+public identifier:</P
+><PRE
+CLASS="SYNOPSIS"
+>-//USA-DOD//DTD Table Model 951010//EN</PRE
+></DD
+><DT
+><A
+NAME="PENT.PARACON"
+><B
+>%paracon;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN134910"
+></A
+><P
+>Theoretically defines the "text" part of the content model
+of table cells.  This entity is defined in the CALS Table Model
+DTD, but <I
+CLASS="EMPHASIS"
+>is unused in DocBook</I
+> because it is not
+included in the <A
+HREF="pe-cals-table.html#PENT.TBL.ENTRY.MDL"
+><TT
+CLASS="SGMLTAG"
+><NOBR
+>%tbl.entry.mdl;</NOBR
+></TT
+></A
+>.
+DocBook has its own set of parameter entities for defining table
+cell content.</P
+></DD
+><DT
+><A
+NAME="PENT.SECUR"
+><B
+>%secur;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN134920"
+></A
+><P
+>Defines additional attributes (unrelated to table formatting) on table
+elements:
+<A
+HREF="tgroup.html"
+><TT
+CLASS="SGMLTAG"
+>TGroup</TT
+></A
+>
+<A
+HREF="tbody.html"
+><TT
+CLASS="SGMLTAG"
+>TBody</TT
+></A
+>
+<A
+HREF="thead.html"
+><TT
+CLASS="SGMLTAG"
+>THead</TT
+></A
+>
+<A
+HREF="tfoot.html"
+><TT
+CLASS="SGMLTAG"
+>TFoot</TT
+></A
+>
+<A
+HREF="row.html"
+><TT
+CLASS="SGMLTAG"
+>Row</TT
+></A
+>
+<A
+HREF="entrytbl.html"
+><TT
+CLASS="SGMLTAG"
+>EntryTbl</TT
+></A
+>
+<A
+HREF="entry.html"
+><TT
+CLASS="SGMLTAG"
+>Entry</TT
+></A
+>.  See also <A
+HREF="pe-cals-table.html#PENT.BODYATT"
+><TT
+CLASS="SGMLTAG"
+><NOBR
+>%bodyatt;</NOBR
+></TT
+></A
+>.</P
+><P
+><I
+CLASS="EMPHASIS"
+>Replacement text is empty.</I
+></P
+></DD
+><DT
+><A
+NAME="PENT.TABENTRY.MIX"
+><B
+>%tabentry.mix;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN134938"
+></A
+><P
+>This parameter entity defines the mixture of block elements that may
+occur in a table cell.  This is not strictly a parameter entity used
+in the CALS Table Model DTD, but it is used in DocBook as part of the
+content of <A
+HREF="pe-cals-table.html#PENT.TBL.ENTRY.MDL"
+><TT
+CLASS="SGMLTAG"
+><NOBR
+>%tbl.entry.mdl;</NOBR
+></TT
+></A
+>.</P
+><PRE
+CLASS="SYNOPSIS"
+>  <A
+HREF="calloutlist.html"
+>CalloutList</A
+> | <A
+HREF="glosslist.html"
+>GlossList</A
+> | <A
+HREF="itemizedlist.html"
+>ItemizedList</A
+> | <A
+HREF="orderedlist.html"
+>OrderedList</A
+>
+  | <A
+HREF="segmentedlist.html"
+>SegmentedList</A
+> | <A
+HREF="simplelist.html"
+>SimpleList</A
+> | <A
+HREF="variablelist.html"
+>VariableList</A
+> | <A
+HREF="caution.html"
+>Caution</A
+>
+  | <A
+HREF="important.html"
+>Important</A
+> | <A
+HREF="note.html"
+>Note</A
+> | <A
+HREF="tip.html"
+>Tip</A
+> | <A
+HREF="warning.html"
+>Warning</A
+> | <A
+HREF="literallayout.html"
+>LiteralLayout</A
+>
+  | <A
+HREF="programlisting.html"
+>ProgramListing</A
+> | <A
+HREF="programlistingco.html"
+>ProgramListingCO</A
+> | <A
+HREF="screen.html"
+>Screen</A
+> | <A
+HREF="screenco.html"
+>ScreenCO</A
+>
+  | <A
+HREF="screenshot.html"
+>ScreenShot</A
+> | <A
+HREF="formalpara.html"
+>FormalPara</A
+> | <A
+HREF="para.html"
+>Para</A
+> | <A
+HREF="simpara.html"
+>SimPara</A
+>
+  | <A
+HREF="graphic.html"
+>Graphic</A
+></PRE
+></DD
+><DT
+><A
+NAME="PENT.TBL.ENTRY.EXCEP"
+><B
+>%tbl.entry.excep;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN134970"
+></A
+><P
+>Defines the exceptions (exclusions) to the table entry content model.</P
+><P
+><I
+CLASS="EMPHASIS"
+>Replacement text is empty.</I
+></P
+></DD
+><DT
+><A
+NAME="PENT.TBL.ENTRY.MDL"
+><B
+>%tbl.entry.mdl;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN134980"
+></A
+><P
+>Defines the content model of table cells.</P
+><PRE
+CLASS="SYNOPSIS"
+>  (<A
+HREF="calloutlist.html"
+>CalloutList</A
+> | <A
+HREF="glosslist.html"
+>GlossList</A
+> | <A
+HREF="itemizedlist.html"
+>ItemizedList</A
+> | <A
+HREF="orderedlist.html"
+>OrderedList</A
+>
+  | <A
+HREF="segmentedlist.html"
+>SegmentedList</A
+> | <A
+HREF="simplelist.html"
+>SimpleList</A
+> | <A
+HREF="variablelist.html"
+>VariableList</A
+> | <A
+HREF="caution.html"
+>Caution</A
+>
+  | <A
+HREF="important.html"
+>Important</A
+> | <A
+HREF="note.html"
+>Note</A
+> | <A
+HREF="tip.html"
+>Tip</A
+> | <A
+HREF="warning.html"
+>Warning</A
+> | <A
+HREF="literallayout.html"
+>LiteralLayout</A
+>
+  | <A
+HREF="programlisting.html"
+>ProgramListing</A
+> | <A
+HREF="programlistingco.html"
+>ProgramListingCO</A
+> | <A
+HREF="screen.html"
+>Screen</A
+> | <A
+HREF="screenco.html"
+>ScreenCO</A
+>
+  | <A
+HREF="screenshot.html"
+>ScreenShot</A
+> | <A
+HREF="formalpara.html"
+>FormalPara</A
+> | <A
+HREF="para.html"
+>Para</A
+> | <A
+HREF="simpara.html"
+>SimPara</A
+>
+  | <A
+HREF="graphic.html"
+>Graphic</A
+>)+
+  | (#PCDATA | <A
+HREF="footnoteref.html"
+>FootnoteRef</A
+> | <A
+HREF="xref.html"
+>XRef</A
+> | <A
+HREF="abbrev.html"
+>Abbrev</A
+> | <A
+HREF="acronym.html"
+>Acronym</A
+> | <A
+HREF="citation.html"
+>Citation</A
+>
+  | <A
+HREF="citerefentry.html"
+>CiteRefEntry</A
+> | <A
+HREF="citetitle.html"
+>CiteTitle</A
+> | <A
+HREF="emphasis.html"
+>Emphasis</A
+> | <A
+HREF="firstterm.html"
+>FirstTerm</A
+>
+  | <A
+HREF="foreignphrase.html"
+>ForeignPhrase</A
+> | <A
+HREF="glossterm.html"
+>GlossTerm</A
+> | <A
+HREF="footnote.html"
+>Footnote</A
+> | <A
+HREF="phrase.html"
+>Phrase</A
+> | <A
+HREF="quote.html"
+>Quote</A
+>
+  | <A
+HREF="trademark.html"
+>Trademark</A
+> | <A
+HREF="wordasword.html"
+>WordAsWord</A
+> | <A
+HREF="link.html"
+>Link</A
+> | <A
+HREF="olink.html"
+>OLink</A
+> | <A
+HREF="ulink.html"
+>ULink</A
+> | <A
+HREF="action.html"
+>Action</A
+>
+  | <A
+HREF="application.html"
+>Application</A
+> | <A
+HREF="classname.html"
+>ClassName</A
+> | <A
+HREF="command.html"
+>Command</A
+> | <A
+HREF="computeroutput.html"
+>ComputerOutput</A
+>
+  | <A
+HREF="database.html"
+>Database</A
+> | <A
+HREF="email.html"
+>Email</A
+> | <A
+HREF="envar.html"
+>EnVar</A
+> | <A
+HREF="errorcode.html"
+>ErrorCode</A
+> | <A
+HREF="errorname.html"
+>ErrorName</A
+>
+  | <A
+HREF="errortype.html"
+>ErrorType</A
+> | <A
+HREF="filename.html"
+>Filename</A
+> | <A
+HREF="function.html"
+>Function</A
+> | <A
+HREF="guibutton.html"
+>GUIButton</A
+> | <A
+HREF="guiicon.html"
+>GUIIcon</A
+>
+  | <A
+HREF="guilabel.html"
+>GUILabel</A
+> | <A
+HREF="guimenu.html"
+>GUIMenu</A
+> | <A
+HREF="guimenuitem.html"
+>GUIMenuItem</A
+> | <A
+HREF="guisubmenu.html"
+>GUISubmenu</A
+> | <A
+HREF="hardware.html"
+>Hardware</A
+>
+  | <A
+HREF="interface.html"
+>Interface</A
+> | <A
+HREF="interfacedefinition.html"
+>InterfaceDefinition</A
+> | <A
+HREF="keycap.html"
+>KeyCap</A
+> | <A
+HREF="keycode.html"
+>KeyCode</A
+>
+  | <A
+HREF="keycombo.html"
+>KeyCombo</A
+> | <A
+HREF="keysym.html"
+>KeySym</A
+> | <A
+HREF="literal.html"
+>Literal</A
+> | <A
+HREF="markup.html"
+>Markup</A
+> | <A
+HREF="medialabel.html"
+>MediaLabel</A
+>
+  | <A
+HREF="menuchoice.html"
+>MenuChoice</A
+> | <A
+HREF="mousebutton.html"
+>MouseButton</A
+> | <A
+HREF="msgtext.html"
+>MsgText</A
+> | <A
+HREF="option.html"
+>Option</A
+> | <A
+HREF="optional.html"
+>Optional</A
+>
+  | <A
+HREF="parameter.html"
+>Parameter</A
+> | <A
+HREF="prompt.html"
+>Prompt</A
+> | <A
+HREF="property.html"
+>Property</A
+> | <A
+HREF="replaceable.html"
+>Replaceable</A
+> | <A
+HREF="returnvalue.html"
+>ReturnValue</A
+>
+  | <A
+HREF="sgmltag.html"
+>SGMLTag</A
+> | <A
+HREF="structfield.html"
+>StructField</A
+> | <A
+HREF="structname.html"
+>StructName</A
+> | <A
+HREF="symbol.html"
+>Symbol</A
+> | <A
+HREF="systemitem.html"
+>SystemItem</A
+>
+  | <A
+HREF="token.html"
+>Token</A
+> | <A
+HREF="type.html"
+>Type</A
+> | <A
+HREF="userinput.html"
+>UserInput</A
+> | <A
+HREF="anchor.html"
+>Anchor</A
+> | <A
+HREF="author.html"
+>Author</A
+> | <A
+HREF="authorinitials.html"
+>AuthorInitials</A
+>
+  | <A
+HREF="corpauthor.html"
+>CorpAuthor</A
+> | <A
+HREF="modespec.html"
+>ModeSpec</A
+> | <A
+HREF="othercredit.html"
+>OtherCredit</A
+> | <A
+HREF="productname.html"
+>ProductName</A
+>
+  | <A
+HREF="productnumber.html"
+>ProductNumber</A
+> | <A
+HREF="revhistory.html"
+>RevHistory</A
+> | <A
+HREF="comment.html"
+>Comment</A
+> | <A
+HREF="subscript.html"
+>Subscript</A
+>
+  | <A
+HREF="superscript.html"
+>Superscript</A
+> | <A
+HREF="inlinegraphic.html"
+>InlineGraphic</A
+> | <A
+HREF="inlineequation.html"
+>InlineEquation</A
+> | <A
+HREF="synopsis.html"
+>Synopsis</A
+>
+  | <A
+HREF="cmdsynopsis.html"
+>CmdSynopsis</A
+>
+  | <A
+HREF="funcsynopsis.html"
+>FuncSynopsis</A
+>)+</PRE
+><P
+>Note that this content model is the source of the
+<A
+HREF="entry.html"
+>pernicious mixed content</A
+> problem.
+An <A
+HREF="entry.html"
+><TT
+CLASS="SGMLTAG"
+>Entry</TT
+></A
+> can contain either a collection of block elements,
+or a collection of inline elements.</P
+></DD
+><DT
+><A
+NAME="PENT.TBL.ENTRYTBL.EXCEP"
+><B
+>%tbl.entrytbl.excep;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN135097"
+></A
+><P
+>Defines the exceptions to the <A
+HREF="entrytbl.html"
+><TT
+CLASS="SGMLTAG"
+>EntryTbl</TT
+></A
+> content model.
+<A
+HREF="entrytbl.html"
+><TT
+CLASS="SGMLTAG"
+>EntryTbl</TT
+></A
+>s are a mechanism defined by the CALS Table
+Model to allow limited nesting of tables within tables.</P
+><P
+>In DocBook, <A
+HREF="entrytbl.html"
+><TT
+CLASS="SGMLTAG"
+>EntryTbl</TT
+></A
+>s are excluded from themselves,
+limiting the nesting of tables to a single level.</P
+><PRE
+CLASS="SYNOPSIS"
+>  -(<A
+HREF="entrytbl.html"
+>EntryTbl</A
+>)</PRE
+></DD
+><DT
+><A
+NAME="PENT.TBL.ENTRYTBL.MDL"
+><B
+>%tbl.entrytbl.mdl;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN135111"
+></A
+><P
+>Defines the content model of <A
+HREF="entrytbl.html"
+><TT
+CLASS="SGMLTAG"
+>EntryTbl</TT
+></A
+>s.</P
+><PRE
+CLASS="SYNOPSIS"
+>  <A
+HREF="colspec.html"
+>ColSpec</A
+>*, <A
+HREF="spanspec.html"
+>SpanSpec</A
+>*, <A
+HREF="thead.html"
+>THead</A
+>?, <A
+HREF="tbody.html"
+>TBody</A
+></PRE
+></DD
+><DT
+><A
+NAME="PENT.TBL.HDFT.EXCEP"
+><B
+>%tbl.hdft.excep;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN135125"
+></A
+><P
+>Defines the exclusions to the content model of table headers and footers.
+By excluding <A
+HREF="entrytbl.html"
+><TT
+CLASS="SGMLTAG"
+>EntryTbl</TT
+></A
+>, DocBook prevents a composition
+system from being required to allow nested tables on repeating headers
+and footers.</P
+><PRE
+CLASS="SYNOPSIS"
+>  -(<A
+HREF="entrytbl.html"
+>EntryTbl</A
+>)</PRE
+></DD
+><DT
+><A
+NAME="PENT.TBL.HDFT.MDL"
+><B
+>%tbl.hdft.mdl;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN135136"
+></A
+><P
+>Defines the content model of table headers and footers.</P
+><PRE
+CLASS="SYNOPSIS"
+>  <A
+HREF="colspec.html"
+>ColSpec</A
+>*, <A
+HREF="row.html"
+>Row</A
+>+</PRE
+></DD
+><DT
+><A
+NAME="PENT.TBL.HDFT.NAME"
+><B
+>%tbl.hdft.name;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN135147"
+></A
+><P
+>Defines the names of the table header and footer elements.</P
+><PRE
+CLASS="SYNOPSIS"
+>  <A
+HREF="thead.html"
+>THead</A
+> | <A
+HREF="tfoot.html"
+>TFoot</A
+></PRE
+></DD
+><DT
+><A
+NAME="PENT.TBL.ROW.EXCEP"
+><B
+>%tbl.row.excep;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN135158"
+></A
+><P
+>Defines the exclusions to the content model of table rows.</P
+><P
+><I
+CLASS="EMPHASIS"
+>Replacement text is empty.</I
+></P
+></DD
+><DT
+><A
+NAME="PENT.TBL.ROW.MDL"
+><B
+>%tbl.row.mdl;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN135168"
+></A
+><P
+>Defines the content model of table rows.</P
+><PRE
+CLASS="SYNOPSIS"
+>  (<A
+HREF="entry.html"
+>Entry</A
+> | <A
+HREF="entrytbl.html"
+>EntryTbl</A
+>)+</PRE
+></DD
+><DT
+><A
+NAME="PENT.TBL.TABLE-MAIN.MDL"
+><B
+>%tbl.table-main.mdl;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN135179"
+></A
+><P
+>Defines the content model of the body of a table.</P
+><PRE
+CLASS="SYNOPSIS"
+>  <A
+HREF="tgroup.html"
+>TGroup</A
+>+ | <A
+HREF="graphic.html"
+>Graphic</A
+>+</PRE
+></DD
+><DT
+><A
+NAME="PENT.TBL.TABLE-TITLES.MDL"
+><B
+>%tbl.table-titles.mdl;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN135190"
+></A
+><P
+>Theoretically defines what constitutes a table title. 
+This entity is defined in the CALS Table Model
+DTD, but <I
+CLASS="EMPHASIS"
+>is unused in DocBook</I
+> because DocBook
+redefines <A
+HREF="pe-cals-table.html#PENT.TBL.TABLE.MDL"
+><TT
+CLASS="SGMLTAG"
+><NOBR
+>%tbl.table.mdl;</NOBR
+></TT
+></A
+> in terms
+of its own parameter entities.</P
+></DD
+><DT
+><A
+NAME="PENT.TBL.TABLE.ATT"
+><B
+>%tbl.table.att;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN135200"
+></A
+><P
+>Defines the attributes of a table.</P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>Name</P
+></TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>Type</P
+></TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>Default</P
+></TH
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>Orient</P
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+><I
+CLASS="EMPHASIS"
+>Enumerated:</I
+><BR>port<BR>land</P
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+><I
+CLASS="EMPHASIS"
+>None</I
+></P
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>PgWide</P
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>NUMBER</P
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+><I
+CLASS="EMPHASIS"
+>None</I
+></P
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>ShortEntry</P
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>NUMBER</P
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+><I
+CLASS="EMPHASIS"
+>None</I
+></P
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>TabStyle</P
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>NMTOKEN</P
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+><I
+CLASS="EMPHASIS"
+>None</I
+></P
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>TocEntry</P
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>NUMBER</P
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+><I
+CLASS="EMPHASIS"
+>None</I
+></P
+></TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DD
+><DT
+><A
+NAME="PENT.TBL.TABLE.EXCEP"
+><B
+>%tbl.table.excep;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN135266"
+></A
+><P
+>Defines the exceptions to the content model of tables.  DocBook prevents
+most formal objects from occuring within tables.  (Note that this exclusion
+is required in DocBook because most of them <I
+CLASS="EMPHASIS"
+>can</I
+> appear in 
+<A
+HREF="para.html"
+><TT
+CLASS="SGMLTAG"
+>Para</TT
+></A
+>s and <A
+HREF="para.html"
+><TT
+CLASS="SGMLTAG"
+>Para</TT
+></A
+>s are allowed in table cells.)</P
+><PRE
+CLASS="SYNOPSIS"
+>  -(<A
+HREF="informaltable.html"
+>InformalTable</A
+> | <A
+HREF="equation.html"
+>Equation</A
+> | <A
+HREF="example.html"
+>Example</A
+> | <A
+HREF="figure.html"
+>Figure</A
+> | <A
+HREF="table.html"
+>Table</A
+>)</PRE
+></DD
+><DT
+><A
+NAME="PENT.TBL.TABLE.MDL"
+><B
+>%tbl.table.mdl;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN135283"
+></A
+><P
+>Defines the content model of a table.  This is done in terms of
+<A
+HREF="pe-cals-table.html#PENT.TBL.TABLE-TITLES.MDL"
+><TT
+CLASS="SGMLTAG"
+><NOBR
+>%tbl.table-titles.mdl;</NOBR
+></TT
+></A
+> and
+<A
+HREF="pe-cals-table.html#PENT.TBL.TABLE-MAIN.MDL"
+><TT
+CLASS="SGMLTAG"
+><NOBR
+>%tbl.table-main.mdl;</NOBR
+></TT
+></A
+> which produces
+the expansion shown here:</P
+><PRE
+CLASS="SYNOPSIS"
+>  (<A
+HREF="title.html"
+>Title</A
+>, <A
+HREF="titleabbrev.html"
+>TitleAbbrev</A
+>?),
+  (<A
+HREF="graphic.html"
+>Graphic</A
+>+ | <A
+HREF="tgroup.html"
+>TGroup</A
+>+)</PRE
+></DD
+><DT
+><A
+NAME="PENT.TBL.TABLE.NAME"
+><B
+>%tbl.table.name;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN135298"
+></A
+><P
+>Defines the name of the table element.</P
+><PRE
+CLASS="SYNOPSIS"
+>  <A
+HREF="table.html"
+>Table</A
+></PRE
+></DD
+><DT
+><A
+NAME="PENT.TBL.TGROUP.ATT"
+><B
+>%tbl.tgroup.att;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN135308"
+></A
+><P
+>Defines the attributes on a table group (<A
+HREF="tgroup.html"
+><TT
+CLASS="SGMLTAG"
+>TGroup</TT
+></A
+>).</P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>Name</P
+></TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>Type</P
+></TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>Default</P
+></TH
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>TGroupStyle</P
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>NMTOKEN</P
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+><I
+CLASS="EMPHASIS"
+>None</I
+></P
+></TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DD
+><DT
+><A
+NAME="PENT.TBL.TGROUP.MDL"
+><B
+>%tbl.tgroup.mdl;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN135339"
+></A
+><P
+>Defines the content model of a table group (<A
+HREF="tgroup.html"
+><TT
+CLASS="SGMLTAG"
+>TGroup</TT
+></A
+>).</P
+><PRE
+CLASS="SYNOPSIS"
+>  <A
+HREF="colspec.html"
+>ColSpec</A
+>*, <A
+HREF="spanspec.html"
+>SpanSpec</A
+>*, <A
+HREF="thead.html"
+>THead</A
+>?, <A
+HREF="tfoot.html"
+>TFoot</A
+>?, <A
+HREF="tbody.html"
+>TBody</A
+></PRE
+></DD
+><DT
+><A
+NAME="PENT.TITLES"
+><B
+>%titles;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN135354"
+></A
+><P
+>Theoretically defines the "titles" portion the content model
+of tables.  This entity is defined in the CALS Table Model
+DTD, but <I
+CLASS="EMPHASIS"
+>is unused in DocBook</I
+> because DocBook
+redefines <A
+HREF="pe-cals-table.html#PENT.TBL.TABLE.MDL"
+><TT
+CLASS="SGMLTAG"
+><NOBR
+>%tbl.table.mdl;</NOBR
+></TT
+></A
+> in terms
+of its own parameter entities.</P
+></DD
+><DT
+><A
+NAME="PENT.YESORNO"
+><B
+>%yesorno;</B
+></A
+></DT
+><DD
+><A
+NAME="AEN135364"
+></A
+><P
+>Provides the definition of "boolean" attributes in the 
+CALS Table Model DTD.</P
+><PRE
+CLASS="SYNOPSIS"
+>  NUMBER</PRE
+><P
+>This parameter entity occurs in the
+replacement text of
+<A
+HREF="pe-cals-table.html#PENT.TBL.TABLE.ATT"
+><TT
+CLASS="SGMLTAG"
+><NOBR
+>%tbl.table.att;</NOBR
+></TT
+></A
+>.</P
+></DD
+></DL
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="pe-attval.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="docbook.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="pe-class.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="SGMLTAG"
+><NOBR
+>%*.attval;</NOBR
+></TT
+> Parameter Entities</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="refpent.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="SGMLTAG"
+><NOBR
+>%*.class;</NOBR
+></TT
+> Parameter Entities</TD
+></TR
+></TABLE
+></DIV
+><P
+><A
+HREF="ln41.html"
+>Copyright</A
+> &copy; 1999 O'Reilly &amp; Associates, Inc. All rights reserved.</P
+></BODY
+></HTML
+>

@@ -1,0 +1,192 @@
+2000-07-06  Mark Burton  <markb@ordern.com>
+
+	* README, doc/Makefile, doc/dbtotexi.xml, doc/dbtotexinfo.xml, DBToTexiSupport.java, DBToTexinfoSupport.java, Makefile, NEWS, dbtotexi.sh, dbtotexi.xsl, dbtotexinfo.sh, dbtotexinfo.xsl:
+	Renamed project to dbtotexi
+
+2000-07-02  Mark Burton  <markb@ordern.com>
+
+	* Makefile: Now includes HTML version of doc in dist
+
+	* NEWS: *** empty log message ***
+
+2000-06-29  Mark Burton  <markb@ordern.com>
+
+	* doc/Makefile: Added texinfo processing rules.
+
+	* dbtotexinfo.xsl: Added definition of macro none.
+	Added commas between authors.
+	Now processes authorgroup.
+	Now recognises articleinfo is the same as artheader.
+	Now understands itemizedlist mark attribute values 'none' & 'bullet'.
+	Added various elements.
+
+	* DBToTexinfoSupport.java: Removed getInfoFilename().
+	Added mdash & ndash.
+
+	* doc/dbtotexinfo.xml: Now uses DocBook 4.1 DTD.
+
+1999-11-09  Mark Burton  <markb@ordern.com>
+
+	* dbtotexinfo.xsl: Lots of changes.
+
+1999-08-16  Mark Burton  <markb@ordern.com>
+
+	* dbtotexinfo.xsl:
+	Positioning of dircategory and direntry PIs in documents should be
+	less critical.
+
+	* dbtotexinfo.sh:
+	Now understands that an output filename of - means send to stdout.
+
+	* doc/dbtotexinfo.xml: Updated usage instructions.
+
+1999-08-15  Mark Burton  <markb@ordern.com>
+
+	* Makefile: Added NEWS to TARFILES.
+
+	* README: Moved history into NEWS.
+
+	* NEWS: *** empty log message ***
+
+	* doc/dbtotexinfo.xml: Added dircategory and direntry stuff.
+
+	* dbtotexinfo.xsl: Added sgmltag.
+	Now trims space around literal screen, programlisting and literallayout.
+
+	* Makefile: Added install-doc rule and DBTOTEXINFOINFO variable.
+
+	* dbtotexinfo.xsl:
+	Added dircategory and direntry processing instructions.
+
+1999-08-14  Mark Burton  <markb@ordern.com>
+
+	* Makefile:
+	The shell used to exececute dbtotexinfo script can now be specified.
+
+	* dbtotexinfo.sh: Added usage function.
+	Now supplies defaults for both texinfo and info filenames.
+
+	* dbtotexinfo.xsl:
+	Now uses infofilename top-level param rather than getInfoFilename().
+	Renamed java namespaces to dbtt.
+	Output encoding now ISO-8859-1.
+
+	* Makefile, dbtotexinfo.sh: Hacked around bug in IBM jre.
+
+	* dbtotexinfo.xsl: Now uses xsl:output.
+	Compatible with WD-xslt-19990813.
+
+Sat Aug 14 11:01:39 1999  Mark Burton  <markb@ordern.com>
+
+	* Makefile, dbtotexinfo.sh: Hacked around bug in IBM jre.
+
+	* dbtotexinfo.xsl: Now uses xsl:output.
+	Compatible with WD-xslt-19990813.
+
+Mon Aug  2 13:03:50 1999  Mark Burton  <markb@ordern.com>
+
+	* dbtotexinfo.xsl: Bug fixes.
+
+	* doc/dbtotexinfo.xml: Moved title into artheader.
+
+	* dbtotexinfo.xsl:
+	Implemented abstract, corpauthor and funcsynopsis et al.
+	Now ignores abbrev & foreignphrase.
+	Reworked titling in bookinfo & artheader.
+
+Tue Jul 27 14:55:31 1999  Mark Burton  <markb@ordern.com>
+
+	* dbtotexinfo.xsl: Now compatible with xt-19990725.
+
+Thu Jul 15 08:45:57 1999  Mark Burton  <markb@ordern.com>
+
+	* doc/Makefile: Now generates PostScript.
+
+	* doc/dbtotexinfo.xml: Added inodot to Unicode table.
+
+	* DBToTexinfoSupport.java: Corrected translation of accented i & j.
+
+Wed Jul 14 19:17:34 1999  Mark Burton  <markb@ordern.com>
+
+	* Makefile: Added ChangeLog to TARFILES
+
+	* doc/dbtotexinfo.xml: Added Unicode stuff.
+
+	* Makefile: No longer distribute texinfo.ent.
+	Updated version.
+
+	* README: *** empty log message ***
+
+	* dbtotexinfo.xsl: Now trims space around content of entry elements.
+	Strips space from row elements.
+
+	* DBToTexinfoSupport.java: Added Unicode character mapping stuff.
+
+Wed Jul 14 19:17:34 1999  Mark Burton  <markb@ordern.com>
+
+	* Makefile: Added ChangeLog to TARFILES
+
+	* doc/dbtotexinfo.xml: Added Unicode stuff.
+
+	* Makefile: No longer distribute texinfo.ent.
+	Updated version.
+
+	* README: *** empty log message ***
+
+	* dbtotexinfo.xsl: Now trims space around content of entry elements.
+	Strips space from row elements.
+
+	* DBToTexinfoSupport.java: Added Unicode character mapping stuff.
+
+Wed Jul 14 19:12:52 1999  Mark Burton  <markb@ordern.com>
+
+	* doc/dbtotexinfo.xml: Added Unicode stuff.
+
+	* Makefile: No longer distribute texinfo.ent.
+	Updated version.
+
+	* README: *** empty log message ***
+
+	* dbtotexinfo.xsl: Now trims space around content of entry elements.
+	Strips space from row elements.
+
+	* DBToTexinfoSupport.java: Added Unicode character mapping stuff.
+
+Sat Jul  3 21:49:22 1999  Mark Burton  <markb@ordern.com>
+
+	* doc/dbtotexinfo.xml: Added section on texinfo pi.
+
+	* doc/Makefile, doc/texinfo.ent, Makefile: *** empty log message ***
+
+	* dbtotexinfo.xsl: Added texinfo pi.
+	Added default titles in admonishments.
+	Now preserves whitespace by default.
+	Node names should now only contain text (no @ etc.)
+
+Mon Jun 28 20:04:21 1999  Mark Burton  <markb@ordern.com>
+
+	* doc/dbtotexinfo.xml: Imports version number.
+	Now uses <acronym>.
+
+	* Makefile: Added docversion rule.
+
+	* dbtotexinfo.xsl: Added make-anchor & acronym.
+	Now acts on colspec colwidth attribute.
+
+	* DBToTexinfoSupport.java: Added lengthInInches().
+	Updated columnFractions() to take account of column width requests.
+
+Sun Jun 27 11:23:02 1999  Mark Burton  <markb@ordern.com>
+
+	* dbtotexinfo.sh: Added --version.
+
+	* README: *** empty log message ***
+
+	* Makefile: Now defaults to using kaffe.
+	Added some comments.
+
+	* doc/dbtotexinfo.xml: Added URL for Kaffe.
+
+	* doc/Makefile, doc/dbtotexinfo.xml, COPYING, DBToTexinfoSupport.java, Makefile, README, dbtotexinfo.sh, dbtotexinfo.xsl, sax-copying.txt, xp-copying.txt, xt-copying.txt:
+	*** empty log message ***
+

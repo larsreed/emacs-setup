@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" "../../../doctypes/docbook/docbookx.dtd" []>
+
+<?xml-stylesheet href="file:../../../doctypes/docbook/styles/docbook/html/docbook.xsl" type="text/xsl"?>
+
+<book>
+  <title>XAE User's Guide</title>
+  <chapter>
+    <title>Introduction</title>
+    <para>Welcome to the <emphasis>XAE User's Guide</emphasis>. 
+    This guide explains how to use the XAE to create, display, and
+    transform XML documents.</para>
+    <section>
+      <title>About XAE</title>
+      <para>The XML Authoring Environment (XAE) for Emacs is a 
+	software package that allows you to use Emacs (or XEmacs) to
+	create, display, and transform XML documents. Features
+	include:</para>
+      <itemizedlist>
+	<listitem>
+	  <para>XML structure editor (<function>psgml</function>) mode</para>
+	</listitem>
+	<listitem>
+	  <para>XSLT processor (Saxon)</para>
+	</listitem>
+	<listitem>
+	  <para>Comes with Docbook DTD and associated stylesheets</para>
+	</listitem>
+	<listitem>
+	  <para>Displays XML documents in your system's browser</para>
+	</listitem>
+	<listitem>
+	  <para>Caches compiled stylesheets</para>
+	</listitem>
+      </itemizedlist>
+    </section>  
+
+    <section>
+      <title>Supported Platforms</title>
+      <para>The XAE runs on all platforms that support Emacs and Java. This includes all versions
+      of Windows and most Unix and Linux systems.</para>
+    </section>
+
+    <section>
+      <title>Requirements</title>
+      <para>The XAE requires that the following software packages be installed on your system.</para>
+      <itemizedlist>
+	<listitem>
+	  <para>Emacs or XEmacs</para>
+	</listitem>
+	<listitem>
+	  <para>Java runtime environment</para>
+	</listitem>
+	<listitem>
+	  <para><ulink url="http://cedet.sourceforge.net/eieio.shtml"><symbol>eieio</symbol></ulink> 
+	    object-oriented Lisp programming package for Emacs</para>
+	</listitem>
+      </itemizedlist>
+    </section>
+  </chapter>
+  <chapter>
+    <title>Quick Start</title>
+    <para>This chapter aims to teach you the basics using the XAE
+      by taking you step-by-step through the creation of a simple
+      XML document entitled <emphasis>The Short Book</emphasis>.
+      We start by creating a skeleton document.
+    </para>
+    <section>
+      <title>Creating the Skeleton Document</title>
+      <para>To create the skeleton document,</para>
+      <procedure>
+	<step performance="required">
+	  <para>Select  
+	    <menuchoice><guimenu moreinfo="none">Files</guimenu>
+	      <guisubmenu moreinfo="none">XAE</guisubmenu>
+	      <guimenuitem moreinfo="none">Book</guimenuitem>
+	    </menuchoice> from
+	    the Emacs menubar.
+	  </para>
+	  <para>
+	    <screenshot>
+	      <mediaobject>
+		<imageobject>
+		  <imagedata fileref="images/new_book_menu.gif"/>
+		</imageobject>
+		<textobject>
+		  Screenshot of the XAE New menu
+		</textobject>
+	      </mediaobject>
+	    </screenshot>
+	  </para>
+	  <para>The XAE prompts you to enter the title of the new
+	    book. </para>
+	  <para>
+	    <screenshot>
+	      <mediaobject>
+		<imageobject>
+		  <imagedata fileref="images/book_title_prompt.gif"/>
+		</imageobject>
+	      </mediaobject>
+	    </screenshot>
+	  </para>
+	</step>
+	<step>
+	  <para>
+	    Enter "The Short Book" at the prompt and press the Enter
+	    key on your keyboard.
+	  </para>
+	  <para>The XAE creates the skeleton document.
+	  </para>
+	  <para>
+	    <screenshot>
+	      <mediaobject>
+		<imageobject>
+		  <imagedata fileref="images/new_book.gif"/>
+		</imageobject>
+	      </mediaobject>
+	    </screenshot>
+	  </para>
+	</step>
+	<step performance="required">
+	  <para>Save the new book.</para>
+	  <para>Use the
+	    <menuchoice moreinfo="none">
+	      <guimenu moreinfo="none">Files</guimenu>
+	      <guimenuitem moreinfo="none">Save Buffer
+		As...</guimenuitem>
+	    </menuchoice> &nbsp; (<keycombo moreinfo="none">
+	      <keycap moreinfo="none">C</keycap>
+	      <keycap moreinfo="none">x</keycap>
+	    </keycombo>&nbsp;<keycombo moreinfo="none">
+	      <keycap moreinfo="none">C</keycap>
+	      <keycap moreinfo="none">w</keycap>
+	    </keycombo>)  command to save the buffer.
+	    You can save the book in the current directory or any
+	    other suitable place on your file system. 
+	  </para>
+	</step>
+      </procedure>    
+    </section>
+    <section>
+      <title>Contents of the Skeleton Book File</title>
+      <table>
+	<title>Skeleton Book File Contents</title>
+	<tgroup cols="2">
+	  <thead>
+	    <row>
+	      <entry><para>Line</para></entry>
+	      <entry>Contents</entry>
+	    </row>
+	  </thead>
+	  <tbody>
+	    <row>
+	      <entry><para>1</para></entry>
+	      <entry><para>XML processing instruction for this
+		  document. This processing instruction identifies
+		  this document as an XML document.</para></entry>
+	    </row>
+	    <row>
+	      <entry><para>3</para></entry>
+	      <entry><para>Document type declaration for this document.
+		  It declares this book to be an instance
+		  of the Docbook document type.</para></entry>
+	    </row>
+	    <row>
+	      <entry><para>5</para></entry>
+	      <entry>Style sheet processing instruction for this
+		document. The processing instruction associates this
+		document with the Docbook HTML stylesheet. The Docbook
+		HTML stylesheet converts this document from XML to
+		HTML.</entry>
+	    </row>
+	    <row>
+	      <entry><para>7-12</para></entry>
+	      <entry><para>Initial elements of this book.</para></entry>
+	    </row>
+	    <row>
+	      <entry><para>14-21</para></entry>
+	      <entry><para>default psgml-mode settings for this document. 
+		psgml is an Emacs Lisp package that provides the XAE
+		with XML structured editing capabilites. When Emacs loads this
+		document, it sets buffer-local copies of the specified psgml 
+		customization variables to the specified values.</para></entry>
+	    </row>
+	  </tbody>
+	</tgroup>
+      </table>
+    </section>
+    
+    <section>
+      <title>Editing the Short Book</title>
+      <para> Now let's add some content to the Short Book. First, insert the word
+	"Introduction" into the title element of the first chapter. Next, let's
+	use the XAE's structured document editor (psgml mode) to add a first paragraph to 
+	the introductory chapter. In so doing, we will learn how to use the editor
+	to create elements.</para>
+
+      <section>
+	<title>Creating a Para Element</title>
+	<para>To add the paragraph element:</para>
+	<procedure>
+	  <step performance="required">
+	    <para>Position the Emacs text cursor anywhere between the
+	      end of the first chapter's title element and the end of the first chapter.</para>
+	  </step>
+	  <step performance="required">
+	    <para>Select <menuchoice>
+		<guimenu>Markup</guimenu></menuchoice> from the Emacs menubar.</para>
+	    <para>You should see a "parsing DTD" message in the Emacs minibuffer. This
+	      indicates that Emacs is parsing the Docbook DTD of which "The Short Book"
+	      is an instance. The Docbook DTD has more than 300 elements. However, parsing
+	      it should take no longer than 30 seconds. If it seems to be taking a very
+	      long time, it is probably because you have not byte-compiled the PSGML lisp code.
+	      If not, you should kill and restart Emacs and byte-compile PSGML before
+	      proceeding further.</para>
+	    <para>When Emacs is done parsing the DTD, it displays a menu of elements that
+	      you can create after a chapter title.</para>
+	    <para><screenshot>
+		<mediaobject>
+		  <imageobject>
+		    <imagedata fileref="images/create_para_elem.gif"/>
+		  </imageobject>
+		</mediaobject>
+	      </screenshot>
+	    </para>
+	  </step>
+	  <step performance="required">
+	    <para>Select <menuchoice>
+		<guimenuitem>para</guimenuitem></menuchoice> from the menu.</para>
+	    <para>Emacs inserts a <symbol>para</symbol> element after the title
+	      element and positions the Emacs text cursor inside the element so that
+	      you can enter the element's content.</para>
+	    <para><screenshot>
+		<mediaobject>
+		  <imageobject>
+		    <imagedata fileref="images/create_para_elem2.gif"/>
+		  </imageobject>
+		</mediaobject>
+	      </screenshot>
+	    </para>
+	  </step>
+	  <step performance="required">
+	    <para>Insert the sentence, "Welcome to a very short book." in the
+	      element.</para>
+	  </step>
+	</procedure>
+      </section> 
+      <section>
+	<title>Tagging a Region</title>
+	<para>Suppose that we want to emphasize "very" in the sentence we just added.
+	We can do this by tagging the word as a Docbook emphasis element.</para>
+	<para>To emphasize "very" in the sentence we just added:</para>
+	<procedure>
+	  <step performance="required">
+	    <para>Select the region of the Emacs buffer containing "very."</para>
+	  </step>
+	  <step performance="required">
+	    <para>Select <menuchoice moreinfo="none">
+		<guimenu moreinfo="none">Markup</guimenu>
+		<guimenuitem moreinfo="none">Tag Region</guimenuitem>
+	      </menuchoice> from the Emacs menubar.
+	    </para>
+	    <para><screenshot>
+		<mediaobject>
+		  <imageobject>
+		    <imagedata fileref="images/tag_region_cmd.gif"/>
+		  </imageobject>
+		</mediaobject>
+	      </screenshot>
+	    </para>
+	    <para>Emacs displays a menu of elements that you can create around the
+	    selected region at this point in the document.</para>
+	    <para>
+	      <screenshot>
+	      <mediaobject>
+		<imageobject>
+		  <imagedata fileref="images/tag_region_menu.gif"/>
+		</imageobject>
+	      </mediaobject>
+	      </screenshot>
+	    </para>
+	  </step>
+	  <step performance="required">
+	    <para>Select <menuchoice moreinfo="none">
+		<guimenuitem moreinfo="none">emphasis</guimenuitem>
+	      </menuchoice> from the menu.
+	    </para>
+	    <para>Emacs inserts an emphasis start and end tag around "very" in the
+	    buffer.</para>
+	    <para><screenshot>
+		<mediaobject>
+		  <imageobject>
+		    <imagedata fileref="images/emphasis_element.gif"/>
+		  </imageobject>
+		</mediaobject>
+	      </screenshot>
+	    </para>
+	  </step>
+	</procedure>
+      </section>
+    </section>
+  </chapter>
+</book>
+
+<!-- 
+Local Variables:
+mode: xae
+sgml-indent-step: 2
+sgml-indent-data: t
+sgml-set-face: t
+sgml-insert-missing-element-comment: nil
+End:
+--> 

@@ -1,0 +1,9 @@
+<?xml version='1.0'?>
+<!DOCTYPE internationalization [
+<!ENTITY en SYSTEM "en.xml">
+]>
+<internationalization xmlns="http://docbook2x.sourceforge.net/xmlns/xslt/gentext">
+&en;
+</internationalization>
+
+

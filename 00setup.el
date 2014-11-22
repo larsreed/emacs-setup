@@ -144,6 +144,15 @@
                               (if (> (length subsub) 0) "/") subsub)))
           lst))
 
+(defun LRE--build-dir (base lst)
+  (delq nil
+        (mapcar
+         (function
+          (lambda (subdir)
+            (let ((dir (concat base  (if (> (length subdir) 0) "/") subdir)))
+              (if (file-directory-p dir) dir nil))))
+         lst)))
+
 (defsubst LRE-std-ini ()
   (concat (car lre-lisp) "/lresetup.el"))
 
@@ -161,147 +170,80 @@
   (beep) (beep)
   (setq LRE-ver (if (string= window-system "w32") 'win2k
                    'gnunix)))
- ((string-match "^21.1.*Canyonlands" emacs-version)
-  (setq LRE-ver  'xemacs21))
- ((string= emacs-version "20.3.1 p} unix, jf Ronny...")
-  (setq LRE-ver  'gnunix-x))
- ((string= emacs-version "19.19.0")
-  (setq LRE-ver   'dos))
- ((string= emacs-version "19.28.1")
-  (setq LRE-ver   'unix))
- ((string= emacs-version "19.31.1")
-  (setq LRE-ver 'win95-31))
- ((string= emacs-version "19.33.1")
-  (setq LRE-ver  'win95-33))
- ((string= emacs-version "19.34.1")
-  (setq LRE-ver  'win95-341))
- ((string= emacs-version "19.34.6")
-  (setq LRE-ver  'win95))
- ((string= emacs-version "19.13 XEmacs Lucid")
-  (setq LRE-ver  'xemacs))
  (t
   (message "Unknown EMACS version!!!!")
   (beep) (beep)
   (setq LRE-run-setup nil)))
 
-(cond
- ;;  STANDARD VERSJON
- ((or (eq LRE-ver 'win2k)
-      (eq LRE-ver 'gnunix))
-  (let ((v-string (concat "e" (substring emacs-version 0 4)))
-        (g-string (format "e%d" emacs-major-version))
-        (uxver (eq LRE-ver 'gnunix))
-        )
-    (setq LRE-base (if uxver "/emacs"
-                     (if (or (eq LRE-this-cfg 'tadnt)
-                             (eq LRE-this-cfg 'tadntp4))
-                         "P:/GNUemacs"
-                       (getenv "EMACS_DIR")))
-          LRE-load (if uxver load-path
-                     (LRE-build-dir
-                      '("" "calc" "calendar" "cedet" "emacs-lisp" "emulation"
-                        "erc" "eshell" "gnus" "international" "language" "mail"
-                        "mh-e" "net" "nxml" "org" "play" "progmodes" "term"
-                        "textmodes" "toolbar" "url" "vc")
-                       "lisp" (if (or (eq LRE-this-cfg 'tadnt)
-                                     (eq LRE-this-cfg 'tadntp4))
-                                  (getenv "EMACS_DIR") nil)))
-          lre-slisp (concat LRE-base "/site-lisp")
-          lre-lisp (LRE-build-dir (list "lre" "" v-string g-string "override"
-                                        (concat "override/" v-string)
-                                        (concat "override/" g-string))
-                                  "site-lisp")
-          lre-ini  (LRE-std-ini)
-          lre-00   (LRE-std-00)
-          lre-cfg  '(stdsetup))
-    (if (or (string= "lare9505" (user-login-name))
-            (string= "larsr" (user-login-name))
-            (string= "lare" (user-login-name))
-            (string= "lars.reed" (user-login-name))
-            (string= "lreed" (user-login-name))
-            (string= "lre" (user-login-name)))
-        (setq lre-cfg (cons 'personal lre-cfg)))
-    (if (>= emacs-major-version 20) (setq lre-cfg (cons 'e20+ lre-cfg)))
-    (if (>= emacs-major-version 21) (setq lre-cfg (cons 'e21+ lre-cfg)))
-    (if (>= emacs-major-version 22) (setq lre-cfg (cons 'e22+ lre-cfg)))
-    (if (>= emacs-major-version 23) (setq lre-cfg (cons 'e23+ lre-cfg)))
-    (if (>= emacs-major-version 24) (setq lre-cfg (cons 'e24+ lre-cfg)))
-    (if (not (eq LRE-this-cfg 'lreibm)) (setq lre-cfg (cons 'tvist lre-cfg)))
-    (setq lre-cfg (cons (if uxver 'unix 'win32) lre-cfg))
-  ))
- ((eq LRE-ver  'xemacs21)
-  (setq lre-ini  (concat (substitute-in-file-name "$SPE_HOME/site-lisp")
-                         "/tadxsetup.el")
-        lre-cfg  '(tvist xem21+ xemacs))
-  (if (string= (user-real-login-name) "lare")
-      (setq lre-cfg (cons 'personal lre-cfg))))
- ((eq LRE-ver 'gnunix-x)
-  (setq LRE-ver  'gnunix
-        LRE-base "/emacs"
-        LRE-load (LRE-build-dir
-                  '("" "textmodes" "progmodes" "play" "mail"
-                    "language" "international" "gnus" "emulation"
-                    "emacs-lisp" "calendar")
-                  "lisp")
-        lre-lisp (LRE-build-dir '("lre" "" "e20" "override" "override/e20")
-                                "site-lisp")
-        lre-ini  (LRE-std-ini)
-        lre-cfg  '(unix gnunix e20+)))
- ((eq LRE-ver 'dos)
-  (setq lre-lisp  nil
-        lre-cfg   '(dos personal)))
- ((eq LRE-ver 'unix)
-  (setq LRE-load  '("~/bin/emacs/gnus/lisp"
-                    "/progs/local/lib/emacs/19.28/lisp"
-                    "/progs/local/lib/emacs/site-lisp/term")
-        lre-lisp  '("~/bin/emacs")
-        lre-ini   (LRE-std-ini)
-        lre-cfg   '(unix personal ccas)))
- ((eq LRE-ver 'win95-31)
-  (setq LRE-ver 'win95-old
-        LRE-base "d:/emacs-19.31"
-        LRE-load (LRE-build-dir '("lisp"))
-        lre-lisp (LRE-build-dir '("site-lisp")))
-  lre-ini  (LRE-std-ini)
-  lre-cfg '(win32 e1930+ personal))
- ((eq LRE-ver 'win95-33)
-  (setq LRE-ver  'win95
-        LRE-base "d:/emacs-19.33"
-        LRE-load (LRE-build-dir '("lisp"))
-        lre-lisp (LRE-build-dir '("site-lisp"))
-        lre-ini  (LRE-std-ini)
-        lre-cfg  '(win32 e1930+ personal)))
- ((eq LRE-ver 'win95-341)
-  (setq LRE-ver  'win95
-        LRE-base "d:/emacs-19.34"
-        LRE-load (LRE-build-dir '("lisp"))
-        lre-lisp (LRE-build-dir '("" "e19") "site-lisp")
-        lre-ini  (LRE-std-ini)
-        lre-cfg  '(win32 e1930+ personal)))
- ((eq LRE-ver 'win95)
-  (setq LRE-base "d:/emacs.old"
-        LRE-load (LRE-build-dir '("lisp"))
-        lre-lisp (LRE-build-dir '("" "e19" "override") "site-lisp")
-        lre-ini  (LRE-std-ini)
-        lre-cfg  '(win32 e1930+ personal)))
- ((eq LRE-ver 'xemacs)
-  (setq lre-lisp (list "~/emacs"
-                       (substitute-in-file-name "$SPE_HOME/site-lisp"))
-        lre-ini  (LRE-std-ini)
-        lre-cfg  '(tvist xemacs)))
- (t
-  (message "Unknown EMACS version!!!!")
-  (beep) (beep)
-  (setq LRE-run-setup nil)))
+(when (or (eq LRE-ver 'win2k)
+          (eq LRE-ver 'gnunix))
+ (let ((v-string (concat "e" (substring emacs-version 0 4)))
+       (g-string (format "e%d" emacs-major-version))
+       (uxver (eq LRE-ver 'gnunix))
+       )
+   (setq LRE-dirextra (and (eq LRE-ver 'win2k)
+                           (or (> emacs-major-version 24)
+                               (and (= emacs-major-version 24)
+                                    (>= emacs-minor-version 4))))
+         LRE-base (if uxver "/emacs"
+                    (if (or (eq LRE-this-cfg 'tadnt)
+                            (eq LRE-this-cfg 'tadntp4))
+                        "P:/GNUemacs"
+                      (getenv "EMACS_DIR")))
+         LRE--lispdir-p1 (if (or (eq LRE-this-cfg 'tadnt)
+                                 (eq LRE-this-cfg 'tadntp4))
+                             (getenv "EMACS_DIR")
+                           LRE-base)
+         LRE--lispdir-p2 (concat LRE--lispdir-p1
+                                 (format "/share/emacs/%d.%d/lisp"
+                                         emacs-major-version
+                                         emacs-minor-version))
+         LRE--lispdir-p3 (concat LRE--lispdir-p1
+                                 (format "/share/emacs/%s/lisp"
+                                         emacs-version))
+         LRE-lispdir (cond ((file-directory-p LRE--lispdir-p2)
+                            LRE--lispdir-p2)
+                           ((file-directory-p LRE--lispdir-p3)
+                            LRE--lispdir-p3)
+                           (t (concat LRE--lispdir-p1 "/lisp")))
+         LRE-sitelispdir (concat
+                          LRE-base
+                          (if LRE-dirextra "/share/emacs/site-lisp"
+                            "/site-lisp"))
+         lre-slisp (concat LRE-base "/site-lisp")
+         lre-lisp (LRE--build-dir
+                   LRE-sitelispdir
+                   (list "lre" "" v-string g-string "override"
+                         (concat "override/" v-string)
+                         (concat "override/" g-string)))
+         lre-ini  (LRE-std-ini)
+         lre-00   (LRE-std-00)
+         lre-cfg  '(stdsetup))
+   (if (or (string= "lare9505" (user-login-name))
+           (string= "larsr" (user-login-name))
+           (string= "lare" (user-login-name))
+           (string= "lars.reed" (user-login-name))
+           (string= "lreed" (user-login-name))
+           (string= "lre" (user-login-name)))
+       (setq lre-cfg (cons 'personal lre-cfg)))
+   (if (>= emacs-major-version 20) (setq lre-cfg (cons 'e20+ lre-cfg)))
+   (if (>= emacs-major-version 21) (setq lre-cfg (cons 'e21+ lre-cfg)))
+   (if (>= emacs-major-version 22) (setq lre-cfg (cons 'e22+ lre-cfg)))
+   (if (>= emacs-major-version 23) (setq lre-cfg (cons 'e23+ lre-cfg)))
+   (if (>= emacs-major-version 24) (setq lre-cfg (cons 'e24+ lre-cfg)))
+   (if (not (eq LRE-this-cfg 'lreibm)) (setq lre-cfg (cons 'tvist lre-cfg)))
+   (setq lre-cfg (cons (if uxver 'unix 'win32) lre-cfg))
+   ))
 
-(if lre-lisp
-    (setq load-path
-          (append lre-lisp
-                  (LRE-build-dir
-                   (mapcar 'symbol-value LRE-pkg-list) "site-lisp")
-                  LRE-load
-                  '("."))))
-(if lre-scala-pkg (add-to-list 'load-path lre-scala-pkg))
+(setq load-path
+      (append lre-lisp
+              (LRE--build-dir
+               LRE-sitelispdir
+               (mapcar 'symbol-value LRE-pkg-list))
+              load-path
+              '(".")))
+(if lre-scala-pkg
+    (add-to-list 'load-path lre-scala-pkg))
 
 (setq lre-cfg (cons LRE-this-cfg lre-cfg))
 

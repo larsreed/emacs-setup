@@ -1,0 +1,15 @@
+;; Object semantic/
+;; SEMANTICDB Tags save file
+(semanticdb-project-database-file "semantic/"
+  :tables (list 
+   (semanticdb-table "semantic-sb.el"
+    :major-mode 'emacs-lisp-mode
+    :tags '(("semantic" include nil nil [1104 1123]) ("semantic-util" include nil nil [1124 1148]) ("inversion" include nil nil [1149 1169]) ("inversion-require" code nil nil [1190 1231]) ("semantic-sb-autoexpand-length" variable (:user-visible-flag t :default-value 1) nil [1234 1443]) ("semantic-sb-button-format-tag-function" variable (:user-visible-flag t :default-value (quote semantic-format-tag-abbreviate)) nil [1445 1650]) ("semantic-sb-info-format-tag-function" variable (:user-visible-flag t :default-value (quote semantic-format-tag-summarize)) nil [1652 1861]) ("semantic-sb-tag-children-to-expand" function (:overloadable t :arguments ("tag")) nil [2167 2383]) ("semantic-sb-tag-children-to-expand-default" function (:arguments ("tag")) nil [2385 2756]) ("semantic-sb-one-button" function (:arguments ("tag" "depth" "&optional" "prefix")) nil [2758 4613]) ("semantic-sb-speedbar-data-line" function (:arguments ("depth" "button" "text" "&optional" "text-fun" "text-data")) nil [4617 5364]) ("semantic-sb-maybe-token-to-button" function (:arguments ("obj" "indent" "&optional" "prefix" "modifiers")) nil [5366 6176]) ("semantic-sb-insert-details" function (:arguments ("tag" "indent")) nil [6178 8303]) ("semantic-sb-detail-parent" function nil nil [8305 8941]) ("semantic-sb-show-extra" function (:arguments ("text" "token" "indent")) nil [8943 9686]) ("semantic-sb-token-jump" function (:arguments ("text" "token" "indent")) nil [9688 10622]) ("semantic-sb-expand-group" function (:arguments ("text" "token" "indent")) nil [10624 11294]) ("semantic-sb-buttons-plain" function (:arguments ("level" "tokens")) nil [11296 11878]) ("semantic-sb-insert-tag-table" function (:arguments ("level" "table")) nil [11880 12150]) ("semantic-sb-buttons" function (:arguments ("level" "lst")) nil [12152 12701]) ("semantic-sb-fetch-tag-table" function (:arguments ("file")) nil [12703 13760]) ("add-to-list" code nil nil [13806 13925]) ("semantic-sb" package nil nil [13927 13949]))
+    :file "semantic-sb.el"
+    :pointmax 13980
+    )
+   )
+  :file "semantic.cache"
+  :semantic-tag-version "2.0beta3"
+  :semanticdb-version "2.0beta3"
+  )

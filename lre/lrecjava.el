@@ -247,7 +247,7 @@
 	  lre--cstyle-loaded t)))
 
 (defmacro lre--cc-map ()
- (` (if (boundp 'c-mode-base-map) c-mode-base-map c-mode-map)))
+ `(if (boundp 'c-mode-base-map) c-mode-base-map c-mode-map))
 
 (defun lre-cc-common ()
   "Personal C/C++/Java-mode defs.

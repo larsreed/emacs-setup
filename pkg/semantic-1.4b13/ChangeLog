@@ -1,0 +1,3651 @@
+2001-12-18  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* tests/test.cpp: Added templates.
+	Added const * const example.
+
+	* semantic.el (semantic-bovinate-toplevel):
+	When doing a full reparse, lex the
+	buffer before clearing the cache.  If an error occurs, the cache will
+	be safe.
+
+	* semantic-c.el: New c.bnf supporting templates.
+	(semantic-c-nonterminal-protection): If type type of a type is
+	unknown in a parent, specify an unknown protection.
+
+	* c.bnf (TEMPLATE): New token
+	(declaration): Added template
+	(template, template-specifier, template-specifier-type-list,
+	 template-var, opt-template-equal, template-type,
+	 template-definition): New rules
+	(typeformbase): Added tempalte specified type and class :: types.
+
+	* semantic-make.el: New make.bnf
+
+	* make.bnf: Removed parens and $ from symbol syntax types.
+	Added IFEQ and IFNEQ tokens
+	Added BACKSLASH and DOLLAR tokens
+	Added IFEQ and IFNEQ rule matches
+	Added $(VAR) types to expression.
+	Support backslash terminated lines for variables.
+
+2001-12-15  ponced  <ponced@choochoo>
+
+	* wisent/wisent-java-tags.bnf, wisent/wisent-java-tags.el: New file.
+
+	* wisent/wisent.el (wisent-lookahead):
+	New variable.  Hold the lookahead lexical token
+	after parse error.
+	(wisent-parse): Use the above.
+
+	* wisent/wisent-bovine.el (wisent-lexer-lookahead): New variable.
+	(wisent-lexer-wrapper): Use the above to push the lookahead
+	token back in the lexical input stream.
+
+	(wisent-unmatched-syntax): New variable.
+	(wisent-collect-unmatched-syntax): Use the above.
+	(wisent-bovinate-nonterminals):  Push unmatched lookahead tokens in
+	the unmatched syntax stream.  Minor performance enhancement.
+
+	(wisent-bovinate-from-nonterminal-full):  Use 1 as default depth for
+	`semantic-flex'.  Reverse the result list.
+
+	(wisent-bovinate-region-until-error): Reverse the result list.
+
+	(wisent-bovinate-toplevel): [full parse] Don't clear the unmatched
+	cache after parsing!  Reverse the result list.
+
+	* semantic-bnf.el (semantic-bnf-to-lalr-EXPANDTHING):
+	Fixed missing quote.
+
+2001-12-15  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* tests/test.make: New test for makefile things.
+
+2001-12-12  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.el:
+	Small language changes to doc strings suggested by Alex Schroeder <alex@gnu.org>
+
+	* semantic.texi:
+	Small language changes suggested by Alex Schroeder <alex@gnu.org>
+
+2001-12-08  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-util-modes.el (semantic-auto-parse-bovinate): Use
+	`semantic-flex-unterminated-syntax-end-function' instead of
+	`semantic-flex-unterminated-syntax-throw-symbol' to throw lexical issues.
+
+	* semantic.el (semantic-flex-unterminated-syntax-end-function):
+	New variable
+	(semantic-flex): Use above var instead of old throw variable.
+
+2001-12-07  ponced  <ponced@choochoo>
+
+	* wisent/wisent-bovine.el (wisent-bovinate-toplevel): Check if
+	`semantic-before-toplevel-bovination-hook' allow to parse.
+	When doing a full re-parse clear the cache just before setting the new
+	one.  This way, if an error occurs, we can capture it, and leave the
+	old state behind.
+
+	* senator.el (senator-mode-menu-item-format):
+	New option.  Format of menu item
+	labels in the "Modes" menu when displaying through a window system.
+
+	(senator-mode-menu-item-format-tty): New option.  Format of menu item
+	labels in the "Modes" menu when using a text-only terminal.
+
+	(senator-build-mode-menu-items): Use the above options.  On window
+	system minor mode labels as now simple text items.  Emacs displays
+	them as menu titles in bold face.
+
+2001-12-07  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-c.el (semantic-toplevel-c-bovine-table, semantic-c-keyword-table):
+	New c.bnf
+	(semantic-c-reconstitute-token): For functions, add methodconst, and pure-virtual
+
+	* c.bnf (UNDERP, UNDERUNDERP): Fix typo in summary
+	(opt-stars): Add opt-starmod
+	(opt-starmod, STARMOD): New rule
+	(func-decl): Un-splic $7 in  match2
+	(variablearg): Let varname handle stars and refs.
+	(arg-list): Explicit (void) match added
+	(fun-or-proto-end): Add pure-virtual case return.
+
+	* Project.ede: Update version
+
+	* semantic-make.el: New make.bnf
+
+	* make.bnf: Added ifdef, and ifndef tokens.  (Oy)
+
+	* make.bnf: Added ifdef, and ifndef commands.
+
+	* semantic.el (semantic-before-toplevel-bovination-hook):
+	New hook suggested by Klaus Berndl.
+	(semantic-bovinate-toplevel): Do not parse anything if above hook returns nil.
+	When a full reparse is needed, do not clear the cache till after the
+	parse has happened, and everything was successful.
+
+2001-12-04  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-c.el (semantic-toplevel-c-bovine-table): New c.bnf
+	(semantic-c-nonterminal-children): New override fcn
+	(semantic-default-c-setup): Add above override.
+
+	* c.bnf (extern-c): Add quotes to the "C" string regex.
+
+	* semanticdb.el (semanticdb-default-save-directory): New variable.
+	(semanticdb-project-database): Added `reference-directory' slot.
+	(semanticdb-create-database): Simplified if to existence of the found DB
+	(semantic-get-database): Use `semantic-file-loaded-p'
+	(semantic-file-loaded-p): Moved.  Use eieio call.
+	(semanticdb-file-table): Tables use file name w/out path.
+	(semanticdb-full-filename): Tables use file name w/out path.
+	(semanticdb-write-directory-p): Use new reference directory for tables.
+	(semanticdb-cache-filename): New function to calc filename of a DB.
+	(semanticdb-semantic-init-hook-fcn): use above Fcn for directory name.
+	Always set the reference directory slot in the DB.
+	Specify the file of new tables as the file name sans directory.
+
+	* semantic-util-modes.el (semantic-auto-parse-bovinate):
+	Enable syntax error `throw'ing.  Catch
+	those errors, and do not pester the user who is probably in the
+	middle of thinking important thoughts, and is uninterested in having
+	Emacs complain about such things.
+
+	* semantic.el (semantic-flex-unterminated-syntax-throw-symbol):
+	New variable
+	(semantic-flex): `throw' an error for incomplete syntax when above is non-nil.
+
+	* working.el (working-message):
+	Only display a canned message for the first entry.
+	(working-status-forms): Clear mode line when using modeline mode.
+	(working-status-timeout): Clear mode line when using modeline mode.
+
+2001-12-03  ponced  <ponced@choochoo>
+
+	* semantic-util-modes.el (semantic-auto-parse-timer):
+	Moved before first use.
+	(semantic-auto-parse-idle-time): Added `:set' clause to re-setup the
+	`semantic-auto-parse-timer' when the idle time value is changed.
+
+2001-12-03  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.el: Updated version to 1.4 beta 13
+
+2001-11-30  ponced  <ponced@choochoo>
+
+	* working.el (append global-mode-string):
+	Quoted `working-mode-line-message'.
+
+2001-11-30  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-util-modes.el (global-semantic-show-dirty-mode): Doc fix.
+	(semantic-show-dirty-mode-setup): Doc fix.
+	Use `semantic-make-local-hook' alias.
+	(global-semantic-show-unmatched-syntax-mode): Doc fix
+	(semantic-show-unmatched-syntax-mode-setup):
+	Use `semantic-make-local-hook' alias.
+	(semantic-auto-parse-working-in-modeline-flag): New variable
+	(global-semantic-auto-parse-mode): Doc Fix
+	(semantic-auto-parse-bovinate): Doc fix.
+	Use the mode-line to display working messages when auto-parsing.
+	(semantic-auto-parse-mode-setup): Doc Fix
+	(semantic-auto-parse-mode): Doc Fix
+	(global-semantic-summary-mode): Doc Fix
+	(semantic-summary-mode-setup): Doc Fix
+	(semantic-summary-mode): Doc Fix
+
+	* working.el (working-message):
+	Added sit-for to help force modeline updates.
+
+	* semantic-c.el: New c.bnf fix for include filename.
+
+	* c.bnf (filename): Fixed OLE to get the string from filename prefix.
+
+	* working.el:
+	If `global-mode-string' is available, use it as the location to
+	display mode-line based working messages.
+
+	* senator.el (senator-minor-mode-setup):
+	Use `semantic-make-local-hook' alias.
+
+	* semantic-imenu.el (semantic-create-imenu-index):
+	Use `semantic-make-local-hook' alias.
+
+	* semantic.el (semantic-make-local-hook): New alias
+	(semantic-set-toplevel-bovine-cache): Use this alias.
+
+	* semantic-util-modes.el (semantic-auto-parse-bovinate):
+	Enable quiting during a parse.
+
+	* semantic-load.el: Add .bnf as a speedbar extension.
+	New variable `semantic-load-turn-useful-things-on'.
+	Consider which-func to be non-useful.
+	Consider show-dirty-mode non-useful.
+	Do not load semantic-sb for speedbar.  This already happens.
+
+	* semantic-util.el (semantic-bucketize):
+	Remove ref to speedbar in doc string.
+
+	* semanticdb.el (semanticdb-semantic-init-hook-fcn):
+	When a table isn't valid, do not
+	force a parse.  This will happen in time.
+
+	* semantic-bnf.el:
+	Changed how speedbar support for BNF files were added.
+
+	* semantic-c.el: New c.bnf supporting float.h.
+
+	* c.bnf:
+	Added support for float.h, where `float' was snagged as a keyword.
+
+2001-11-26  ponced  <ponced@choochoo>
+
+	* semantic.el (semantic-flex):  Handle broken strings.
+
+	* senator.el (senator-minor-mode-name):
+	Defined as constant.  Moved just before it
+	is first used.
+	(senator-minor-mode-isearch-suffix): Ditto.
+
+	(senator-minor-mode-on-hook): Removed.
+	(senator-minor-mode-off-hook): Removed.
+	(senator-minor-mode): Don't run on/off mode hooks.
+
+	(senator-register-mode-menu-entry["Summaries"]): Added.
+	(senator-register-mode-menu-entry"[Which Function"]): Added when
+	'which-func feature is available.
+
+	* semantic-util-modes.el (semantic-propertize):
+	New function.  Return a copy of STRING with
+	text properties added.
+
+	(semantic-mode-line-prefix): New option.  Prefix added to minor mode
+	indicators in the mode line.  The default value use
+	`semantic-propertize' to have this string displayed in 'bold face on
+	Emacs 21 :-)
+
+	(semantic-mode-line-update): Skip empty strings.  Use
+	`semantic-mode-line-prefix'.
+
+	(semantic-show-dirty-mode-on-hook): Removed.
+	(semantic-show-dirty-mode-off-hook): Removed.
+	(semantic-show-dirty-mode): Don't run on/off mode hooks.
+
+	(semantic-show-unmatched-syntax-mode-on-hook): Removed.
+	(semantic-show-unmatched-syntax-mode-off-hook): Removed.
+	(semantic-show-unmatched-syntax-mode): Don't run on/off mode hooks.
+
+	(semantic-auto-parse-mode-on-hook): Removed.
+	(semantic-auto-parse-mode-off-hook): Removed.
+	(semantic-auto-parse-mode): Don't run on/off mode hooks.
+
+	(global-semantic-summary-mode): New function.  Toggle global use of
+	`semantic-summary-mode'.
+	(global-semantic-summary-mode): New variable.  If non-nil enable
+	global use of summary mode.
+	(semantic-summary-mode-hook): New hook.  Run at the end of function
+	`semantic-summary-mode'.
+	(semantic-summary-mode-map: New variable.  Keymap for summary minor
+	mode.
+	(semantic-summary-mode: New variable.  Non-nil if summary minor mode
+	is enabled.
+	(semantic-summary-mode-setup: New function.  Setup
+	`semantic-summary-mode'.
+	(semantic-summary-mode): New function.  Minor mode to show useful
+	things about tokens in echo area.
+	(semantic-add-minor-mode[semantic-summary-mode]): Added.
+
+	* semantic-load.el: Added autoloads for `semantic-summary-mode'.
+	(when semantic-load-turn-everything-on): Use
+	`global-semantic-summary-mode'.
+
+2001-11-26  emacsman  <emacsman@choochoo>
+
+	* semantic.texi: Added "Lexer Overview" and "Lexer Output" nodes.
+
+2001-11-23  emacsman  <emacsman@choochoo>
+
+	* semantic.texi: Fixed a typo in last checkin.  Sorry.
+
+	* semantic.texi: Created "Overview" and "Semantic Components" chapters.
+
+2001-11-22  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-sb.el (semantic-fetch-dynamic-bovine):
+	Set out to t when there is no parser available.
+
+2001-11-21  ponced  <ponced@choochoo>
+
+	* senator.el (senator-minor-mode-name): Use "n" as default value.
+	(senator-minor-mode-isearch-suffix): Use "i" as default value.
+
+	(senator-jump-regexp): Added autoload cookie.
+
+	(senator-register-mode-menu-entry["Senator"]): No more use
+	`senator-mode'.
+
+	(senator-status): Renamed from `senator-mode'.
+
+	(senator-mode-line-update): Renamed from `senator-show-status'.  Use
+	`senator-status'.  Use `semantic-mode-line-update' instead of
+	`force-mode-line-update'.  Removed "Emacs 21 goodies".
+
+	(senator-minor-mode-setup): Removed call to `senator-show-status'.
+
+	(senator-minor-mode): Use `senator-mode-line-update' instead
+	of `force-mode-line-update'.
+	(senator-isearch-toggle-semantic-mode): Ditto.
+	(senator-isearch-mode-hook): Ditto.
+
+	(semantic-add-minor-mode[senator-minor-mode]): Use 'senator-status.
+
+	(semantic-add-minor-mode[senator-isearch-semantic-mode]): Added.
+
+	* semantic-util-modes.el (semantic-update-mode-line):
+	New option.  If non-nil show enabled
+	minor modes in the mode line.
+
+	(semantic-minor-modes-status): New variable.  String displayed in the
+	mode line to show the Semantic minor modes which are locally enabled.
+
+	(semantic-minor-mode-alist): New variable.  Alist saying how to show
+	Semantic minor modes in the mode line.a
+
+	(semantic-mode-line-update): New function.  Update display of Semantic
+	minor modes in the mode line.
+
+	(semantic-add-minor-mode): Update `semantic-minor-mode-alist'.  Lazily
+	install `semantic-minor-modes-status' as a dummy minor mode used to
+	show Semantic minor modes status in the mode line.
+
+	(semantic-show-dirty-mode):  Use `semantic-mode-line-update'.
+	(semantic-show-unmatched-syntax-mode): Ditto.
+	(semantic-auto-parse-mode): Ditto.
+
+	(semantic-add-minor-mode[semantic-show-dirty-mode]): Use "d" to
+	indicate that the minor mode is enabled.
+	(semantic-add-minor-mode[semantic-show-unmatched-syntax-mode]): Use
+	"u" to indicate that the minor mode is enabled.
+	(semantic-add-minor-mode[semantic-auto-parse-mode]): Use "a" to
+	indicate that the minor mode is enabled.
+
+	* semanticdb.el (global-semanticdb-minor-mode):  Fixed bad setting of
+	`semanticdb-global-mode'.
+
+2001-11-19  emacsman  <emacsman@choochoo>
+
+	* semantic.texi:
+	Added comments on semantic-flex and in "document" node.
+	This is only the first of many additions to be made in the future.
+
+2001-11-17  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* tests/test.cpp: Added extern "C" samples.
+
+2001-11-17  ponced  <ponced@choochoo>
+
+	* senator.el (senator-last-local-item-name): Removed.
+	(senator-last-global-item-name): Removed.
+	(senator-new-menu-item-name): Removed.
+
+	(senator-modes-menu-cache): New variable.  Cache the last computed
+	value of the "Modes" sub-menu.
+
+	(senator-register-command-menu): Renamed from
+	`senator-register-mode-menu-item'.  Register and return a command menu
+	specification instead of a pre-build menu item.
+	(senator-register-mode-menu-entry): Clear the cached menu.  Register
+	specifications instead of actual menu items.  Thus the menu building
+	is clearly a separated task.
+
+	(senator-base-local-label): New constant.  Default name of the menu
+	item used to change minor mode buffer local setting.
+	(senator-base-global-label): New constant.  Default name of the menu
+	item used to change minor mode global setting.
+	(senator-uniquify-count): New variable.  Used to generate unique menu
+	item names.
+
+	(senator-build-command-menu-item): New function.  Return a command
+	menu item with an unique name.
+
+	(senator-build-mode-menu-items): With window system display minor mode
+	labels as a disabled menu items to get a consistent look of the
+	"Modes" menu both in Emacs and XEmacs.  On text-only terminal no more
+	use the hard coded strings " (In this buffer)" and " (Globally)" but
+	the corresponding default name constant.
+
+	(senator-build-modes-menu): Compute the value of the menu only if
+	necessary.  Return a cached value when available.
+	Use "--" instead of single "-" for menu separator.  The "Emacs Lisp
+	Reference Manual" says that "separator-type is a string starting with
+	two or more dashes".
+
+	(senator-menu-bar): Use "--" instead of single "-" for menu separator.
+
+	(semantic database menu item): When selected show if the database is
+	persistent (saved on disk) or only available for the current session.
+
+2001-11-17  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-texi.el (semantic-default-texi-setup): Added autoload
+
+	* semantic-c.el (semantic-toplevel-c-bovine-table): New c.bnf
+	(semantic-expand-c-nonterminal): Expand batched extern "c" entries.
+	(semantic-default-c-setup): Added autoload
+
+	* c.bnf (declaration): Added extern-c entry
+	(extern-c-contents, extern-c): new rules
+
+	* semantic-bnf.el (bnf-mode, semantic-bnf-mode): Added autoload
+
+	* semantic-chart.el (semantic-chart-nonterminals-by-token):
+	Added autoload
+	(semantic-chart-database-size): Added autoload
+	(semantic-chart-nonterminal-complexity-token): Added autoload
+
+	* semanticdb.el (global-semanticdb-minor-mode): Added autoload
+
+	* semantic-el.el (semantic-default-elisp-setup): Added autoload
+
+	* semantic-java.el (semantic-default-java-setup): Added autoload
+
+	* semantic-make.el (semantic-default-make-setup): Added autoload
+
+	* semantic-scm.el (semantic-default-scheme-setup): Added autoload
+
+	* semantic-skel.el (semantic-default-skel-setup): Fixed typo in name.
+
+2001-11-14  ponced  <ponced@choochoo>
+
+	* semantic-sb.el (semantic-fetch-dynamic-bovine):
+	Fixed.  Didn't get the tokens
+	returned by `semantic-bovinate-toplevel'.
+
+	* senator.el (senator-menu-item):  Moved before it is first used.
+
+	(senator-last-local-item-name): New variable.
+	(senator-last-global-item-name): Ditto.
+	(senator-registered-mode-entries): Ditto.
+	(senator-registered-mode-settings): Ditto.
+
+	(senator-new-menu-item-name):  New function.  Return a new unique
+	generated menu item name.
+
+	(senator-register-mode-menu-item):  New function.  Register a minor
+	mode menu item.
+	(senator-register-mode-menu-entry): New function.  Register a minor
+	mode menu entry.
+	(senator-build-mode-menu-items): New function.  Return menu items for
+	a registered minor mode.
+	(senator-build-modes-menu): New function.  Build and return the
+	"Modes" menu.
+
+	(senator-global-mode-options): Removed.
+	(senator-global-mode-options-save): Renamed to
+	`senator-save-registered-mode-settings'.
+
+	(open code): Added registration of Semantic minor modes.
+
+	(senator-menu-bar):  Use `senator-build-modes-menu' to dynamically
+	build the "Modes" sub-menu based on registered minor modes.
+
+2001-11-14  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.texi (miscellaneous): Renamed
+	(minor modes): Added variable options for all the modes listed.
+
+	* semantic-util-modes.el: (semantic-show-dirty-mode-*hook),
+	(semantic-show-unmatched-syntax-mode-*hook),
+	(semantic-unmatched-syntax-face),
+	(semantic-auto-parse-mode-*hook): Add * as a user option.
+
+2001-11-13  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-util-modes.el (semantic-show-unmatched-syntax):
+	Remove message about no bad syntax.
+
+2001-11-12  ponced  <ponced@choochoo>
+
+	* senator.el (senator-global-mode-options):
+	New constant.  List of Semantic minor
+	modes which can be enabled globally.
+
+	(senator-global-mode-options-save): New command.  Save current values
+	of `senator-global-mode-options' using Custom."
+
+	(senator-menu-bar):  New menu items in the "Modes" sub-menu to toggle
+	minor modes globally and save these settings via custom.
+
+	* semanticdb.el (global-semanticdb-minor-mode):
+	 Set `semanticdb-global-mode' to the
+	minor mode status.
+
+2001-11-10  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.texi (miscellaneous):
+	Added `[global-]semantic-auto-parse-mode'.
+
+2001-11-10  ponced  <ponced@choochoo>
+
+	* semantic.el (semantic-rebovinate-token):
+	Removed specific error handler.
+
+	(semantic-bovinate-nonterminal): Added general error handler.
+
+2001-11-10  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.texi (miscellaneous):
+	Added `[global-]semantic-auto-parse-mode'.
+
+2001-11-10  ponced  <ponced@choochoo>
+
+	* semantic.el (semantic-rebovinate-token):
+	Removed specific error handler.
+
+	(semantic-bovinate-nonterminal): Added general error handler.
+
+2001-11-08  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-make.el: New make.bnf 1.9
+
+	* make.bnf (Makefile): Handle blank lines
+
+	* Project.ede: Updated the web directory
+
+	* senator.el, semantic-load.el, semantic-imenu.el, semantic.el:
+	Removed all ^M line endings.
+
+	* NEWS: Added new news.
+
+2001-11-07  ponced  <ponced@choochoo>
+
+	* wisent/wisent-bovine.el (wisent-collect-unmatched-syntax):
+	New function.
+	`wisent-skip-token-hook' hook function to add a lexical token to the
+	cache of unmatched tokens.
+
+	(wisent-bovinate-nonterminals): Use it to collect unmatched syntax
+	tokens.
+
+	(wisent-bovinate-toplevel):  Clear the cache of unmatched syntax
+	tokens after a partial re-parse.
+
+	* wisent/wisent.el (wisent-skip-token-hook):
+	New variable.  Hook run when the parser
+	skips a lexical token.
+
+	(wisent-skip-token): Run `wisent-skip-token-hook'.
+	(wisent-skip-block): Ditto.
+	(wisent-parse): Ditto.
+
+	(wisent--maxrhs, wisent-set-max-rhs): Removed.  Unused.
+
+	Checkdoc fixes.
+
+	* semanticdb.el (semanticdb-toggle-global-mode):
+	No more call `semanticdb-kill-hook'.
+	When `semanticdb-write-directory-p' returns nil, that is indicating to
+	not write the DB on disk, overlays were removed from the token cache
+	by `semanticdb-kill-hook' and not recreated.
+
+	* semantic-util-modes.el (semantic-auto-parse-interval): Removed.
+
+	(semantic-auto-parse-idle-time): New variable.  Time in seconds of
+	idle time before auto-reparse.
+
+	(semantic-auto-parse-timer): No more buffer local.  Now an idle timer.
+
+	(semantic-auto-parse-bovinate): Moved.  Does nothing if
+	`semantic-auto-parse-mode' is not enabled.
+
+	(semantic-auto-parse-enabled-p): Moved.  Also check
+	`semantic-auto-parse-mode'.
+
+	(semantic-auto-parse-triggering-delay): Removed.
+	(semantic-auto-parse-change-hook): Removed.
+	(semantic-auto-parse-stop-after-parse): Removed.
+
+	(semantic-auto-parse-setup-timer): New function.  Lazy initialization
+	of the auto parse idle timer.
+	(semantic-auto-parse-mode-setup): Use it.
+
+2001-11-02  ponced  <ponced@choochoo>
+
+	* semantic.el (semantic-set-toplevel-bovine-cache):
+	Made `after-change-functions'
+	hook local using `make-local-hook' before using `add-hook' with the
+	LOCAL flag set.
+
+	* semantic-imenu.el (semantic-create-imenu-index): Made
+	`semantic-before-toplevel-cache-flush-hook' and
+	`semantic-clean-token-hooks' locals using `make-local-hook' before
+	using `add-hook' with the LOCAL flag set.
+
+	* senator.el (senator-menu-bar): Added auto parse to "Modes" sub-menu.
+
+	(senator-minor-mode-setup): Made
+	`semantic-before-toplevel-cache-flush-hook' and
+	`semantic-clean-token-hooks' locals using `make-local-hook' before
+	using `add-hook' with the LOCAL flag set.
+
+	* semantic-load.el:
+	Added autoloads for `semantic-auto-parse-mode' minor mode.
+	Turn on `global-semantic-auto-parse-mode' when
+	`semantic-load-turn-everything-on' is non-nil.
+
+	* semantic-util-modes.el:
+	New `semantic-auto-parse-mode' minor mode to auto reparse buffer.
+
+	(semantic-auto-parse-no-working-message): New variable.  Non-nil
+	disable display of working message during auto-parse.
+	(semantic-auto-parse-interval): New variable.  Time in seconds between
+	buffer change and reparse.
+	(semantic-auto-parse-max-buffer-size): New variable.  Maximum size in
+	bytes of buffers automatically reparsed.
+	(semantic-auto-parse-timer): New variable.  Timer used to schedule
+	automatic reparse.
+	(semantic-auto-parse-bovinate): New function.  Reparse the current
+	buffer.
+	(semantic-auto-parse-enabled-p): New function.  Return non-nil if
+	auto-parse is enabled for this buffer.
+	(semantic-auto-parse-triggering-delay): New function.  Return the time
+	in seconds before auto-parse triggering.
+	(semantic-auto-parse-change-hook): New function.  Hook run to schedule
+	the auto-parse task when Semantic detects a change in the current
+	buffer.
+	(semantic-auto-parse-stop-after-parse): New function.  Hook run to
+	stop scheduled auto-parse task after Semantic changed the token cache.
+	(global-semantic-auto-parse-mode): New variable.  If non-nil enable
+	global use of auto-parse mode.
+	(global-semantic-auto-parse-mode): New function.  Toggle global use of
+	`semantic-auto-parse-mode'.
+	(semantic-auto-parse-mode-hook): New variable.  Hook run at the end of
+	function `semantic-show-dirty-mode'.
+	(semantic-auto-parse-mode-on-hook): New variable.  Hook run when
+	auto-parse minor mode is turned on.
+	(semantic-auto-parse-mode-off-hook): New variable.  Hook run when
+	auto-parse minor mode is turned off.
+	(semantic-auto-parse-mode): New variable.  Non-nil if auto-parse minor
+	mode is enabled.
+	(semantic-auto-parse-mode-setup): New function.  Setup
+	`semantic-auto-parse-mode'.
+	(semantic-auto-parse-mode): New function.  Minor mode to auto parse
+	buffer following changes.
+
+2001-10-31  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-util.el (semantic-prototype-nonterminal-default):
+	Support reference &
+	(semantic-uml-token-or-string-to-string): Support pointers *, and references &
+
+	* working.el (working-mode-line-update): New compat alias
+	(working-mode-line-message, working-use-echo-area-p): New vars
+	(working-message): Renamed to working-message-echo.
+	New function that obeys working-use-echo-area-p.
+	(working-status-forms): Always reset working-mode-line-message
+	(working-status-timeout): Resest working-mode-line-message
+	(working-verify-mode-line): New test function.
+
+	* semantic-sb.el (semantic-fetch-dynamic-bovine):
+	If a file isn't in semanticdb, load
+	it and bovinate it.
+
+2001-10-30  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semanticdb.el (semanticdb-semantic-init-hook-fcn):
+	For backward compatibility with
+	old cache files, handle the case when the unmatched-syntax slot
+	is not bound.
+
+2001-10-28  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semanticdb.el (semanticdb-table): Add unmatched-syntax slot.
+	(semanticdb-semantic-init-hook-fcn): Set the unmatched syntax cache.
+	(semanticdb-post-bovination-unmatched-syntax): New hook fcn.
+	(semanticdb-hooks): Set our init hook into `semantic-init-db-hooks'.
+
+	* semantic.el (semantic-init-db-hooks):
+	New hook variable for semanticdb.
+	(semantic-new-buffer-fcn): Call semantic-init-db-hooks before other hooks.
+	(semantic-set-unmatched-syntax-cache): New function for semanticdb.
+	(semantic-bovinate-nonterminals): Indent change.
+
+	* semantic-load.el: Enable show-unmatched-syntax-mode by default.
+
+	* tests/test.cpp (class3): Add local var.
+	(method3_for_class3): Added class with parent decl-mods.
+
+	* tests/test.c (dont_show_function): Text if 0 code.
+	(vara4): Test casting in an expression.
+	(funk3): Added interesting conditions to call to fun3
+
+	* semantic.texi (Local Context):
+	Removed old context analysis functions.
+	Added xref to to new context analysis section.
+
+	* semantic-analyze.el (semantic-analyze-token-type):
+	New function extraced from
+	'semantic-analyze-find-nonterminal-sequence'
+	(semantic-analyze-find-nonterminal-sequence): Extracted token type analysis.
+	(semantic-analyze-scoped-nonterminals): Added a comment about getting
+	all parents.
+	(semantic-analyze-scoped-types): Add in scope from functions with
+	parnts.  Add in context scopes (eg. code-wise use clauses)
+	(semantic-analyze-possible-completions): Fixed search to use the
+	completetexttype.
+	Add in search for the local scope.
+
+	* semantic-sb.el (semantic-sb-insert-details):
+	When inserting a type's parts, bucketize
+	them if they appear as tokens.
+
+	* semantic-c.el (semantic-toplevel-c-bovine-table): New c.bnf 1.49
+	(semantic-expand-c-nonterminal): Extract default value for vars
+
+	* c.bnf (codeblock): Use codeblock-var-or-fun instead of var-or-fun
+	(class-parents): Add opt-class-declmod to one-parent case.
+	(opt-name): empty name gets "" string instead of nil.
+	(opt-ref): Pass back a 1 for a ref match
+	(codeblock-var-or-fun): New rule. Don't match anon types.
+	(opt-initializers): Add coma prefixed initializer.
+	(variablearg): Pass down a reference
+	(expression): Send back start/end of the expression.
+
+2001-10-26  ponced  <ponced@choochoo>
+
+	* semantic.el (semantic-unmatched-syntax-cache):
+	New variable.  Cached copy of
+	unmatched syntax tokens.
+
+	(semantic-unmatched-syntax-cache-check): New variable.  Non nil if the
+	unmatched syntax cache is out of date.
+
+	(semantic-overlay-error-recovery-stack): Removed.
+	(semantic-overlay-stack-add): Removed.
+	(semantic-overlay-stack-clear): Removed.
+
+	(semantic-bovine-umatched-syntax-refresh-needed-p): New function.
+	Return non-nil if the unmatched syntax cache needs a refresh.
+
+	(semantic-clear-unmatched-syntax-cache): New function.  Clear
+	`semantic-unmatched-syntax-cache'.
+
+	(semantic-bovinate-unmatched-syntax): New function.  Return the list
+	of unmatched syntax tokens.
+
+	(semantic-clear-toplevel-cache): Call
+	`semantic-clear-unmatched-syntax-cache'.
+
+	(semantic-bovinate-toplevel): Call
+	`semantic-clear-unmatched-syntax-cache' after partial re-parse.  Use
+	`semantic-overlay-list' to setup token overlays after full re-parse.
+
+	(semantic-set-toplevel-bovine-cache): Set
+	`semantic-unmatched-syntax-cache-check' to nil.  Run hook
+	`semantic-unmatched-syntax-hook' to refresh highlighting of unmatched
+	syntax tokens.
+
+	(semantic-change-function): Set
+	`semantic-unmatched-syntax-cache-check' to t.
+
+	(semantic-raw-to-cooked-token): Replaced token overlay by vector of
+	START END positions.
+
+	(semantic-bovinate-nonterminals): Setup
+	`semantic-unmatched-syntax-cache'.  No more use overlay recovery
+	stack.  No more run `semantic-unmatched-syntax-hook'.
+
+	(semantic-rebovinate-token, semantic-bovinate-nonterminal): No more
+	setup token overlays.
+
+	* semantic-util-modes.el:
+	  (semantic-unmatched-syntax-overlay-p): New function.
+
+	  (semantic-showing-unmatched-syntax-p): Use `semantic-overlays-in'
+	  instead of `semantic-overlay-lists'.  Use
+	  `semantic-unmatched-syntax-overlay-p'.
+
+	  (semantic-clean-unmatched-syntax-in-region):Moved for clarity.
+	  (semantic-clean-token-of-unmatched-syntax): Ditto.
+
+	  (semantic-clean-unmatched-syntax-in-buffer): New function.
+
+	  (semantic-hide-unmatched-syntax): Removed.  Replaced by
+	  `semantic-clean-unmatched-syntax-in-buffer'.
+
+	  (semantic-show-unmatched-syntax): Clear any previous highlighting.
+	  No more use `semantic-overlay-stack-add'.  Comment fixes.
+
+	  (semantic-next-unmatched-syntax):  Use
+	  `semantic-unmatched-syntax-overlay-p'.
+
+	  (semantic-show-unmatched-syntax-mode-setup): Use the function
+	  `semantic-bovinate-unmatched-syntax' to get the list of unmatched
+	  syntax tokens.  Then call `semantic-show-unmatched-syntax' to
+	  highlight them.
+
+2001-10-26  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* document.el (document-massage-to-texinfo):
+	When searching for things to wrap
+	in @var, move search start point after each match to avoid
+	double-match for THREE-WORD-SYMBOLS.
+
+	* semantic-ctxt.el (semantic-ctxt-scoped-types, semantic-ctxt-scoped-types-default):
+	New fcn
+
+	* semantic-util.el (semantic-nonterminal-children-default):
+	Handle anonymous types with children.
+
+2001-10-24  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.texi (Tools): Added a charts section
+	(speedbar): Made note of semantic-load.el
+	(imenu): Made note of semantic-load.el
+	(charts): New section
+
+	* semantic-util-modes.el (global-semantic-show-dirty-mode): Fixed doc.
+
+	* semantic.texi (Bovinating, BNF conversion, Optional Lambda Expression):
+	xref syntax fix
+	(Current Context): Renamed "suggestions" node to "syntax analysis"
+	(Local Variables): Doc update from source
+	(Derived Context): Doc update from source
+	(Context Analysis): New section w/ doc copied from source
+	(senator): xref syntax fix
+	(miscellaneous): Updated from source.  Added show-unmatched-syntax functions.
+
+	* semantic-c.el: Updated for c.bnf
+	(semantic-flex-c-if-0): Optimize #if 0 out of lexical stream.
+	(semantic-flex-c-extensions): Added above.
+
+	* c.bnf: Removed log comments.
+	(unionparts): Fixed names
+	(class-parents): Added opt-class-declmods.
+	(typesimple): Fixed name of union parts
+	(var-or-fun): Split to two sub-rules
+	(opt-initializers): Fixed COMA case.
+	(expression): Added cast info of an expression.
+
+	* semantic-util-modes.el (semantic-show-dirty-mode-on-hook,  semantic-show-dirty-mode-off-hook):
+	Fixed doc strings.
+
+	* INSTALL: Fixed quoting problem with LOADPATH.
+
+	* semanticdb.el (semanticdb-semantic-init-hook-fcn): Added comments.
+
+	* semantic-load.el:
+	Do not enable global-semantic-show-unmatched-syntax-mode when turning
+	everything on until bugs in it are fixed.
+
+2001-10-17  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-bnf.el: By Juanma Barranquero <lektu@terra.es>:
+	(which-func-modes): In Emacs 21, it can be t, so don't add
+	semantic-bnf mode.
+
+2001-10-10  ponced  <ponced@choochoo>
+
+	* wisent/wisent-java.el (wisent-java-get-local-variables):
+	New implementation consistent with
+	`semantic-java-get-local-variables'.
+
+	* wisent/wisent-bovine.el (wisent-bovinate-region-until-error):
+	New function. Counterpart of
+	`semantic-bovinate-region-until-error'.
+
+2001-10-09  ponced  <ponced@choochoo>
+
+	* semantic-ctxt.el (semantic-get-local-variables, semantic-get-local-arguments):
+	Fixed
+	last check in.
+
+	* semantic-ctxt.el (semantic-get-local-variables): For consistency with
+	`semantic-get-local-variables' return tokens without overlay.
+
+	(semantic-get-all-local-variables-default): Always return a cons
+	(LOCAL-ARGUMENTS . LOCAL-VARIABLES).  Removed reversing of the result
+	list because values returned by `semantic-get-local-arguments' and
+	`semantic-get-local-variables' are already in correct order.
+
+2001-10-08  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* Project.ede:
+	Added an "example" target with skeletons bnf, and Lisp file.
+
+	* semantic-load.el: Moved charting autoloads together.
+
+	* semantic-c.el (semantic-toplevel-c-bovine-table): New c.bnf
+	(semantic-c-classname): New state variable
+	(semantic-c-reconstitute-token): handle constructor via
+	`semantic-c-classname' and new auto-typeing information for implicitly
+	typed functions.
+	(semantic-default-c-built-in-types): Deleted
+	(semantic-default-c-setup): Don't assign
+	 `semantic-default-c-built-in-types'
+
+	* c.bnf (unionpartsparts): new rule; used to be classparts
+	(typesimple): When building a class, store off the classname found.
+	Used to reconstitute functions later.
+	(var-or-fun): Re-enable untyped functions and variables.
+
+	* semantic-analyze.el (semantic-analyze-possible-completions):
+	Fixed typo.
+
+	* semantic-analyze.el (semantic-analyze-current-local-variables):
+	Removed
+	(semantic-analyze-find-nonterminal-sequence): Accept localvariable
+	list, and scoped variable list.
+	(semantic-analyze-type-parts, semantic-analyze-scoped-nonterminals,
+	semantic-analyze-scoped-types): New functions
+	(semantic-analyze-context, semantic-analyze-context-assignment,
+	 semantic-analyze-context-functionarg,
+	 semantic-analyze-context-return): New classes
+	(semantic-analyze-current-context): Use new classes instead of hacking
+	together a list.  Collect new local variable and scoping information
+	into the analysis.
+	(semantic-analyze-type-constraint): New method set for new classes.
+	(semantic-analyze-possible-completions): use new object returned by
+	`semantic-analyze-current-context' to do the same thing.
+	(semantic-analyze-show): New method set for new classes.
+	(semantic-analyze-pop-to-context): Use new method.
+
+	* semantic-util.el (semantic-default-built-in-types): Removed.
+
+	* semantic.texi: Spelling and grammar fixes.  (Thanks Colin Marquardt)
+	Added detail about constructor specifier in tokens.
+
+	* semantic-skel.el:
+	Example on how to start an Emacs Lisp source target for a bnf file.
+
+	* skeleton.bnf: Example on how to start a .bnf project.
+
+2001-10-08  ponced  <ponced@choochoo>
+
+	* semantic-java.el (semantic-java-get-local-variables):
+	New implementation consistent
+	with `semantic-get-local-variables-default'.
+
+2001-10-05  ponced  <ponced@choochoo>
+
+	* semantic-bnf.el: Merged wisent branch.
+
+	* semantic.texi: Fixed typo.
+
+2001-10-05  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-analyze.el (semantic-analyze-current-local-variables):
+	New var
+	(semantic-analyze-find-nonterminals-by-prefix): New function
+	(semantic-analyze-find-nonterminal-sequence): New arg TYPERETURN.
+	(semantic-analyze-current-context): Get back the types from prefix
+	sequence.  Add them to the return value.
+	(semantic-analyze-possible-completions): New command.
+	(semantic-analyze-pop-to-context): Handle the types of the prefix.
+
+	* semantic-c.el: New c.bnf
+
+	* c.bnf (var-or-fun):
+	Disable support (for now) of int declarations for vars
+	and funs with unspecified types.  Who does that anymore anyway?
+
+	* semantic-ctxt.el (semantic-up-context):
+	Specify a bounds type (ie, only go up withing
+	the bounds of a specific token type.)  Narrow region to that token.
+	(semantic-up-context-default): Remove old narrowing code.
+	(semantic-get-local-variables-default): Disable working messages.
+	Go up w/in the scope of 'function only. Be sure to append old vars.
+	(semantic-get-all-local-variables-default): Do not loop up contexts.
+	Let the get-local-vars function do that.
+
+	* semantic-util.el (semantic-find-nonterminal-by-type):
+	Do not return built in types.
+	This function is supposed to return non-type tokens which have TYPE
+	as an type.
+
+	* tests/test.c: Fixed typedef_of_anonymous_enum contents.
+
+	* semantic-util-modes.el (semantic-next-unmatched-syntax): New function
+	(semantic-clean-unmatched-syntax-in-region): Implemented.
+	(semantic-clean-token-of-unmatched-syntax): New function for hook.
+	(semantic-show-unmatched-syntax-mode-map): Add binding
+	`semantic-show-unmatched-syntax-next'.
+	(semantic-show-unmatched-syntax-mode-setup): Add pre clean token hook.
+	(semantic-show-unmatched-syntax-next): New command.
+
+	* semantic-ctxt.el (semantic-get-local-variables-default):
+	Disable all hooks associated
+	with unmatched syntax.
+
+	* semantic-c.el: New c.bnf
+
+	* c.bnf (UNDERP, UNDERUNDERP): New keywords
+	(macro-or-include): Handle optional argument list
+	(opt-define-arglist): New rules
+	(var-or-func-decl): Account for optional _P before arglist.
+	(opt-under-p): New rule
+	(arg-list): Remove check for _P here.  Regex wasn't working.
+	(arg-sub-list): Unused.
+	(expression): Add symbol as valid part.
+
+2001-10-04  ponced  <ponced@choochoo>
+
+	* semantic-bnf.el (semantic-bnf-mode-keywords, semantic-bnf-syntax-help):
+	Added number
+	to list of built ins.
+
+2001-10-04  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* tests/test.cpp: Forgot a semicolon.
+
+	* tests/test.cpp, tests/test.c: A few more bits.
+
+	* Project.ede: Added semantic-analyze.el
+
+	* semantic-bnf.el (semantic-bnf-syntax-help):
+	Added number to list of built ins.
+
+	* semantic-util.el (semantic-current-nonterminal-of-type): New function
+	(semantic-with-buffer-narrowed-to-current-token): New macro
+	(semantic-with-buffer-narrowed-to-token): New macro
+
+	* semantic.el (semantic-number-expression):
+	Use number expression from semantic-java
+	since it looks like the common way of parsing numbers for most
+	langauges.
+
+	* semantic-c.el: New c.bnf
+
+	* c.bnf (expression): Use newer number token which handles floats.
+
+	* semantic-ctxt.el (semantic-up-context-default):
+	Narrow to current function token first.
+	(semantic-get-local-variables-default): Collect variables from
+	multiple levels.
+	(semantic-ctxt-current-symbol-default): Break at beginning of buffer.
+	(semantic-ctxt-current-argument): doc fix.
+	(semantic-ctxt-current-argument-default): doc fix
+	(semantic-suggest-lookup-item,
+	 semantic-suggest-variable-token-hierarchy,
+	 semantic-suggest-current-type): Deleted functionality moved to
+	semantic-analyze.
+
+	* semantic-analyze.el: Analysis of the current context.
+	Uses semantic-ctxt to determine textual context around point.
+	Uses searches to find the tokens associated with that context.
+
+2001-10-04  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* tests/test.cpp: Forgot a semicolon.
+
+	* tests/test.cpp, tests/test.c: A few more bits.
+
+	* Project.ede: Added semantic-analyze.el
+
+	* semantic-bnf.el (semantic-bnf-syntax-help):
+	Added number to list of built ins.
+
+	* semantic-util.el (semantic-current-nonterminal-of-type): New function
+	(semantic-with-buffer-narrowed-to-current-token): New macro
+	(semantic-with-buffer-narrowed-to-token): New macro
+
+	* semantic.el (semantic-number-expression):
+	Use number expression from semantic-java
+	since it looks like the common way of parsing numbers for most
+	langauges.
+
+	* semantic-c.el: New c.bnf
+
+	* c.bnf (expression): Use newer number token which handles floats.
+
+	* semantic-ctxt.el (semantic-up-context-default):
+	Narrow to current function token first.
+	(semantic-get-local-variables-default): Collect variables from
+	multiple levels.
+	(semantic-ctxt-current-symbol-default): Break at beginning of buffer.
+	(semantic-ctxt-current-argument): doc fix.
+	(semantic-ctxt-current-argument-default): doc fix
+	(semantic-suggest-lookup-item,
+	 semantic-suggest-variable-token-hierarchy,
+	 semantic-suggest-current-type): Deleted functionality moved to
+	semantic-analyze.
+
+	* semantic-analyze.el: Analysis of the current context.
+	Uses semantic-ctxt to determine textual context around point.
+	Uses searches to find the tokens associated with that context.
+
+2001-10-03  ponced  <ponced@choochoo>
+
+	* wisent/wisent-java.el (wisent-java-number-regexp): Removed.  Use
+	`semantic-java-number-regexp' instead.
+
+	(wisent-java-lex): Use `semantic-flex' 'number lexemes.
+
+	(wisent-java-default-setup): BNF update.
+
+	* wisent/wisent-java.bnf:
+	In setup: Added setting of `semantic-number-expression'.
+
+	* wisent/wisent-bovine.el (wisent-rebovinate-token):
+	Call `semantic-pre-clean-token-hooks'.
+
+	* semantic-java.el (semantic-java-number-regexp):
+	New constant.  Regular expression used
+	by the lexer to match Java numbers.
+
+	(semantic-toplevel-java-bovine-table, semantic-default-java-setup):
+	BNF update.
+
+	* java.bnf: In setup: Added setting of `semantic-number-expression'.
+
+	In grammar: Removed 'number nonterminal now directly provided as
+	terminal by the lexer.
+
+	* semantic-c.el:
+	Added (require 'senator) at compilation time to fix byte-compiler
+	warning.
+
+	* senator.el (senator-menu-bar): New "Chart" and "Modes" sub-menus.
+
+	* semantic.el: Added (require 'assoc) to fix byte-compiler warning.
+
+	(semantic-flex): Fixed to handle numbers which are not symbols (that
+	is for example floating point numbers starting with a dot like ".10").
+
+2001-10-03  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.texi (Settings): Added number expression doc.
+	(Rules): Added large section about valid syntax tokens.
+
+	* semantic-util-modes.el (global-semantic-show-dirty-mode): Doc Fix
+	(semantic-show-dirty-mode-setup): Doc Fix
+	(semantic-show-dirty-mode): Doc Fix
+	(global-semantic-show-unmatched-syntax-mode): Doc Fix
+	(semantic-clean-unmatched-syntax-in-region): New fn placeholder
+	(semantic-show-unmatched-syntax-mode-map): Doc Fix
+	(semantic-show-unmatched-syntax-mode-setup): Doc Fix
+	(semantic-show-unmatched-syntax-mode): Doc Fix
+
+	* Project.ede: Add semantic-util-modes.
+	Update version number.
+
+	* semantic-c.el: New c.bnf (1.43)
+
+	* c.bnf (INLINE): Fix typo
+	(opt-class-protection): EMPTY is valid match
+	(opt-name): UNION can have class parts.  Fix typedef name.
+	(DECLMOD): Add METADECLMOD
+	(metadeclmod, METADECLMOD): New rules
+	(var-or-fun-decl): Accept metadeclmods in the middle.
+	(fun-or-proto-end): Accept "= 0;" as a valid function end.
+	(opt-expression): Deal with numbers.
+
+	* semantic-chart.el (semantic-chart-database-size): New command.
+	(semantic-chart-nonterminal-complexity-token): Get the Y label from
+	token type name assoc list.
+
+	* semantic-load.el: Added in chart autoloads.
+
+	* semantic-bnf.el (semantic-bnf-mode-keywords):
+	Support the new number keyword.
+
+	* semantic-scm.el: New version of scheme.bnf.
+
+	* scheme.bnf: Disable number matching.
+
+	* semantic-make.el: New version of make.bnf.
+
+	* make.bnf: Disable number matching.
+
+	* semantic.el (semantic-version): Update to 1.4beta 12
+	(semantic-pre-clean-token-hooks): New hook.
+	(semantic-rebovinate-token): Call `semantic-pre-clean-token-hooks'
+	(semantic-number-expression): New flex option
+	(semantic-flex): Create number tokens from symbols if they match
+	above symbol.
+
+2001-10-02  ponced  <ponced@choochoo>
+
+	* senator.el (global-senator-minor-mode):
+	New variable and function to turn on/off
+	`senator-minor-mode' in every Semantic enabled buffer.
+
+	(senator-minor-mode): Added autoload cookie.  Use
+	`semantic-add-minor-mode' to register the minor mode.
+
+	* semantic-util.el:
+	(semantic-show-dirty-mode, semantic-show-unmatched-syntax-mode):
+	All related code moved into semantic-util-modes.el.
+
+	Added (require 'semantic-util-mode).
+
+	* semantic-load.el: Updated minor mode autoloads.
+	Use `global-senator-minor-mode', `global-semantic-show-dirty-mode' and
+	`global-semantic-show-unmatched-syntax-mode' to globally turn on minor
+	modes when `semantic-load-turn-everything-on' is non-nil.
+
+	* semantic-util-modes.el:
+	Initial revision.   Implementation of Semantic minor modes.
+
+2001-09-30  ponced  <ponced@choochoo>
+
+	* sformat.el (newstr):
+	Local variable declared at compilation time to fix
+	byte-compiler warnings.
+
+	* senator.el (senator-completion-menu-window-offsets):
+	Removed binding of unused
+	local variables.
+
+	(senator-minor-menu): Declared to fix byte-compiler warnings.
+
+	(senator-minor-mode): Moved to fix byte-compiler warnings.
+
+2001-09-29  ponced  <ponced@choochoo>
+
+	* semantic.el (semantic-dirty-token-hooks): Fixed doc string typo.
+
+	(semantic-flex-start, semantic-flex-end, semantic-flex-text,
+	semantic-bovine-toplevel-full-reparse-needed-p,
+	semantic-bovine-toplevel-partial-reparse-needed-p): Moved to fix byte
+	compiler warnings.
+
+	(semantic-token-with-position-p): To avoid implementation
+	inconsistencies with `semantic-token-p' call it.
+
+	(semantic-flex): Removed binding of unused local variable.
+
+	* semantic-util.el:
+	Require 'newcomment at compilation time to fix Emacs 21 byte-compiler
+	warnings.
+
+	(semantic-find-nonterminal-by-function): Ignore invalid children
+	tokens when SEARCH-PARTS is not 'positiononly.  Some improvements.
+
+	(semantic-name-nonterminal, semantic-prototype-nonterminal-default,
+	semantic-concise-prototype-nonterminal-default,
+	semantic-uml-token-or-string-to-string,
+	semantic-uml-abbreviate-nonterminal-default,
+	semantic-uml-concise-prototype-nonterminal-default): Removed binding
+	of unused local variables.
+
+	* semantic-texi.el (semantic-texi-recursive-combobulate-list):
+	Removed binding of unused
+	local variables.
+
+	* semantic-sb.el (semantic-sb-one-button):
+	Removed binding of unused local variable.
+
+	* semantic-imenu.el:
+	Require 'imenu at compilation time to fix byte-compiler warnings.
+
+	(semantic-create-imenu-index-1): Removed binding of unused local
+	variable.
+
+	* semantic-el.el:
+	Require 'semantic-imenu at compilation time to fix byte-compiler
+	warnings.
+
+	* semantic-ctxt.el (semantic-ctxt-current-symbol-default, semantic-suggest-variable-token-hierarchy):
+	Removed binding of unused
+	local variable.
+
+	* semantic-c.el:
+	Require 'semantic-imenu at compilation time to fix byte-compiler
+	warnings.
+
+	* semantic-bnf.el (semantic-bnf-find-setup-code, semantic-bnf-generate-and-load, semantic-bnf-find-state-position, semantic-bnf-ecsi):
+	Removed binding
+	of unused local variables.
+
+	* document.el (document-comment-start, document-comment-end, document-comment-line-prefix):
+	Moved to document-vars.el to fix
+	byte-compiler warnings.
+
+	Removed extra (require 'document-vars).
+
+	* document-vars.el:
+	Require 'newcomment at compilation time to fix Emacs 21 byte-compiler
+	warnings.
+
+	(document-comment-start, document-comment-end,
+	document-comment-line-prefix): Moved from document.el to fix
+	byte-compiler warnings.
+
+2001-09-27  ponced  <ponced@choochoo>
+
+	* wisent/wisent-java.el (wisent-java-default-setup): BNF update.
+
+	* wisent/wisent-java.bnf:
+	In setup: Removed unnecessary setting of `block-comment-end' which
+	breaks `indent-new-comment-line'.
+
+	* semantic-java.el (semantic-default-java-setup): BNF update.
+
+	* java.bnf:
+	In setup: Removed unnecessary setting of `block-comment-end' which
+	breaks `indent-new-comment-line'.
+
+2001-09-27  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-load.el: Added `semantic-show-unmatched-syntax-mode'.
+
+	* semantic.el (semantic-unmatched-syntax-hook): New hook.
+	(semantic-bovinate-nonterminals): Track all unmatched syntax elements.
+	Call new hook with the unmatched syntax.
+
+	* semantic-util.el (semantic-find-nonterminal-by-overlay,  semantic-find-nonterminal-by-overlay-in-region,  semantic-find-nonterminal-by-overlay-next,  semantic-find-nonterminal-by-overlay-prev):
+	Make sure the 'semantic
+	part of the overlay is a token to be valid while searching.
+	(semantic-show-unmatched-syntax-mode): New user option.
+	(semantic-unmatched-syntax-face): New face.
+	(semantic-show-unmatched-syntax): New function
+	(semantic-show-unmatched-syntax-mode): New mode.
+
+2001-09-26  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-c.el (semantic-toplevel-c-bovine-table): Updated from c.bnf
+
+	* c.bnf (enumsubparts): Account for commas
+	(arg-sub-list): Account for commas
+	(opt-expression): Account for floating point numbers,
+	or struct dereferences.
+
+2001-09-26  ponced  <ponced@choochoo>
+
+	* semantic-chart.el (semantic-chart-nonterminals-by-token):
+	Changed the call to
+	`semantic-find-nonterminal-by-token' to search in sub-parts of tokens.
+
+	(semantic-chart-nonterminal-complexity-token): Changed call to
+	`semantic-find-nonterminal-by-token' to use 'positiononly instead of
+	t.
+
+	* semantic-util.el (semantic-find-nonterminal-by-function):
+	 Take into account
+	'positiononly value of the SEARCH-PARTS argument.
+
+2001-09-26  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-chart.el: Added a name to the complexity chart.
+
+	* semantic.el: Update version numbers.
+
+	* Project.ede: Updated version.
+
+2001-09-25  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-chart.el (semantic-chart-nonterminal-complexity-token): 
+	Added a reasonable name to chart.
+	
+	* semantic.el: Update version numbers.
+
+	* Project.ede: Updated version.
+
+2001-09-21  ponced  <ponced@choochoo>
+
+	* wisent/wisent-java.el:
+	Fixed byte compilation warnings.
+
+	* wisent/wisent-bovine.el (wisent-bovinate-toplevel):
+	Call `garbage-collect' before parsing to
+	optimize memory use.
+
+	* wisent/wisent.el (wisent-noninteractive):
+	New function.  Return non-nil if running
+	without interactive terminal.
+
+	(wisent-log-file): New constant.  The logging file.
+
+	(wisent-append-to-log-file): New function.  Append contents of
+	`wisent-log-buffer' to `wisent-log-file'.
+
+	(wisent-log-conflicts): Display the number of conflicts found in the
+	message log buffer or on console output when running in batch mode.
+
+	(wisent-build-tables): In batch mode append the contents of the log
+	buffer to `wisent-log-file'.
+
+	* semantic.el (semantic-token-name, semantic-token-get, semantic-token-start,semantic-token-end, semantic-token-buffer, semantic-token-p,semantic-bovine-toplevel-full-reparse-needed-p,semantic-bovine-toplevel-partial-reparse-needed-p):
+	Defined as inline
+	functions.
+
+	(semantic-bovinate-toplevel): Garbage collector is run before parsing
+	and suspended during parsing to speed up the parser and optimize
+	memory use.
+
+	* working.el (working-message-emacs, working-message-xemacs):
+	Do nothing if running
+	in batch mode.
+
+	(working-run-with-timer, working-cancel-timer): Default implementation
+	uses `working-message' instead of `message'.  Moved the definitions
+	after definition of `working-message' to avoid byte compiler warnings.
+
+2001-09-20  ponced  <ponced@choochoo>
+
+	* wisent/wisent-java.el (wisent-java-default-setup):
+	BNF update.
+
+	* wisent/wisent-java.bnf:
+	In setup: Renamed `wisent-flex-function' to `wisent-lexer-function'.
+	Added setup of `wisent-flex-depth'.
+
+	* wisent/wisent-bovine.el (wisent-flex-istream):
+	No more buffer local.  Its value is local in
+	function `wisent-bovinate-nonterminal'.
+
+	(wisent-flex-depth): New variable to specify how `semantic-flex' will
+	setup the lexer input stream.
+
+	(wisent-flex-function): Renamed to more appropriate
+	`wisent-lexer-function'.
+
+	(wisent-lexer-wrapper): Minor improvements.
+
+	(wisent-bovinate-nonterminal): Local binding of `gc-cons-threshold'
+	moved into `wisent-bovinate-toplevel'.
+
+	(wisent-rebovinate-token, wisent-bovinate-from-nonterminal-full): Use
+	`wisent-flex-depth'.
+
+	(wisent-bovinate-toplevel): Performance improvement.
+
+2001-09-18  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-ctxt.el (semantic-function-argument-separation-character):
+	Fix doc.
+
+2001-09-18  ponced  <ponced@choochoo>
+
+	* semantic-imenu.el (semantic-create-imenu-subindex):
+	 Use `imenu--split-submenus' to sort
+	and split sub index.
+
+2001-09-18  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-c.el (semantic-c-nonterminal-protection):
+	Only check for class/struct if
+	the token is a type.  Otherwise, always default to public.
+
+	* semantic-el.el (semantic-elisp-prototype-nonterminal):
+	Deleted
+	(semantic-default-elisp-setup): Remove reference to above.
+	Set `semantic-function-argument-separator' and
+	`semantic-function-argument-separatiion' to good values.
+
+	* semantic-util.el (semantic-test-all-token->text-functions):
+	New function
+	(semantic-function-argument-separator): New variable
+	(semantic-prototype-nonterminal-default): Use new variable above.
+	(semantic-concise-prototype-nonterminal-default): Use new variable above.
+	(semantic-uml-token-or-string-to-string): Always display argument list.
+	(semantic-uml-arguments-to-string): Use above new variable.
+
+2001-09-18  ponced  <ponced@choochoo>
+
+	* wisent/wisent.el (wisent-quote-p, wisent-backquote-p, wisent-action-expand):
+	New
+	functions to expand a semantic action expression and return the list
+	of `$i' placeholders it actually uses.
+
+	(wisent-reduce-action): Use `wisent-action-expand' to expand semantic
+	action expression and only bind `$i' placeholders actually used.
+
+	* semantic-bnf.el (semantic-bnf-to-lalr-action):
+	Because macro expansions are
+	implementation dependent, only expand `backquote' forms instead of all
+	macros.
+
+	(semantic-bnf-quote-p, semantic-bnf-backquote-p): New functions.
+
+2001-09-17  ponced  <ponced@choochoo>
+
+	* wisent/wisent-java.bnf (class_declaration, field_declaration, method_declaration,formal_parameter, constructor_declaration, interface_declaration,abstract_method_declaration):
+	  Use ASSOC built-in instead of direct
+	call to `semantic-bovinate-make-assoc-list' in semantic actions.
+
+	* semantic-bnf.el (semantic-bnf-to-lalr-ASSOC, semantic-bnf-to-lalr-EXPANDTHING,semantic-bnf-to-lalr-EXPAND, semantic-bnf-to-lalr-EXPANDFULL,semantic-bnf-to-lalr-action):
+	New functions to expand semantic actions
+	in LALR grammar.
+
+	(semantic-bnf-to-lalr-builtins): New variable.  Hold expanders of
+	Semantic built-in functions in LALR grammar.
+
+	(semantic-bnf-matching-to-lalr): Use `semantic-bnf-to-lalr-action' to
+	expand semantic actions.
+
+2001-09-14  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* tests/test.cpp (class3::method5_for_class3):
+	New testing post-const.
+	(tinitializers1): test initializers.
+
+	* tests/test.c (funk2):
+	Added pointer test.
+	(funk3): Added local variables.
+
+	* Project.ede: Version update.
+	Added semantic-chart.el to tools.
+
+	* semantic-load.el:
+	Added a semantic-chart autoload.
+
+	* semantic-chart.el:
+	Chart some aspects of a file based on what Semantic knows.
+	(Requires eieio 0.17 beta 3 or better)
+
+	* semantic-c.el:
+	Removed broken commentary
+
+2001-09-14  ponced  <ponced@choochoo>
+
+	* wisent/wisent.el:
+	Header comments: doc fixes.
+
+	(wisent-working-...): Removed.
+
+	(wisent-pack-grammar, wisent-set-derives, wisent-set-nullable,
+	wisent-generate-states, wisent-lalr, wisent-build-states,
+	wisent-compact-action-table, wisent-build-action-table,
+	wisent-build-goto-table, wisent-build-reduction-table,
+	wisent-build-terminal-table, wisent-build-tables,
+	wisent-compile-grammar):  Use the working API instead of
+	wisent-working-... wrappers.
+
+	(wisent-compile-grammar): Doc string fixes.
+
+	* working.el (working-status-dynamic-type):
+	Added `working-text-display' to the
+	list of available functions.
+
+	(working-number-display): Doc string fix.
+
+	(working-text-display): New function to display step strings.
+
+	* semantic-el.el (semantic-expand-elisp-nonterminal):
+	After expanding NONTERM delete
+	the overlay from its buffer.
+
+2001-09-14  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* tests/test.cpp (class3::method5_for_class3):
+	New testing post-const.
+	(tinitializers1): test initializers.
+
+	* tests/test.c (funk2):
+	Added pointer test.
+	(funk3): Added local variables.
+
+	* Project.ede: Version update.
+	Added semantic-chart.el to tools.
+
+	* semantic-load.el:
+	Added a semantic-chart autoload.
+
+	* semantic-chart.el:
+	Chart some aspects of a file based on what Semantic knows.
+	(Requires eieio 0.17 beta 3 or better)
+
+	* semantic-c.el:
+	Removed broken commentary
+
+2001-09-14  ponced  <ponced@choochoo>
+
+	* wisent/wisent.el:
+	Header comments: doc fixes.
+
+	(wisent-working-...): Removed.
+
+	(wisent-pack-grammar, wisent-set-derives, wisent-set-nullable,
+	wisent-generate-states, wisent-lalr, wisent-build-states,
+	wisent-compact-action-table, wisent-build-action-table,
+	wisent-build-goto-table, wisent-build-reduction-table,
+	wisent-build-terminal-table, wisent-build-tables,
+	wisent-compile-grammar):  Use the working API instead of
+	wisent-working-... wrappers.
+
+	(wisent-compile-grammar): Doc string fixes.
+
+	* working.el (working-status-dynamic-type):
+	Added `working-text-display' to the
+	list of available functions.
+
+	(working-number-display): Doc string fix.
+
+	(working-text-display): New function to display step strings.
+
+	* semantic-el.el (semantic-expand-elisp-nonterminal):
+	After expanding NONTERM delete
+	the overlay from its buffer.
+
+2001-09-13  ponced  <ponced@choochoo>
+
+	* wisent/wisent.el:
+	Header comments: Doc improvement.
+
+	(wisent-log-buffer): Separate each compile log in the log buffer.
+
+	(wisent-show, wisent-show-all): Removed.
+
+	(wisent-free-all): Added missing global values.
+
+	(wisent-build-tables): Skip lines after logging.
+
+2001-09-12  ponced  <ponced@choochoo>
+
+	* wisent/wisent-expr.el:
+	Header comments: Doc fixes.
+
+	(wisent-expr-grammar): Removed.  No more used.
+
+	(wisent-expr-parser-tables): Updated to new format of Wisent's input
+	grammar.  Minor grammar improvements.  Doc string.  Grammar compiled
+	in byte code.
+
+	(wisent-expr-operators): Terminal symbol name changes.  Doc string.
+
+	(wisent-expr-digits): Removed.  No more used.
+
+	(wisent-expr-number-regexp): New constant.  Lexer regexp used to parse
+	the numbers.
+
+	(wisent-expr-lexer-input-stream): Doc string.
+
+	(wisent-expr-lexer): Doc string.  Use `wisent-expr-number-regexp' to
+	parse numbers.  Minor improvements.
+
+	(wisent-expr-error): Removed.  No more used.
+
+	(wisent-expr-test): Renamed to `wisent-expr'.  Minor improvements.
+
+	* semantic.el (find-file-hooks):
+	Replaced `semantic-change-major-mode-hook-function'
+	by `semantic-post-change-major-mode-function'.
+
+	* wisent/wisent.el (wisent-parse):
+	Missing space in parse error message.
+
+2001-09-12  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.texi (Extra Specifiers):
+	Fix end of table location.
+
+	* semantic.el:
+	Revert old find-file-hook behavior.
+
+2001-09-12  ponced  <ponced@choochoo>
+
+	* wisent/wisent.el:
+	Header comments: Minor doc fix.
+
+	(wisent-process-nonterminal): Missing declaration of local variable
+	`rule'.
+
+	(wisent-parse): Minor improvement of parse error message.
+
+	* wisent/wisent-calc.bnf, wisent/wisent-calc.el:
+	Initial revision of the infix notation calculator sample program.
+
+2001-09-12  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.el (semantic-version):
+	beta10.  Oy.
+	(semantic-token-with-position-p): Make sure trailing array is not a string.
+	(sematic-find-file-function): New hook function.
+	(find-file-hooks): Add above.
+
+	* semantic.texi (Extra Specifiers):
+	Specify dereference spec for C example is a NUMBER.
+	Specify new pionter spec.
+	Specify new prototype flag.
+
+	* semantic-util.el: Doc fixes.
+	(semantic-prototype-nonterminal-default): Use new version of pointer value.
+
+	* semantic-imenu.el (semantic-create-imenu-subindex):
+	Only create submenues if the token
+	being expanded has a position available for jumping and sorting.
+
+	* semantic-el.el (semantic-elisp-use-read):
+	Extract contents of `eval-and-load'.
+	Support autoload as a prototyping mechanism for functions.
+	(semantic-expand-elisp-nonterminal): Expand nested definition lists.
+	(semantic-default-elisp-setup): Use above.
+
+	* semantic-c.el: New c.bnf.
+
+	* c.bnf (var-or-func-decl):
+	Change to host multiple postfix fcn modifiers, and
+	initializers.
+	(opt-reentrant): deleted
+	(opt-initializers, opt-post-fcn-modifiers, post-fcn-modifiers): New rules
+
+2001-09-11  ponced  <ponced@choochoo>
+
+	* wisent/wisent.el:
+	Header comments: New input grammar format. New conflicts handling.
+
+	(wisent--rprec): New variable for rules precedence.
+
+	(wisent-pack-grammar): Setup rules precedence.
+
+	(wisent-add-action): Handle S/R conflicts using terminals
+	associativity and precedence, and rules precedence.
+
+	(wisent-build-tables): Minor improvements.
+
+	(wisent-process-nonterminal, wisent-process-grammar): New input
+	grammar format with terminals associativity and precedence, and rules
+	precedence.
+
+	* wisent/wisent-java.el (wisent-java-parser-tables):
+	New grammar format.
+
+	* semantic-bnf.el (semantic-bovine-bnf-table):
+	Added rules for %nonassoc, %left, %right
+	statements.  And %prec specification in BNF rules.
+
+	(semantic-bnf-keyword-table): Added NONASSOC, LEFT, RIGHT and PREC
+	keywords.
+
+	(semantic-bnf-token-assoc-terms): New macro to return the list of
+	terminal names from an 'assoc token.
+
+	(semantic-bnf-to-lalr, semantic-bnf-matching-to-lalr): Updated to
+	produce new Wisent grammar format.
+
+	(semantic-bnf-find-terminal-assocs): New function to return
+	associativity rules of terminals.
+
+2001-09-06  ponced  <ponced@choochoo>
+
+	* wisent/wisent.el (wisent--action-table, wisent--nitems, wisent--nrules, wisent--nvars,wisent--nterms, wisent--nstates):
+	Doc strings.
+
+	(wisent--rules, wisent--conflicts-by-state, wisent--conflicts): New
+	variables.
+
+	(wisent-terminal-symbol, wisent-item-symbol): New functions to get
+	symbol value from respectively a terminal ID and an item number.
+
+	(wisent-log-starts, wisent-log-nullables, wisent-log-rules,
+	wisent-log-conflicts, wisent-log-rr-conflict, wisent-log-sr-conflict):
+	New logging functions.
+
+	(wisent-show-nullable, wisent-show-starts): Removed.  Replaced by
+	respectively `wisent-log-nullables' and `wisent-log-starts'.
+
+	(wisent-add-action): Doc string.  Use `wisent-log-rr-conflict' and
+	`wisent-log-sr-conflict' to log conflicts.
+
+	(wisent-build-states): Doc string.  Initialize `wisent--conflicts' and
+	`wisent--conflicts-by-state'.
+
+	(wisent-build-tables): Setup `wisent--rules'.  Removed call to
+	`wisent-show-nullable' and `wisent-show-starts'.  Log conflicts and
+	grammar stuff after the parser tables have been built.
+
+2001-09-03  ponced  <ponced@choochoo>
+
+	* senator.el (senator-show-status):
+	Emacs 21.0.105 compatibility change.  Set
+	`senator-mode' local-map property to `mode-line-minor-mode-keymap'.
+	The function `make-mode-line-mouse2-map' no more exists in 21.0.105.
+
+	(senator-mode-line-toggle): Removed because of new mode line design
+	for minor mode in GNU Emacs 21.0.105.
+
+	* wisent/wisent-java.el (wisent-java-parser-tables, wisent-java-default-setup):
+	BNF update.
+
+	(wisent-java-lex): No more raise an error when it finds a
+	`semantic-flex' token not yet used by the parser.  Return a valid
+	lexical token instead and let the parser handle it.
+
+	(wisent-java-get-local-variables): New function.  Java specific
+	'get-local-variables' override that uses the LALR parser.
+
+	* wisent/wisent-java.bnf: In setup:
+
+	Added 'field_declarations_opt' %start nonterminal.
+	'get-local-variables' override: replaced
+	`semantic-java-get-local-variables' by
+	`wisent-java-get-local-variables'.
+
+	In grammar:
+
+	Added 'field_declarations_opt', `field_declarations' and
+	`field_declaration_maybe' nonterminals used to parse method and
+	constructor local variables.
+
+	* wisent/wisent-bovine.el (wisent-bovinate-from-nonterminal-full):
+	New function, counterpart of
+	`semantic-bovinate-from-nonterminal-full' for the LALR parser.
+
+2001-08-31  ponced  <ponced@choochoo>
+
+	* wisent/wisent-java.el (wisent-java-parser-tables):
+	BNF update.
+
+	* wisent/wisent-java.bnf: In grammar:
+
+	Removed all "(identity $1)" semantic actions and "()" ones in EMPTY
+	matches as they are now the defaults.  Moved call to
+	`wisent-java-expand-nonterminal' from 'field_declaration' production
+	in 'class_member_declaration' non terminal to 'field_declaration' non
+	terminal.  So re-parsing at `field_declaration' produces valid
+	Semantic tokens.
+
+	* wisent/wisent-bovine.el (wisent-token):
+	Added 'reparse-symbol property to token.
+
+	(wisent-bovinate-nonterminal): Only keep valid Semantic tokens from
+	data returned by the LALR parser.  When parser fails it returns the
+	top element of its value stack as it is.  This let a chance to get any
+	valid tokens pushed into the stack before the failure.  But at some
+	point the top of stack element can contain a garbage value.  So this
+	fix!
+
+	(wisent-rebovinate-token): New function to re-parse a token.
+
+	(wisent-bovinate-toplevel): Now handle partial re-parse!
+
+	(semantic-bovinate-toplevel): New advice to delegate bovination to
+	`wisent-bovinate-toplevel' if defined in
+	`semantic-bovinate-toplevel-override'.  Currently necessary to let
+	`wisent-bovinate-toplevel' handle partial re-parse because
+	`semantic-bovinate-toplevel' always clears existing tokens before
+	calling `semantic-bovinate-toplevel-override'!
+
+2001-08-30  ponced  <ponced@choochoo>
+
+	* wisent/wisent-bovine.el (wisent-bovinate-nonterminal, wisent-bovinate-toplevel):
+	Moved overlay
+	setup to `wisent-bovinate-toplevel '.
+
+	* wisent/wisent-java.bnf:
+	In setup, added lexer used by the LALR parser and call to
+	`semantic-java-doc-setup'.
+
+	* wisent/wisent-java.el:
+	Use wisent-bovine.el gateway.
+
+	(semantic-flex-token-value, semantic-flex-token-key): Removed.  Now in
+	wisent-bovine.el.
+
+	(wisent-java-lex-istream): Removed.
+
+	(wisent-java-lex): Use `wisent-flex-istream' instead of
+	`wisent-java-lex-istream'.  Removed `working' stuff now provided in
+	wisent-bovine.el gateway.
+
+	(wisent-java-bovinate-toplevel): Removed.  Replaced by
+	`wisent-bovinate-toplevel' in wisent-bovine.el gateway.
+
+	(wisent-java-default-setup): BNF update.
+
+	(wisent-java-parse, wisent-java-lex-buffer): Removed.
+
+	* wisent/wisent.el (wisent-token):
+	Removed.  Now in wisent-bovine.el.
+
+	* wisent/wisent-bovine.el:
+	Initial revision of the Wisent - Semantic gateway.
+
+	* wisent/wisent-expr.el:
+	Removed version number from header.
+
+2001-08-30  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-ctxt.el:
+	(semantic-up-context, semantic-beginning-of-context,
+	semantic-end-of-context, semantic-get-local-variables,
+	semantic-get-local-arguments, semantic-get-all-local-variables,
+	semantic-ctxt-current-symbol, semantic-ctxt-current-assignment,
+	semantic-ctxt-current-function, semantic-ctxt-current-argument):
+	Fixed bug going to (point) instead of `point'.
+	(semantic-get-local-variables): deoverlay the local variables.
+	(semantic-get-local-variables-default): Move to the beginning of the
+	current context before parsing.
+
+2001-08-30  ponced  <ponced@choochoo>
+
+	* wisent/wisent-java.el (wisent-java-default-setup):
+	BNF Update.
+
+	* wisent/wisent-java.bnf:
+	In setup, override `get-local-variables' with
+	`semantic-java-get-local-variables'.
+
+	* semantic-java.el (semantic-java-get-local-variables):
+	New function.  Java specific
+	`get-local-variables' override.
+
+	(semantic-default-java-setup): Override `get-local-variables' with
+	`semantic-java-get-local-variables'.
+
+2001-08-28  ponced  <ponced@choochoo>
+
+	* semantic.texi:
+	Synchronized with semantic.el doc fixes.
+
+	Added missing documentation for
+	`semantic-after-toplevel-cache-change-hook' and documented new hook:
+	`semantic-after-partial-cache-change-hook'.
+
+	* semantic.el (semantic-after-partial-cache-change-hook):
+	Fixed doc string.
+
+	(semantic-remove-dirty-children-internal): Moved.
+
+	(semantic-remove-dirty-children): Moved.  Now remove all children of
+	dirty tokens from `semantic-dirty-tokens'.
+
+	(semantic-bovinate-toplevel): Call `semantic-remove-dirty-children'
+	before partial reparse.  Pass the list of updated tokens to hooks in
+	`semantic-after-partial-cache-change-hook'.
+
+	(semantic-rebovinate-token): No more need to call
+	`semantic-remove-dirty-children'.
+
+2001-08-27  ponced  <ponced@choochoo>
+
+	* semantic.el (semantic-clean-token-hooks, semantic-change-hooks,semantic-after-toplevel-bovinate-hook,semantic-before-toplevel-cache-flush-hook):
+	Fixed doc strings.
+
+	(semantic-after-partial-cache-change-hook): New variable holding hooks
+	run after the buffer token list has been updated after partial reparse
+	completed.
+
+	(semantic-bovinate-toplevel): Run hooks in
+	`semantic-after-partial-cache-change-hook' after partial reparse
+	completed.
+
+	* senator.el (senator-minor-mode-name):
+	Can be set to nil to disable display of the
+	minor mode name in the mode line.
+
+	(senator-minor-mode-isearch-suffix): New option to set up the string
+	appended to the mode name when senator isearch mode is on.
+
+	(senator-minor-mode-hook, senator-minor-mode-on-hook,
+	senator-minor-mode-off-hook): Moved to group minor mode options
+	together.
+
+	(senator-menu-bar): For consistency always use "Senator" for the menu
+	title.
+
+	(senator-show-status): Use `senator-minor-mode-name' and
+	`senator-minor-mode-isearch-suffix' settings.
+
+	(senator-minor-mode-setup): Signal an error when attempting to turn on
+	Senator minor mode in a buffer not set up for parsing.
+
+	(senator-show-status, senator-mode-line-toggle): New GNU Emacs 21
+	goodies to turn off Senator minor mode from the mode line or to turn
+	it on or off from the the minor mode menu in the mode line.
+
+2001-08-22  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-el.el (semantic-elisp-clos-slot-property-string,semantic-elisp-clos-args-to-semantic):
+	New functions
+	(semantic-elisp-form-to-doc-string): extract class slot details with
+	above.
+	(semantic-elisp-nonterminal-protection): New function.
+	(semantic-default-elisp-setup): Remove old UML overrides, added
+	`nonterminal-protection' override.
+
+2001-08-21  ponced  <ponced@choochoo>
+
+	* wisent/wisent.el:
+	Updated header comments.
+
+	(wisent-default-action, wisent-process-nonterminal): Bison like
+	default action.
+
+	(wisent-compile-grammar, wisent-parse): Updated doc strings.
+
+2001-08-18  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-c.el: New c.bnf 1.40
+	(semantic-expand-c-nonterminal): Handle 'pointer stuff for variables.
+	(semantic-c-reconstitute-token): Handle 'pointer stuff for functions.
+
+	* c.bnf:
+	Fixed the inclusion of * in variables and functions.
+
+2001-08-17  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* tests/test.cpp:
+	Added test for protected section in a class.
+
+	* tests/test.c: "register" test.
+	Last fn has situations for testing local context.
+
+	* Project.ede: Version change.
+
+	* semantic.el (semantic-version): Update
+	(semantic-toplevel-bovine-table): Removed main help on this variable,
+	the details are in the texinfo manual now.
+
+	* semantic.texi:
+	Added a section on Extra Specifiers
+
+	* semantic-util.el (semantic-override-table):
+	Doc udpate.
+
+	* semantic-c.el: New c.bnf (1.39)
+	(semantic-c-nonterminal-protection): Fix default protection based on
+	class or struct.
+	(semantic-default-c-setup): Added `semantic-c-nonterminal-protection'
+	to the list of function overrides.
+
+	* c.bnf: Added register.
+	Added template w/ comment, but don't use it.
+
+2001-08-17  ponced  <ponced@choochoo>
+
+	* wisent/wisent-java.el (semantic-java-lex):
+	Reverted back to previous implementation used
+	to find operator lexical tokens.  The regexp based approach is
+	slower.
+
+	(wisent-java-operator-regexp): Removed.
+
+2001-08-16  ponced  <ponced@choochoo>
+
+	* wisent/wisent-java.el:
+	Reorganized the code to fix byte-compilation problems.
+
+	* wisent/wisent-java.el (wisent-java-number-regexps):
+	Removed.  Replaced by
+	`wisent-java-number-regexp'.
+
+	(wisent-java-number-regexp): New constant.  Regular expression to
+	match Java numbers.
+
+	(wisent-java-operator-regexp): New constant.  Regular expression to
+	match Java operators.
+
+	(wisent-java-lex): Improved lexical analysis of Java numbers and
+	operators.  Use `wisent-java-number-regexp' and
+	`wisent-java-operator-regexp' to do one shot check for a number or
+	operator lexeme.
+
+2001-08-15  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.texi:
+	Added a style guide chapter, with lots of details about different
+	tokens, and whats in them.
+
+2001-08-14  ponced  <ponced@choochoo>
+
+	* wisent/wisent-java.bnf:
+	Updated %outputfile to wisent-java.el and %parsetable to
+	`wisent-java-parser-tables'.  Added %start tokens for alternate entry
+	point nonterminals.
+
+	* wisent/wisent.el (wisent-compiled-grammar-p):
+	New function to check if grammar is
+	already compiled.
+
+	(wisent-compile-grammar): Use `wisent-compiled-grammar-p' to check if
+	the grammar is already compiled.  If so just return it.
+
+	* wisent/wisent-java.el:
+	Clean byte-compilation.
+
+	(wisent-java-grammar, wisent-java-parens, wisent-java-operators):
+	Removed.  Replaced by respectively `wisent-java-parser-tables' and
+	`wisent-java-tokens'.
+
+	(wisent-java-parser-tables): Generated from wisent-java.bnf.
+
+	(wisent-java-keywords, wisent-java-tokens): New constants for Java
+	keywords and lexical tokens.  Generated from wisent-java.bnf.
+
+	(semantic-flex-token-value, semantic-flex-token-key): New functions to
+	search in the token table.  These two functions should be moved to
+	semantic.el.
+
+	(wisent-java-lex): Use lexical stuff generated from wisent-java.bnf.
+
+	(wisent-java-bovinate-toplevel): Use local value of
+	`semantic-toplevel-bovine-table' instead of
+	`wisent-java-parser-tables'.
+
+	(wisent-java-mode-hook): Removed.  Replaced by
+	`wisent-java-default-setup'.
+
+	(wisent-java-default-setup): New `java-mode' hook to setup the
+	Semantic environment of the LALR parser.  Partly generated from
+	wisent-java.bnf.  It replaces the default
+	`semantic-default-java-setup' hook when wisent-java.el is loaded.
+
+	(wisent-java-parse, wisent-java-lex-buffer): Use local value of
+	`semantic-toplevel-bovine-table' instead of
+	`wisent-java-parser-tables'.
+
+	* semantic-bnf.el (semantic-bnf-to-lalr):
+	Added new argument for alternate entry point
+	nonterminals.  Now generate parser tables like this:
+
+	  (eval-when-compile
+	     (wisent-compile-grammar
+	        `<grammar>
+	        '<start-nonterminals>))
+
+	Thus the parser tables are compiled into the byte-code when the
+	destination file source is byte-compiled.
+
+	(semantic-bnf-generate-and-load): Pass the list of 'start tokens to
+	`semantic-bnf-to-lalr'.
+
+2001-08-13  ponced  <ponced@choochoo>
+
+	* wisent/wisent-java.el (wisent-java-lex):
+	Fixed (wrong-type-argument integer-or-marker-p nil)
+	when scanning a number at end of input stream.
+
+	(wisent-java-lex-buffer): Fixed error caused by missing `working'
+	stuff.
+
+	* wisent/wisent.el (wisent-starts-nonterm):
+	New constant for secondary entry point
+	productions.
+
+	(wisent-reserved-symbols): Removed '$<name>' nonterminals which are
+	now automatically reserved for internal use.
+
+	(wisent-show-nullable): Insert newline before title.
+
+	(wisent-show-starts): New function to report entry point
+	nonterminals.
+
+	(wisent-valid-nonterminal-p): '$<name>' nonterminals are now
+	automatically reserved for internal use.
+
+	(wisent-valid-terminal-p): Use `wisent-valid-nonterminal-p'.
+
+	(wisent-build-tables): Add the table of defined entry point
+	nonterminals to the parser tables.
+
+	(wisent-process-grammar): New optional argument to specify a list of
+	entry point nonterminals.  Build the table of entry point nonterminals
+	and add the corresponding start productions to the grammar definition.
+
+	(wisent-compile-grammar): New optional argument to specify a list of
+	entry point nonterminals.
+
+	(wisent-parse-start): New function to return the first lexical token
+	to parse.
+
+	(wisent-parse): New argument to specify the nonterminal production
+	used at parser initial state.  So the parser can now use grammar
+	subsets.
+
+	* semantic-bnf.el (semantic-bnf-find-table-destination-old,semantic-bnf-find-table-destination,semantic-bnf-find-keyword-destination):
+	Fixed "def[var|const]" regular
+	expression to ensure that the searched variable or constant name is on
+	word boundaries.
+
+	* wisent/wisent.el:
+	New customization group `wisent'.  Minor code reorganization.
+
+	(wisent-parse-max-stack-size, wisent-parse-max-recover,
+	wisent-state-table-size): Now customizable.
+
+	* wisent/wisent-java.bnf:
+	Fixed %keywordtable variable name.
+	Added install of overloaded functions in setup.
+	Use @tag notation for the javadoc keywords to avoid conflicts with
+	language reserved words.
+
+	* semantic-bnf.el (semantic-bnf-token-table):
+	Added declaration of local variable tsymb.
+
+	(semantic-beginning-of-body): New function to move the point to the
+	beginning of a function body.
+
+	(semantic-bnf-find-setup-code): Use `semantic-beginning-of-body' to
+	insert new setup code at the beginning of the setup function.
+
+	(semantic-bnf-find-table-destination-old,
+	semantic-bnf-find-table-destination,
+	semantic-bnf-find-keyword-destination,
+	semantic-bnf-find-token-destination): Fixed "def[var|const]" regular
+	expression to ensure that the searched variable or constant name is on
+	word boundaries.
+
+2001-08-12  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-ctxt.el (semantic-narrow-to-context, semantic-with-buffer-narrowed-to-context,semantic-point-at-beginning-of-command,semantic-point-at-end-of-command, semantic-narrow-to-command,semantic-with-buffer-narrowed-to-command):
+	New functions.
+	(semantic-end-of-command, semantic-beginning-of-context):
+	Narrow to current context.
+	(semantic-end-of-command-default, semantic-beginning-of-context-default):
+	Use a search, and if that fails go to point-[min/max].
+	(semantic-ctxt-current-assignment-default): Narrow to current statement.
+	Use searching functions for an equals.
+
+2001-08-12  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-ctxt.el (semantic-narrow-to-context, semantic-with-buffer-narrowed-to-context,semantic-point-at-beginning-of-command,semantic-point-at-end-of-command, semantic-narrow-to-command,semantic-with-buffer-narrowed-to-command):
+	New functions.
+	(semantic-end-of-command, semantic-beginning-of-context):
+	Narrow to current context.
+	(semantic-end-of-command-default, semantic-beginning-of-context-default):
+	Use a search, and if that fails go to point-[min/max].
+	(semantic-ctxt-current-assignment-default): Narrow to current statement.
+	Use searching functions for an equals.
+
+2001-08-10  ponced  <ponced@choochoo>
+
+	* semantic-java.el (semantic-java-keyword-table):
+	Updated BNF grammar.
+
+	(semantic-java-doc-tag, semantic-java-doc-tag-name): New functions to
+	convert to/from javadoc @tag notation.
+
+	(semantic-java-doc-keyword-before-p, semantic-java-doc-keywords-map,
+	semantic-java-doc-setup): Take into account new @tag notation used for
+	javadoc keywords.
+
+	* java.bnf:
+	Use @tag notation for the javadoc keywords to avoid conflicts with
+	language reserved words.
+
+2001-08-09  ponced  <ponced@choochoo>
+
+	* wisent/wisent-java.bnf:
+	Initial revision.
+
+	* semantic-bnf.el (semantic-bovine-bnf-table, semantic-bnf-keyword-table):
+	Added new
+	TOKENTABLE and PARSERMODE keywords.
+
+	(semantic-bnf-token-name-symbol, semantic-bnf-token-token-type,
+	semantic-bnf-token-token-value, semantic-bnf-token-rule-matchlist):
+	New API macros/functions.
+
+	(semantic-bnf-matching-to-lalr, semantic-bnf-terminal-token-p,
+	semantic-bnf-find-terminals, semantic-bnf-find-terminal-symbols,
+	semantic-bnf-to-lalr, semantic-bnf-find-parser-mode): New functions to
+	generate tables for the LALR parser.
+
+	(semantic-bnf-token-table, semantic-bnf-find-token-destination): New
+	functions to generate a table of %token elements.
+
+	(semantic-bnf-generate-and-load): Take into account new %tokentable
+	and %parsermode declarations.  Added generation of tables for the LALR
+	parser.
+
+	(semantic-bnf-mode-keywords): Correctly highlight rule name when the
+	colon is on a new line.
+
+	(semantic-bnf-mode): Added specification of the
+	`fill-paragraph-function'.
+
+	(semantic-bnf-previous-colon-indentation): Improved indentation of
+	rules when the colon and the matching list are on new lines.
+
+	(semantic-bnf-fill-paragraph): New function to fill BNF comments.
+
+2001-08-08  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* tests/test.cpp:
+	Added a reentrant example.
+
+	* tests/test.c:
+	Added typedef which was reported as not working.
+
+	* semantic-sb.el (semantic-sb-button-token->text-function, semantic-sb-info-token->text-function):
+	New options.
+	(semantic-sb-one-button): Use above to get abbreviation text.
+
+2001-08-04  ponced  <ponced@choochoo>
+
+	* senator.el (senator-eldoc-print-current-symbol-info-default):
+	Fixed void-variable
+	error on `semanticdb-current-database' when the optional semanticdb
+	feature is not provided.
+
+2001-08-04  ponced  <ponced@choochoo>
+
+	* senator.el (senator-eldoc-print-current-symbol-info-default):
+	Fixed void-variable
+	error on `semanticdb-current-database' when the optional semanticdb
+	feature is not provided.
+
+2001-08-02  ponced  <ponced@choochoo>
+
+	* wisent/wisent.el (wisent-skip-token, wisent-skip-block):
+	Do not clear the lookahead
+	token nor call `wisent-errok' when at end of input to avoid infinite
+	error recovery loop.
+
+	(wisent-parse): Always return the value on top of the stack.  Maybe it
+	is a useful value when the parser returns after error recovery.
+
+	* wisent/wisent-java.el (wisent-java-parse):
+	Fixed missing `working' stuff.
+
+2001-08-02  ponced  <ponced@choochoo>
+
+	* wisent/wisent.el (wisent-skip-token, wisent-skip-block):
+	Do not clear the lookahead
+	token nor call `wisent-errok' when at end of input to avoid infinite
+	error recovery loop.
+
+	(wisent-parse): Always return the value on top of the stack.  Maybe it
+	is a useful value when the parser returns after error recovery.
+
+	* wisent/wisent-java.el (wisent-java-parse):
+	Fixed missing `working' stuff.
+
+2001-08-01  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-c.el: New c.bnf.
+	(semantic-c-reconstitute-token): Added reentrant support.
+
+	* c.bnf: Support reentrant.
+
+2001-07-21  ponced  <ponced@choochoo>
+
+	* wisent/wisent-java.el:
+	Removed redefinitions of Semantic Flex functions which are now in
+	semantic.el.
+
+	(wisent-java-bovinate-toplevel): Added "LALR" indicator to
+	`working-status-forms' message to distinguish LALR parsing from
+	default Semantic one.
+
+2001-07-20  ponced  <ponced@choochoo>
+
+	* semantic.el (semantic-flex-keyword-p, semantic-flex-buffer, semantic-flex-start,semantic-flex-end, semantic-flex-text, semantic-flex-list):
+	Use
+	`defsubst' instead of `defun' to improve performance of byte compiled
+	code.
+
+2001-07-20  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* Project.ede: Version update.
+
+	* semantic.el: Update version to beta 9
+
+	* semantic.texi:
+	Added bits about getting destructor information, and about
+	semantic-current-nonterminal-parent.
+
+	* semantic-util.el (semantic-name-nonterminal-default):
+	Only get destructor flag if TOKEN
+	 is a function.
+
+	* semanticdb.el (semanticdb-find-nonterminal-by-token):
+	New fn by Jesper Nordenberg
+
+	* semantic-c.el:
+	Return public for the protection on any class part which is unlabeled.
+
+	* semantic-el.el: Support uml prototypes.
+
+2001-07-20  ponced  <ponced@choochoo>
+
+	* wisent/wisent.el:
+	Initial import of the Semantic LALR parser: Wisent.
+
+	* wisent/wisent.el: New file.
+
+	* wisent/wisent-java.el:
+	Initial import of the Semantic LALR parser: Wisent.
+
+	* wisent/wisent-java.el: New file.
+
+	* wisent/wisent-expr.el:
+	Initial import of the Semantic LALR parser: Wisent.
+
+	* wisent/wisent-expr.el: New file.
+
+2001-07-19  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-util.el (semantic-concise-prototype-nonterminal-default):
+	Add spaces before (,
+	and after ,
+	(semantic-uml-colon-string, semantic-uml-no-protection-string): New Var
+	(semantic-uml-protection-to-string): Return no-protection-string, more
+	doc.
+	(semantic-uml-arguments-to-string): Add some spaces into the text.
+	(semantic-uml-prototype-nonterminal-default,
+	 semantic-uml-concice-prototype-nonterminal-default): Use
+	 -uml-colon-string.
+
+	* semantic.el (semantic-toplevel-bovine-table):
+	Added text for the destructor.
+
+	* semantic-util.el (semantic-token-function-destructor):
+	New function
+	(semantic-current-nonterminal-parent): New function
+	(semantic-name-nonterminal-default): Handle destructor.
+	(semantic-uml-arguments-to-string): Pass arguments into mapconcat.
+	(semantic-uml-prototype-nonterminal-default): Fixed argument display
+	to not use non-uml prototype to string function, and added support
+	for types.
+
+	* semantic-util.el (semantic-token->text-functions):
+	Added uml-concise... funciton.
+	(semantic-uml-protection-to-string): Return nil for unknown protection.
+	(semantic-uml-token-or-string-to-string): Convert a token or string
+	into a UML like string.  Taken from the body of
+	`semantic-uml-abbreviate-nonterminal-default'.
+	(semantic-uml-abbreviate-nonterminal-default): Use the above.
+	(semantic-uml-arguments-to-string): Convert an argument list to a UML
+	string list.  Use in above.
+	(semantic-uml-prototype-nonterminal-default): Use the above two new fns.
+	(semantic-uml-concise-prototype-nonterminal[-default]): New functions
+	(semantic-nonterminal-protection-default): Remove static from list of
+	modifiers that mean private.
+
+2001-07-13  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-util.el (semantic-token-modifiers):
+	New function.
+	(semantic-uml-prototype-nonterminal): New function.
+	(semantic-token->text-functions): Added above function.
+	(semantic-face-alist): Added keyword font face, and more doc.
+	(semantic-uml-protection-to-string): New function from
+	  semantic-utml-abbreviate-nonterminal-default.
+	(semantic-abbreviate-nonterminal-default): Use above fn.
+	(semantic-nonterminal-protection): Swap out friend, use protected.
+	(semantic-nonterminal-protection-default): Use
+	  `semantic-token-modifiers' instead of
+	  `semantic-token-type-modifiers'.
+
+	* senator.el (senator-jump):
+	Push the mark before moving.
+
+	* semantic-el.el:
+	Highlight &optional in prototypes with the keyword face.
+
+	* semantic-c.el:
+	Stop using friend, and use protected.
+
+	* semantic.el: Updated version number.
+
+2001-06-11  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.texi (semantic-token-type-parent):
+	Describe the format of the parent list.
+	(semantic-token-type-parent-superclass,
+	semantic-token-type-parent-implement): New function doc.
+
+	* semantic.el (semantic-toplevel-bovine-table):
+	Doc fix.
+
+	* semantic-util.el (semantic-token-type-parent):
+	Describe the format of the parent list.
+	(semantic-token-type-parent-superclass,
+	semantic-token-type-parent-implement): New functions.
+
+2001-06-06  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* tests/Project.ede:
+	Project file for the tests directory.
+
+2001-06-05  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-c.el (semantic-default-c-path, semantic-default-c-built-in-types):
+	Moved
+	(semantic-c-nonterminal-protection): New function
+	(semantic-default-c-setup): Add an override table with above in it.
+
+	* semantic.texi (semantic-override-table):
+	Doc update.
+	(semantic-nonterminal-protection): New doc.
+
+	* semantic-util.el (semantic-override-table):
+	Doc update.
+	(semantic-uml-abbreviate-nonterminal-default): Display protection symbol
+	(semantic-nonterminal-protection, semantic-nonterminal-protection-default):
+	  New functions.
+
+2001-06-03  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.el (semantic-toplevel-bovine-cache):
+	Doc fix.
+	(semantic-after-toplevel-bovinate-hook): Doc fix.
+	(semantic-after-toplevel-cache-change-hook): Doc fix.
+
+	* semanticdb.el (semanticdb-post-bovination):
+	Update to take a parameter.
+
+	* Project.ede: Updated version.
+
+	* semanticdb.el (semanticdb-hooks):
+	Use `semantic-after-toplevel-cache-change-hook'
+	instead of `semantic-after-toplevel-bovinate-hook'.
+
+	* semantic.el (semantic-version):
+	New version
+	((semantic-toplevel-bovine-cache): Doc change.
+	(semantic-after-toplevel-cache-change-hook): New hook.
+	(semantic-clear-toplevel-cache): Do not call
+	`semantic-after-toplevel-bovineate-hook' for 1.3 compatibility.
+	Do call `semantic-after-toplevel-cache-change-hook'.
+	(semantic-bovinate-toplevel): Do not call
+	`semantic-after-toplevel-bovinate-hook' after custom parser.
+	Call `semantic-after-toplevel-cache-change-hook' after full parse.
+
+	* tests/test.cpp:
+	Added new features of c.bnf 1.37.
+
+	* semantic-c.el: New c.bnf
+	Add throws to semantic-c-reconstitute-token.
+	Add `throw' keyword.
+
+	* c.bnf: Multi-inheritance for classes.
+	Structs like classes for C++.
+	No ; on name spaces.
+	Throws for methods.
+	(Bugs & patches from "Jesper Nordenberg" <mayhem@home.se>
+	and Norbert Lindlbauer <Norbert_Lindlbauer@betaresearch.de>)
+
+2001-05-29  ponced  <ponced@choochoo>
+
+	* semantic.el (semantic-remove-dirty-children,semantic-remove-dirty-children-internal):
+	New functions.
+
+	(semantic-rebovinate-token): Fixed "wrong-type-argument overlayp" bug.
+	Use `semantic-remove-dirty-children' to remove the old token children
+	from the dirty list before deorverlaying it.
+
+2001-05-28  ponced  <ponced@choochoo>
+
+	* semantic-java.el (semantic-java-skip-spaces-backward,semantic-java-skip-spaces-forward):
+	Changed definition from macro to
+	more appropriate in-line function.
+
+2001-05-25  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-c.el: New c.bnf.
+
+	* c.bnf (expression): Added string.
+
+2001-05-24  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* working.el:
+	Removed variables to stop message logging from working.*status fns.
+	This was a merge error.
+
+2001-05-23  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-scm.el: New scheme.bnf
+
+	* scheme.bnf:
+	Fixed type on LOAD token generation.
+
+	* working.el: Updated version number.
+	(working-status-percentage-type, working-status-dynamic-type): added nil option
+	(working-percentage-step): New variable.
+	(working-last-percent): New variable.
+	(working-message): Added `eval-and-compile' around it.
+	(working-status-forms): Added `working-last-percent' to let statement.
+	(working-status): Wrap body of code in an if statement to make sure
+	we only display a message if `working-percentage-step' had passed.
+	Enable nil message type.
+	(working-dynamic-status): Enable nil message type.
+
+	* tests/test.c: Test parsing of C files.
+
+2001-05-23  ponced  <ponced@choochoo>
+
+	* semantic-java.el:
+	Require 'senator at compile time.
+	(semantic-default-java-setup): Rebuilt from updated java.bnf.
+
+	* java.bnf:
+	Added `senator-step-at-token-ids' useful default value in language
+	settings.
+	Removed in line CVS change log.
+
+	* senator.el (senator-message):
+	Removed. Replaced by new `working-message'
+	function.
+
+	(senator-step-at-parent): Now returns the outermost parent found
+	instead of the innermost one.
+
+	(senator-next-token, senator-previous-token, senator-jump,
+	senator-beginning-of-defun, senator-isearch-toggle-semantic-mode): Use
+	`working-message'.
+
+	* working.el (working-message-emacs, working-message-xemacs, working-message):
+	New
+	functions to display messages without logging.
+
+	(working-status, working-dynamic-status): Use `working-message'.
+
+2001-05-21  ponced  <ponced@choochoo>
+
+	* senator.el (senator-message):
+	No more logging of messages on XEmacs.
+
+	(senator-find-token-before, senator-find-previous-token,
+	senator-find-last-token, senator-find-next-token): Removed these
+	no more used functions.
+
+	(senator-step-at-parent, senator-previous-token-or-parent): New
+	functions.
+
+	(senator-next-token, senator-previous-token): New implementation
+	based on `semantic-find-nonterminal-by-overlay-next' and
+	`semantic-find-nonterminal-by-overlay-prev'.
+
+	(senator-beginning-of-defun): Fixed the bad
+	`senator-step-at-start-end-token-ids' value.  Ensure that the
+	point is always at the beginning of the previous token found.
+
+	(senator-beginning-of-defun, senator-end-of-defun): Doc string
+	updated to inform that the ARG parameter is not yet handled.
+
+2001-05-20  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* Project.ede: Fixed name.
+	Added URLs
+
+2001-05-18  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-util.el (semantic-find-documentation):
+	Fixed to handle deoverlayed (from db)
+	cases, plus normalized cases of slots in structs without position info.
+
+2001-05-16  ponced  <ponced@choochoo>
+
+	* senator.el (senator-insert-foreign-token-default, senator-insert-foreign-token,senator-eldoc-print-current-symbol-info-default,senator-eldoc-print-current-symbol-info):
+	Functions moved to avoid
+	compiler warnings.
+
+2001-05-16  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* INSTALL:
+	Added info about adding speedbar to the load path.
+
+	* semantic.el: Update version number.
+
+2001-05-15  ponced  <ponced@choochoo>
+
+	* senator.el (senator-completion-flatten-stream):
+	No more add function arguments to
+	the completion stream.
+
+	(senator-completion-function-args): New function to build a string of
+	function argument names.
+
+	(senator-completion-refine-name): New function to refine a token
+	completion name in an incremental way.
+
+	(senator-completion-uniquify-names): New function to uniquify token
+	names in a completion stream.
+
+	(senator-completion-stream): Use `senator-completion-uniquify-names'.
+
+2001-05-14  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.texi:
+	Added new submenus for override functions, with big special detail
+	about token->text functions.
+
+	* semantic-imenu.el:
+	Make sure that semantic-sb is loaded when this is loaded.
+	Not because we needed it, but because speedbar will throw errors
+	with semantic generated imenu tokens.
+
+2001-05-12  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.el (semantic-bovinate-nonterminal):
+	When calculating the results, if
+	there was no match, then the result stream equals the input stream, so
+	remove the non-matching token from the return stream, claiming that
+	nothing matched.  This prevents repetitive parsing.
+	(semantic-flex): If the comment-start-skip is matched, but
+	forward-comment does nothing, then make sure we skip intervening
+	boring characters so we don't loop infinitly.
+
+2001-05-09  ponced  <ponced@choochoo>
+
+	* semanticdb.el (semanticdb-current-database-list):
+	Fixed `expand-file-name' bug when
+	`root' local variable is nil.
+
+2001-05-09  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* Project.ede: Version & files.
+
+	* semantic-c.el: New c.bnf
+
+	* c.bnf: Added inline method support.
+	Store protection elements
+	Change enum parts to be integer variables.
+
+2001-05-07  ponced  <ponced@choochoo>
+
+	* semantic-util.el (semantic-prototype-nonterminal-default):
+	Fixed extra space added
+	before the name of simple tokens like 'include and 'package.
+
+	* semantic-java.el (semantic-java-prototype-function, semantic-java-prototype-variable,semantic-java-prototype-type):
+	Follows `semantic-colorize-text' API
+	change.
+
+	(semantic-java-prototype-include, semantic-java-prototype-package):
+	Removed these unnecessary functions.
+
+2001-05-07  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-el.el (semantic-elisp-prototype-nonterminal):
+	Changed with `semantic-colorize-text'.
+
+	* semantic-bnf.el (semantic-bnf-mode):
+	Removed `name-nonterminal' override.
+	Added new values to `semantic-face-alist'
+	(semantic-bnf-name-nonterminal): Removed.
+	(semantic-summarize-nonterminal): Changed with `semantic-colorize-text'.
+
+	* semantic-util.el (semantic-prototype-nonterminal):
+	Pass parent/color to subfunction.
+
+	* semantic-util.el (semantic-colorize-text):
+	Take a token as a face class instead of a face.
+	(semantic-face-alist): New.
+	(semantic-name-nonterminal): Doc fix.
+	(semantic-name-nonterminal-default): Use face-class.
+	(semantic-prototype-nonterminal): Doc fix.
+	(semantic-prototype-nonterminal-default): Use face-class.
+	(semantic-concise-prototype-nonterminal): Doc fix
+	(semantic-concise-prototype-nonterminal-default): Use face-class.
+	(semantic-uml-abbreviate-nonterminal): Doc fix
+	(semantic-uml-abbreviate-nonterminal-default): Use face-class.
+
+2001-05-07  ponced  <ponced@choochoo>
+
+	* semantic-java.el (semantic-java-prototype-function, semantic-java-prototype-variable,semantic-java-prototype-type):
+	Added implementation for the COLOR
+	parameter.
+
+2001-05-06  ponced  <ponced@choochoo>
+
+	* senator.el (senator-completion-menu-summary-function):
+	Use
+	`semantic-token->text-custom-list' type instead of function type.
+
+	(senator-completion-menu-insert-function): Added choice between
+	default `senator-completion-menu-insert-default' function or user's
+	specified one.
+
+	(senator-completion-menu-window-offsets): Fixed an Emacs 21 bug w/
+	completion menu.  Returned offsets are now rounded down.
+
+	(senator-eldoc-use-color): New option.
+
+	(senator-eldoc-print-current-symbol-info): Use new
+	`senator-eldoc-use-color' option.
+
+	Minor "checkdoc" fixes.
+
+	* semantic-java.el:
+	(semantic-java-prototype-function, semantic-java-prototype-variable,
+	semantic-java-prototype-type, semantic-java-prototype-include,
+	semantic-java-prototype-package, semantic-java-prototype-nonterminal):
+	Added new `semantic-prototype-nonterminal' optional parameters PARENT
+	and COLOR (not yet used).
+
+	(semantic-java-prototype-nonterminal): Replaced default behavior
+	`semantic-abbreviate-nonterminal' by
+	`semantic-prototype-nonterminal-default'. Minor code cleanup.
+
+2001-05-05  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-imenu.el:
+	Be safe about loading the imenu library.
+	(semantic-imenu-summary-function): Use new
+	`semantic-token->text-custom-list' for customization type.
+	(semantic-which-function-use-color): New variable
+	(semantic-default-which-function): Use
+	`semantic-which-function-use-color' to draw the token with colors.
+
+	* semantic-scm.el:
+	Fixed the title comment.
+
+	* semantic-load.el:
+	Do not set up imenu code if the imenu library is not available.
+
+	* semantic-bnf.el (semantic-bnf-mode):
+	Added `semantic-bnf-name-nonterminal' as a new
+	override fcn.
+	(semantic-bnf-name-nonterminal): New fcn
+	(semantic-bnf-abbreviate-nonterminal, semantic-bnf-summarize-nonterminal):
+	Use semantic-name-nonterminal for some things, accept parent/color
+	arguments.  Colorize text when appropriate.
+
+	* semantic-el.el (semantic-elisp-prototype-nonterminal):
+	Take parent/color argument.
+	Use the color argument to colorize the output text.
+
+	* semantic-util.el (semantic-override-table):
+	Doc fix.
+	(semantic-token->text-functions, semantic-token->text-custom-list): New var.
+	(semantic-name-nonterminal, semantic-name-nonterminal-default): New fcn
+	(semantic-abbreviate-nonterminal[-default]): Use semantic-name-nonterminal.
+	Added color parameter.
+	(semantic-summarize-nonterminal[-default]): Added color parameter.
+	(semantic-prototype-nonterminal[-default]): Added color parameter.
+	(semantic-concise-prototype-nonterminal[-default]): Added color parameter.
+	(semantic-uml-abbreviate-nonterminal[-defailt]): New functions
+
+	* semantic.el (semantic-version): Updated
+	(semantic-token-p): nil is a symbol, so make sure that the 'token slot
+	 in a token is not nil.
+
+2001-05-04  ponced  <ponced@choochoo>
+
+	* semantic.el (semantic-bovinate-nonterminal-check-obarray):
+	New variable to
+	remember streams already parsed for nonterminal symbols.
+
+	(semantic-set-toplevel-bovine-cache): Cleanup
+	`semantic-bovinate-nonterminal-check-obarray'.
+
+	(semantic-bovinate-nonterminal-check): New function to check if a
+	stream has already been parsed for nonterminal.
+
+	(semantic-bovinate-nonterminal): Use
+	`semantic-bovinate-nonterminal-check' to detect infinite recursion
+	when doing a full reparse and abort parsing.
+
+2001-05-02  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-c.el: New c.bnf
+
+2001-05-01  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* c.bnf:
+	Revamped lots of summary strings.
+	Added `type' as a possible expansion in classsubparts.
+
+	* document-vars.el: Checkdoc run.
+
+2001-04-30  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semanticdb.el (semanticdb-project-roots):
+	New variable
+	(semanticdb-project-root-functions): New variable
+	(semanticdb-current-database-list): New function
+	(semanticdb-find-nonterminal-by-function): Use
+	`semanticdb-current-database-list' to get list of databases if none
+	is specified.
+
+	* semantic-el.el (semantic-elisp-form-to-doc-string):
+	Fixed final cond condition.
+
+2001-04-30  ponced  <ponced@choochoo>
+
+	* java.bnf, semantic-java.el:
+	Changed "version" javadoc keyword to not optional.
+
+2001-04-28  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.el:
+	Added new documentation strings to all the reparsing related hooks to
+	be much more descriptive.
+
+	* semantic.texi: Changed the title.
+	Added new section `parser hooks', and moved  the two
+	`..reparse-needed' function doc in there, along with descriptions of
+	all the hooks, sucked from the source.
+
+	* semantic-bnf.el (semantic-bovine-bnf-table):
+	Extract buffer strings without properties.
+	Turn sublists in %put tokens into real tokens (with a symbol identifier)
+	(semantic-bnf-mode): Add `semantic-bnf-nonterminal-children' to
+	overload list.
+	(semantic-bnf-nonterminal-children): New fcn.
+
+2001-04-27  ponced  <ponced@choochoo>
+
+	* working.el (working-status, working-dynamic-status):
+	No more log progress
+	messages on Xemacs.
+
+2001-04-27  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-el.el:
+	Fixed reading of doc strings if they are not actually strings.
+
+2001-04-26  ponced  <ponced@choochoo>
+
+	* semantic-java.el (semantic-java-keyword-table):
+	reflect changes in java.bnf.
+
+	(semantic-java-clean-docstring): removed.
+
+	(semantic-java-find-documentation): use
+	`semantic-find-doc-snarf-comment' instead of
+	`semantic-java-clean-docstring'.
+
+	(semantic-java-doc-line-tags, semantic-java-doc-with-name-tags,
+	semantic-java-doc-with-ref-tags, semantic-java-doc-extra-type-tags,
+	semantic-java-doc-extra-function-tags,
+	semantic-java-doc-extra-variable-tags, semantic-java-doc-type-tags,
+	semantic-java-doc-function-tags, semantic-java-doc-variable-tags): new
+	variables to handle javadoc tags.
+
+	(semantic-java-doc-keyword-before-p, semantic-java-doc-keywords-map,
+	semantic-java-doc-setup): new functions to handle javadoc tags.
+
+	(semantic-default-java-setup): reflect changes in java.bnf. Calls
+	`semantic-java-doc-setup' to setup javadoc elements.
+
+	* java.bnf:
+	Added official javadoc line tag keywords.
+	Provided a value for `block-comment-end'.
+
+	* senator.el (senator-minor-mode, senator-minor-mode-setup):
+	Doc fix.
+
+2001-04-26  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semanticdb.el (semanticdb-kill-hook):
+	Use semantic-active-p, instead of checking for
+	the semantic table.
+
+2001-04-25  ponced  <ponced@choochoo>
+
+	* semantic.el (semantic-new-buffer-fcn, semantic-change-major-mode-hook-function,semantic-post-change-major-mode-function):
+	Fixed some problems when
+	initializing Semantic enabled buffers.
+
+	(semantic-changed-major-mode): Renamed to
+	`semantic-changed-mode-buffers'.
+
+2001-04-25  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.texi:
+	Added documentation for new functions in semantic-util, and semanticdb.
+
+	* semanticdb.el (semanticdb-current-database):
+	new function.
+	(semanticdb-find-nonterminal-by-property,
+	 semanticdb-find-nonterminal-by-extra-spec,
+	 semanticdb-find-nonterminal-by-extra-spec-value): new functions.
+	(semanticdb-find-nonterminal-by-function): Use
+	 `semanticdb-current-database' as a function, not a variable.
+
+	* semantic-util.el:
+	(semantic-find-nonterminal-by-extra-spec-value) New fcn.
+	(semantic-read-symbol) show the default value, and return it.
+
+2001-04-23  ponced  <ponced@choochoo>
+
+	* semantic-imenu.el (semantic-imenu-flush-fcn):
+	Added missing `remove-hook' local flags.
+	(semantic-create-imenu-index): Index creation could remove hook just
+	added so moved `add-hook' after index creation.
+
+	* senator.el:
+	semantic-imenu not only required at compile time.
+	(senator-momentary-highlight-face): Fixed typo.
+	(add-log-current-defun): new advice.
+
+2001-04-22  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.el:
+	Change name of old find-file-hook to semantic-new-buffer-fcn.
+	Do not call semantic-new-buffer-fcn in find-file-hook, only
+	call it from the change-major-mode-hook stuff.
+
+2001-04-21  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.texi:
+	Fixed up some docs, and added the semanticdb-persistent-path var too.
+
+	* semantic.el:
+	Changed the eval-defun function hook to be generic.
+	Changed the change-major-mode sequence to a new function which
+	  will only clear the cache in a semantic buffer.  It then tracks all
+	  buffers changed, and in a post-command-hook, follows the find-file
+	  hook code on every changed buffer.
+
+	* semantic-util.el:
+	When show-dirty-mode is on, add a rebovination into the after-save-hook.
+
+	* semantic-el.el:
+	Fixed problems with defstruct
+
+	* semantic-ctxt.el:
+	Make sure that semantic-case-fold is used for anything that uses
+	regexps with names.
+
+	* semantic-c.el: new c.bnf
+
+	* c.bnf: Spelling error for integer.
+
+	* INSTALL:
+	Fixed instructions for .emacs files.
+
+	* semanticdb.el: Small doc changes.
+	When saving a database, use condition-case to protect against
+	file errors, or file write-protection errors.  This assumes that
+	we aren't going to worry about caches in directories we can't write
+	to.
+
+2001-04-19  ponced  <ponced@choochoo>
+
+	* senator.el:
+	Added isearch lazy highlighting support for XEmacs 21.4.
+
+2001-04-13  ponced  <ponced@choochoo>
+
+	* java.bnf: Updated copyrights.
+
+2001-04-13  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-load.el:
+	Added autoload `semantic-change-function-mark-dirty
+	Add hook `semantic-change-hooks to contain above fcn.
+
+	* semantic-util.el:
+	Remove hokey semantic dependency, and explicitly depend on semantic.
+	Moved several common token access functions back into semantic.el.
+	Moved token overlay/deoverlay functions into semantic.el.
+	Moved `semantic-file-token-stream' into this file.
+	New fn `semantic-change-function-mark-dirty' to be used as
+	  a hook in `semantic-change-hooks'.
+
+	* semantic.el:
+	Stop depending on semantic-util.  Pull in the proper bits needed to
+	operate in from semantic-util.  (This makes undoes some of a previous
+	check in.)  This includes common token access, and deoverlay/overlay a
+	token functions.
+	Removed the after change function body, and call a hook.
+
+	* semantic.texi:
+	Fixed a type originally found in document.el (which created much of
+	this documetnation.)
+
+	* document.el:
+	Fixed a type-o (found by Richard Kim)
+
+2001-04-13  ponced  <ponced@choochoo>
+
+	* java.bnf: Added keyword summaries.
+
+	* semantic-java.el (semantic-java-keyword-table):
+	Added keyword summaries.
+
+2001-04-13  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-c.el: New c.bnf
+
+	* c.bnf:
+	Added built in types (void, char, etc) and summaries.
+
+	* semantic-scm.el: New scheme.bnf.
+
+	* scheme.bnf:
+	Added some summaries to tokens.
+
+	* semantic-make.el: New make.bnf
+
+	* make.bnf:
+	Added a keyword table, and several new tokens and summaries.
+	Added support for the include macro.
+
+	* INSTALL:
+	Added makefile tricks to the INSTALL process.
+
+	* semantic.texi:
+	Added semanticdb-mode-hooks.
+
+	* semantic-imenu.el:
+	Added `semantic-imenu-flush-fcn', and add it to the semanticdb-mode-hooks.
+
+	* semanticdb.el:
+	Added `semanticdb-mode-hooks', run when the global semanticdb is
+	turned on and off.
+	Removed imenu reference when toggling semanticdb on and off.
+
+2001-04-12  ponced  <ponced@choochoo>
+
+	* senator.el:
+	Eliminated lots of compile warnings.
+
+	(senator-minor-mode): No more use Emacs 21 `define-minor-mode' to
+	avoid byte code incompatibilities between Emacs 21 and previous
+	versions.
+
+2001-04-12  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* Project.ede: Version, and some naming.
+
+	* semanticdb.el:
+	Added compile time require statements.
+
+	* semantic.el:
+	Removed some compile time requirements.  Accept the errors.
+	Remove autoloads for functions defined locally.
+
+	* semantic-util.el, semantic-texi.el, semantic-scm.el, semantic-java.el, semantic-imenu.el, semantic-ctxt.el, semantic-c.el, semantic-bnf.el:
+	Added compile time require statements.
+
+2001-04-11  ponced  <ponced@choochoo>
+
+	* senator.el (senator-completion-menu-window-offsets):
+	On Emacs 21 add the window
+	left margin width to XOFFSET.
+
+2001-04-10  ponced  <ponced@choochoo>
+
+	* semanticdb.el (semanticdb-find-nonterminal-by-function):
+	Search take into account
+	the current buffer local value of `semantic-case-fold'.
+
+	* semantic-util.el (semantic-find-nonterminal-by-name,semantic-find-nonterminal-by-function,semantic-find-nonterminal-by-function-first-match):
+	Search take into
+	account the current buffer local value of `semantic-case-fold'.
+
+2001-04-09  ponced  <ponced@choochoo>
+
+	* senator.el:
+	Fixed header comments and removed inline CVS change log.
+
+	(senator-completion-menu-window-offsets): New function.
+
+	(senator-completion-menu-point-as-event): When running Emacs, use
+	`senator-completion-menu-window-offsets' to translate a point position
+	in frame coordinates.
+
+2001-04-07  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* Project.ede: More project updates.
+
+	* semantic.texi:
+	A series of cleanup items submitted by Karl Eichwalder <keichwa@gmx.net>.
+
+	* semantic-el.el:
+	Handle double parent case for quoted toplevel code.
+
+	* semantic-c.el:
+	Added equivalent modes setting from c.bnf w/ new semantic-bnf code.
+
+	* semantic-ctxt.el:
+	Fixed up some documentation that didn't mention the override function.
+
+	* document.el:
+	Added a note about texinfo generation.
+
+	* semantic-bnf.el:
+	Better speedbar support.
+	Creates new local variable `semantic-equivalent-major-modes'.
+
+	* semantic.el:
+	Removed macros to semantic-util.
+	Imported commands that deal specifically with parsing from semantic-util.
+
+	* semantic-util.el:
+	Copied some macros from semantic.el into semantic-util.el.
+	Copied interactive parsing functions out of semantic-util.
+
+	* semantic-imenu.el:
+	Use `semantidb-equivalent-mode' instead of just comparing major modes.
+	This lets C and C++ to show up in the same directory imenu menu.
+
+	* semanticdb.el: Require semantic.
+	When `semanticdb-persistent-path' is `project', and there are no
+	 project predicates, be equivalent to 'always.
+	Added `semanticdb-equivalent-mode' function.  Use it in the find function.
+
+	* semantic-c.el: New c.bnf
+
+	* c.bnf:
+	Added name spaces, and references.
+
+2001-03-27  ponced  <ponced@choochoo>
+
+	* senator.el (senator-completion-menu-popup):
+	Fixed error when handling a simple
+	list of menu items returned when the Semantic Database feature is
+	disabled.
+
+2001-03-26  ponced  <ponced@choochoo>
+
+	* senator.el (senator-find-nonterminal-by-name,senator-find-nonterminal-by-name-regexp, senator-complete-symbol,senator-eldoc-print-current-symbol-info-default):
+	new format of the
+	value returned by `semanticdb-find-nonterminal-by-name' and
+	`semanticdb-find-nonterminal-by-name-regexp'.
+
+	(senator-completion-menu-item, senator-completion-menu-popup): Added
+	sub-menus for each file were tokens were found by Semantic Database
+	search functions.
+
+	* semantic-texi.el (semantic-texi-update-doc-from-texi, semantic-texi-goto-source):
+	new
+	format of the value returned by `semanticdb-find-nonterminal-by-name'.
+
+	* semantic-ctxt.el (semantic-suggest-lookup-item):
+	new format of the value returned by
+	`semanticdb-find-nonterminal-by-name'.
+
+	* semanticdb.el (semanticdb-find-nonterminal-by-name,semanticdb-find-nonterminal-by-name-regexp,semanticdb-find-nonterminal-by-type,semanticdb-find-nonterminal-by-function):
+	return the DB table where
+	tokens were found as the first element of each returned list.
+
+2001-03-21  ponced  <ponced@choochoo>
+
+	* semanticdb.el (semanticdb-toggle-global-mode):
+	new function. Toggle use of the
+	Semantic Database feature and update the environment of Semantic
+	enabled buffers accordingly.
+
+	* semantic-util.el (semantic-map-buffers):
+	new function.  Run a function for each
+	Semantic enabled buffer found.
+
+	* senator.el (senator-find-nonterminal-by-name,senator-find-nonterminal-by-name-regexp):
+	return the complete list of
+	tokens found instead of the ones from the first semanticdb table.
+
+	(senator-completion-menu-do-complete, senator-completion-menu-item):
+	use a one element array to pass and receive token instead of the token
+	overlay.  Thus can handle tokens without overlay, returned by
+	semanticdb.
+
+	(senator-completion-menu-point-as-event): New function that returns
+	the text cursor position as an event.
+
+	(senator-completion-menu-popup): Now a command.  Uses
+	`senator-completion-menu-point-as-event' to popup the menu at
+	completion point.
+
+	(senator-completion-menu-mouse-popup,
+	senator-completion-menu-keyboard-popup): deleted.  Replaced by
+	`senator-completion-menu-popup'.
+
+	(senator-prefix-map, senator-mode-map): updated to use
+	`senator-completion-menu-popup'.
+
+	(senator-menu-bar): Uses `senator-minor-mode-name' as menu title.
+	Fixed typos.  Replaced `global-semanticdb-minor-mode' by
+	`semanticdb-toggle-global-mode' to enable/disable the Semantic
+	Database feature.
+
+2001-03-14  ponced  <ponced@choochoo>
+
+	* semanticdb.el (semanticdb-find-nonterminal-by-function):
+	avoid unneeded refreshes
+	while typing with senator-eldoc mode.
+
+	* semantic.el (semantic-read-event):
+	replaced `cond' by `if' to fix a
+	byte-compilation error on FSF Emacs.
+	(semantic-rebovinate-token): delay rebovination if a [maybe temporary]
+	re-parse error occurs.
+	(semantic-flex): fixed the lexer to calm possible errant parsing.
+
+2001-03-12  ponced  <ponced@choochoo>
+
+	* senator.el:
+	New faster core search engine.
+
+	Fixed `beginning-of-defun' and `end-of-defun' advices to accept
+	optional argument ARG.  Usage of ARG is not yet implemented.
+
+	Fixed `insert-register' and `jump-to-register' advices to use
+	ad-get-arg.
+
+	Added new hippie expand try function `senator-try-expand-semantic'
+	to try Semantic inline completion.  This try function is
+	automatically activated in Semantic enabled buffers.
+
+	Many code cleanup and improvement.
+
+2001-03-10  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-bnf.el:
+	Fixed indentation after ; bug.
+
+	* semantic-c.el: New c.bnf.
+	Added `semantic-c-reconstitute-token'.
+
+	* c.bnf:
+	Added lots of summaries to %tokens.
+	variables and functions now share declmod and typedecl start
+	match, and then get recombobulated later.  Prevents massive
+	reparsing.
+
+	* semantic.texi:
+	Ran texinfo menu and node updating command.
+	Added section mentioning semantic-java as an example expand function.
+
+	* semantic-util.el:
+	Removed UNTRUSTED from docs of find-nonterminal-by-overlay-[next/prev].
+	Added Nonterminal region splicing section, with two non-working functions.
+	When concatinating arguments for a concise prototype, make sure we
+	can handle many types of argument lists without crashing.
+	Command `bovinate' now checks the cache.
+
+	* semantic-load.el:
+	Senator and which-fun modes are now forced on, as opposed to just
+	toggled on, hoping they were off before.
+
+	* semantic-load.el: Added scm load.
+	Added which-func turn on.
+	Removed load path hacks.
+
+2001-03-08  ponced  <ponced@choochoo>
+
+	* semantic-util.el:
+	Fixed an infinite loop bug in
+	`semantic-find-nonterminal-by-overlay-next' and
+	`semantic-find-nonterminal-by-overlay-prev' when respectively the last
+	or the first overlay are encountered.
+
+	* semantic-java.el:
+	Fixed `semantic-expand-java-nonterminal' which did not cleanup invalid
+	expanded tokens and overlays.
+
+2001-03-05  ponced  <ponced@choochoo>
+
+	* semantic.el:
+	Fixed an XEmacs compatibility problem with `read-event'.
+
+2001-03-05  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.texi:
+	Updated the chapter on senator to account for new features.
+
+2001-03-05  ponced  <ponced@choochoo>
+
+	* semantic-bnf.el:
+	Improved function `semantic-bnf-find-state-position' to handle
+	multiple match listes on the same line.  Also, if a match occurs in a
+	string or comment it is ignored.
+
+	New function `semantic-bnf-skip-string-or-comment' to skip strings and
+	comments.
+
+	Added font-locking for ASSOC, EXPAND and EXPANDFULL builtins.
+
+	* semantic.el:
+	New `semantic-bovinate-nonterminal' with iterative parser.
+	Removed no more needed function `semantic-bovinate-stream'.
+	Fixed some side effect problems when the BNF source debugger
+	is enabled.
+
+	* senator.el:
+	Added new Eldoc suggestion mode feature.
+
+2001-03-01  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-bnf.el:
+	Added summary support to BNF keywords.
+	Properly use the override table.
+	Added a completion keybinding.
+
+2001-02-28  ponced  <ponced@choochoo>
+
+	* java.bnf, semantic-java.el:
+	Fixed a bug on 'array_creation_expression' non-terminal which didn't
+	match primitive type arrays.
+
+2001-02-28  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.texi:
+	Added chapter on debugging.
+
+	* semantic.el:
+	Update doc to `semantic-bovinate-toplevel'.
+	If doing a partial reparse fails, recurse for a full reparse.
+	Renamed variables in the cooking function to be wordier.
+	For the token reparser, do even more checks after cooking for
+	an expansion to additional tokens.  Queue a full reparse if it
+	gets too hairy.
+	Make sure the reparse symbol is attached to the new token.
+
+2001-02-26  ponced  <ponced@choochoo>
+
+	* semantic-java.el:
+	Regenerated with new version of semantic-bnf.el.
+
+2001-02-24  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-c.el:
+	Updated c.bnf, and semantic-bnf.el.
+
+	* c.bnf:
+	Added a few optimizations for structure parts.
+	Used some %tokens in a few spots where I wasn't using them before.
+
+	* semantic.el:
+	Added `semantic-toplevel-bovine-table-source' variable.
+	Incorporate David Ponce's reparse fix for compounded tokens.
+	Use table source to do source-level debugging.
+	Use new semantic-bnf API to find the bit of source to highlight.
+
+	* semantic-scm.el:
+	Scheme parser lisp stuff.
+
+	* scheme.bnf: Scheme parser
+
+	* semantic-bnf.el:
+	When making an init file, add in a new variable value identifying
+	the .bnf source file it came from.
+	Added a bunch of debugging routines for moving in the .bnf file.
+
+2001-02-23  ponced  <ponced@choochoo>
+
+	* senator.el:
+	Copied over all the menu items that used to be in semanic-mode.
+	Added the new token cut/paste items into a menu.
+	Added menu items to configure semantic-imenu and enable semantic-db.
+	Added Options sub menu to customize Semantic, Senator, Semantic Imenu
+	and Semantic Database.
+	Fixed some XEmacs compatibility issues.
+	Improved robustness of some functions.
+
+	* semantic-util.el:
+	Fixed some XEmacs compatibility issues.
+	Added function `semantic-token-invisible-p'.
+
+2001-02-23  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* INSTALL:
+	Added simplified installation instructions.
+
+	* semantic-imenu.el:
+	Moved all customizable items into semantic-imenu group.
+
+	* semanticdb.el:
+	Moved all customizable items into semanticdb group.
+
+	* semantic-util.el:
+	Added semantic-token-intangible-p and semantic-token-read-only-p.
+
+2001-02-22  ponced  <ponced@choochoo>
+
+	* semantic-el.el:
+	Fixed "args-out-of-range" bugs when doc string is missing (nil)
+	or an empty string ("").
+
+	Minor typo on first line summary.
+
+	* senator.el:
+	Added token Copy, Cut & Paste and Register feature.
+
+	Improvement to the senator-jump completion stuff:
+
+	o The completion list is now cached (buffer local) and reused when
+	  possible.  The cache is refreshed when parsing or partial parsing
+	  occurs.
+
+	o Greatly simplified the way completion name are handled.  Now only
+	  duplicated names are suffixed by parent names :-)
+
+	Some minor `checkdoc' fixes.
+
+	* java.bnf:
+	Moved setup of Semantic variables from semantic-java.el.
+
+	* semantic-java.el:
+	Some code reorganization.
+
+	Moved setup of Semantic variables to java.bnf.
+
+	Added setup of variables `semantic-command-separation-character',
+	`document-comment-start', `document-comment-line-prefix',
+	`document-comment-end'.
+
+	New `semantic-find-documentation' function override
+	`semantic-java-find-documentation' which handles javadoc comments.
+
+2001-02-22  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic.el:
+	Updated several doc strings.
+
+	* semantic-texi.el:
+	Added `semantic-texi-goto-source'.
+
+	* semantic-ctxt.el:
+	Updated almost all doc strings to include override information.
+
+	* document.el:
+	Added `-' to meta variable name search.
+	Added support to turn "text" to ``text'' in texinfo files.
+
+	* semantic.texi:
+	Updated lots of deffn, defvar, and defuns.
+	Added local context section.
+	Fixed compilation errors by adding the utilities section.
+
+2001-02-21  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-load.el:
+	*** empty log message ***
+
+	* Project.ede:
+	Rearranged things.  There is now a languages target, full of the
+	parser .el files.
+
+	* semantic-el.el:
+	Added `user-visible' as an extra spec to variables and fns.
+	Added override fns for `find-documentation', and `insert-foreign-token'.
+
+	* semanticdb.el:
+	Added `semanticdb-set-buffer', and `semanticdb-refresh-table'.
+	Added `find-file-match' param to all search routines.
+	When a token is found in a file, make sure the file gets loaded into
+	Emacs.  Useful when additional work to a token needs to be done.
+	Fixed a search bug related to `diff-mode' parameter.
+
+	* semantic-util.el:
+	Fixed bug in `semantic-summarize-nonterminal' for when a token
+	type doesn't exist in the name list.
+
+	* semantic-imenu.el:
+	Fixed reversing of token problem when making type submenus, but
+	without running through the bucket function.
+
+	* document.el:
+	Moved where newlines were inserted for new function documentation.
+	Support deffn with Command and Option descriptions.
+	Protect against document generation switching buffers on us.
+
+	* semantic-texi.el:
+	Added 'x' version in -name-field-list.
+	Fixed reversing problems in the return value of the texinfo parser.
+	Added `semantic-texi-insert-foreign-token'.
+	Added value for senator-step-at-start-end-token-ids.
+	Added ':' as the relation-separator-character.
+	Added semantic-texi-associate-files, semantic-texi-find-documentation,
+	semantic-texi-update-doc-from-texi, semantic-texi-update-doc-from-source,
+	and semantic-texi-updae-doc.
+
+	* semantic.el:
+	Added `user-visible' to the list of EXTRA-SPECs.
+	Renamed `semantic-toplevel-bovinate-override' to
+	  `semantic-bovinate-toplevel-override'.
+	Added more documentation to `semantic-clear-toplevel-cache'.
+	Added semantic cache/partial reparse logic around foreign
+	  parsers.
+	More doc for `semantic-flex-keyword-p'.
+
+2001-02-21  ponced  <ponced@choochoo>
+
+	* senator.el:
+	`senator-minor-mode-setup' now uses the `semantic-active-p' function
+	to check if the current buffer is set up for parsing.
+
+	`senator-full-token-name' now append the parent names in reverse order
+	to the token name.  Thus the `senator-jump' completion list is now
+	easy to use.  You can just type a partial token name and press ENTER
+	to jump to it.  If the name is not unique a completion buffer is
+	displayed allowing to choose the right one.
+
+	`senator-beginning-of-defun' and `senator-end-of-defun' now
+	respectively step at start or end of tokens with identifier specified
+	in `senator-step-at-token-ids'.  Thus, adviced `beginning-of-defun'
+	and `end-of-defun' now work with any tokens where you can step at.
+
+	`senator-step-at-start-end-token-ids' can be set to `t' to step at
+	start and end of any token where it is allowed to step.
+
+2001-02-20  ponced  <ponced@choochoo>
+
+	* semantic.el:
+	Fixed: with `semantic-flex-enable-newlines' on, `semantic-flex' didn't
+	catch newline when there was whitespace characters before it.
+
+2001-02-20  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* Project.ede:
+	Version change.  Added semantic-texi.
+
+	* semantic-ctxt.el:
+	Fixed up token identifying when in a sequence of dereferences.
+
+	* semantic-texi.el:
+	New File: Parse texinfo files using semantic's parsing override mechanism.
+
+	* semantic-el.el:
+	Added `semantic-elisp-prototype-nonterminal'.
+	Use it as an override for `prototype-nonterminal' and `concise-prototype-nonterminal'.
+
+	* semantic-util.el:
+	Pulled the default body from `semantoc-prototype-nonterminal', and
+	turned it into `semantic-prototype-nonterminal-default'.
+
+	* semantic-c.el: New c.bnf.
+
+	* c.bnf: Removed unused %put calls.
+
+	* semantic.el: Version change.
+	Added `semantic-active-p' function.
+	Use `semantic-active-p' in `semantic-find-file-hook'.
+	Add beef to `semantic-toplevel-bovinate-override' usage.
+	Removed `reparse needed' message.
+
+	* semantic-imenu.el:
+	Added `semantic-imenu-expand-type-parts' variable.  This lets you not
+	  bucketize a file, and still expand nodes.
+	Added `semantic-imenu-expandable-token' variable.  This lets you have
+	  parser that doesn't have type information, but still benifits from
+	  hierarchical tag display.
+	Removed `notypecheck' from `semantic-create-imenu-index'.
+	Use the above variables.
+
+2001-02-20  Eric M. Ludlam  <eric@siege-engine.com>
+
+	* semantic-texi.el: New File
+

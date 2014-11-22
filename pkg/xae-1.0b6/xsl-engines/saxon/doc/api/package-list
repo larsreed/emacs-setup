@@ -1,0 +1,17 @@
+com.icl.saxon
+com.icl.saxon.aelfred
+com.icl.saxon.axis
+com.icl.saxon.expr
+com.icl.saxon.functions
+com.icl.saxon.handlers
+com.icl.saxon.number
+com.icl.saxon.om
+com.icl.saxon.output
+com.icl.saxon.pattern
+com.icl.saxon.sort
+com.icl.saxon.sql
+com.icl.saxon.style
+com.icl.saxon.trace
+com.icl.saxon.trax
+com.icl.saxon.trax.serialize
+com.icl.saxon.tree

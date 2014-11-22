@@ -1,0 +1,103 @@
+;; Object semantic.cache
+;; SEMANTICDB Tags save file
+(semanticdb-project-database "semantic.cache"
+  :file "semantic.cache"
+  :tables (list 
+   (semanticdb-table "semantic-util-modes.el"
+    :file "semantic-util-modes.el"
+    :pointmax 28027
+    :major-mode 'emacs-lisp-mode
+    :tokens '(("semantic-util" include nil nil nil [1173 1197]) ("working" include nil nil nil [1198 1216]) ("if" code nil [1236 1528]) ("semantic-update-mode-line" variable nil t ((user-visible . t)) "*If non-nil show enabled minor modes in the mode line.
+Only minor modes that are not turned on globally are shown in the mode
+line." nil [1572 2041]) ("semantic-mode-line-prefix" variable nil (semantic-propertize "S" (quote face) (quote bold)) ((user-visible . t)) "*Prefix added to minor mode indicators in the mode line." nil [2043 2289]) ("semantic-minor-modes-status" variable nil nil nil "String showing Semantic minor modes which are locally enabled.
+It is displayed in the mode line." nil [2291 2432]) ("make-variable-buffer-local" code nil [2433 2490]) ("semantic-minor-mode-alist" variable nil nil nil "Alist saying how to show Semantic minor modes in the mode line.
+Like variable `minor-mode-alist'." nil [2492 2632]) ("semantic-mode-line-update" function nil nil nil "Update display of Semantic minor modes in the mode line.
+Only minor modes that are locally enabled are shown in the mode line." nil [2634 4238]) ("semantic-add-minor-mode" function nil ("toggle" "name" "&optional" "keymap") nil "Register a new Semantic minor mode.
+TOGGLE is a symbol which is the name of a buffer-local variable that
+is toggled on or off to say whether the minor mode is active or not.
+It is also an interactive function to toggle the mode.
+
+NAME specifies what will appear in the mode line when the minor mode
+is active.  NAME should be either a string starting with a space, or a
+symbol whose value is such a string.
+
+Optional KEYMAP is the keymap for the minor mode that will be added to
+`minor-mode-map-alist'." nil [4240 5832]) ("semantic-toggle-minor-mode-globally" function nil ("mode" "&optional" "arg") nil "Toggle minor mode MODE in every Semantic enabled buffer.
+Return non-nil if MODE is turned on in every Semantic enabled buffer.
+If ARG is positive, enable, if it is negative, disable.  If ARG is
+nil, then toggle.  Otherwise do nothing.  MODE must be a valid minor
+mode defined in `minor-mode-alist' and must be too an interactive
+function used to toggle the mode." nil [5834 7000]) ("global-semantic-show-dirty-mode" function nil ("&optional" "arg") ((user-visible . t)) "Toggle global use of option `semantic-show-dirty-mode'.
+If ARG is positive, enable, if it is negative, disable.
+If ARG is nil, then toggle." nil [7078 7423]) ("global-semantic-show-dirty-mode" variable nil nil ((user-visible . t)) "*If non-nil enable global use of show-dirty mode." nil [7440 7733]) ("semantic-show-dirty-mode-hook" variable nil nil ((user-visible . t)) "*Hook run at the end of function `semantic-show-dirty-mode'." nil [7735 7878]) ("semantic-dirty-token-face" variable nil (quote ((((class color) (background dark)) (:background "gray10")) (((class color) (background light)) (:background "gray90")))) ((user-visible . t)) "*Face used to show dirty tokens in `semantic-show-dirty-token-mode'." nil [7880 8145]) ("semantic-show-dirty-token-hook-fcn" function nil ("token" "start" "end") nil "Function set into `semantic-dirty-token-hooks'.
+This will highlight TOKEN as dirty.
+START and END define the region changed, but are not used." nil [8147 8416]) ("semantic-show-clean-token-hook-fcn" function nil ("token") nil "Function set into `semantic-clean-token-hooks'.
+This will unhighlight TOKEN from being dirty." nil [8418 8603]) ("semantic-show-dirty-mode-map" variable nil (let ((km (make-sparse-keymap))) km) nil "Keymap for show-dirty minor mode." nil [8605 8723]) ("semantic-show-dirty-mode" variable nil nil nil "Non-nil if show-dirty minor mode is enabled.
+Use the command `semantic-show-dirty-mode' to change this variable." nil [8725 8879]) ("make-variable-buffer-local" code nil [8880 8934]) ("semantic-show-dirty-mode-setup" function nil nil nil "Setup option `semantic-show-dirty-mode'.
+The minor mode can be turned on only if semantic feature is available
+and the current buffer was set up for parsing.  When minor mode is
+enabled parse the current buffer if needed.  Return non-nil if the
+minor mode is enabled." nil [8936 10401]) ("semantic-show-dirty-mode" function nil ("&optional" "arg") ((user-visible . t)) "Minor mode for highlighting dirty tokens.
+With prefix argument ARG, turn on if positive, otherwise off.  The
+minor mode can be turned on only if semantic feature is available and
+the current buffer was set up for parsing.  Return non-nil if the
+minor mode is enabled.
+
+\\{semantic-show-dirty-mode-map}" nil [10418 11296]) ("semantic-add-minor-mode" code nil [11298 11432]) ("global-semantic-show-unmatched-syntax-mode" function nil ("&optional" "arg") ((user-visible . t)) "Toggle global use of option `semantic-show-unmatched-syntax-mode'.
+If ARG is positive, enable, if it is negative, disable.
+If ARG is nil, then toggle." nil [11512 11901]) ("global-semantic-show-unmatched-syntax-mode" variable nil nil ((user-visible . t)) "*If non-nil enable global use of show-unmatched-syntax mode." nil [11918 12244]) ("semantic-show-unmatched-syntax-mode-hook" variable nil nil ((user-visible . t)) "*Hook run at the end of function `semantic-show-unmatched-syntax-mode'." nil [12246 12411]) ("semantic-unmatched-syntax-face" variable nil (quote ((((class color) (background dark)) (:underline "red")) (((class color) (background light)) (:underline "red")))) ((user-visible . t)) "*Face used to show unmatched-syntax in.
+The face is used in  `semantic-show-unmatched-syntax-mode'." nil [12413 12706]) ("semantic-unmatched-syntax-overlay-p" function nil ("overlay") nil "Return non-nil if OVERLAY is an unmatched syntax one." nil [12708 12881]) ("semantic-showing-unmatched-syntax-p" function nil nil nil "Return non-nil if an unmatched syntax overlay was found in buffer." nil [12883 13212]) ("semantic-clean-unmatched-syntax-in-region" function nil ("beg" "end") nil "Remove all unmatched syntax overlays between BEG and END." nil [13214 13517]) ("semantic-clean-unmatched-syntax-in-buffer" function nil nil nil "Remove all unmatched syntax overlays found in current buffer." nil [13519 13713]) ("semantic-clean-token-of-unmatched-syntax" function nil ("token") nil "Clean the area covered by TOKEN of unmatched syntax markers." nil [13715 13944]) ("semantic-show-unmatched-syntax" function nil ("syntax") nil "Function set into `semantic-unmatched-syntax-hook'.
+This will highlight elements in SYNTAX as unmatched-syntax." nil [13946 14875]) ("semantic-next-unmatched-syntax" function nil ("point" "&optional" "bound") nil "Find the next overlay for unmatched syntax after POINT.
+Do not search past BOUND if non-nil." nil [14877 15575]) ("semantic-show-unmatched-syntax-mode-map" variable nil (let ((km (make-sparse-keymap))) (define-key km ",`" (quote semantic-show-unmatched-syntax-next)) km) nil "Keymap for command `semantic-show-unmatched-syntax-mode'." nil [15577 15796]) ("semantic-show-unmatched-syntax-mode" variable nil nil nil "Non-nil if show-unmatched-syntax minor mode is enabled.
+Use the command `semantic-show-unmatched-syntax-mode' to change this
+variable." nil [15798 15985]) ("make-variable-buffer-local" code nil [15986 16051]) ("semantic-show-unmatched-syntax-mode-setup" function nil nil nil "Setup the `semantic-show-unmatched-syntax' minor mode.
+The minor mode can be turned on only if semantic feature is available
+and the current buffer was set up for parsing.  When minor mode is
+enabled parse the current buffer if needed.  Return non-nil if the
+minor mode is enabled." nil [16053 17562]) ("semantic-show-unmatched-syntax-mode" function nil ("&optional" "arg") ((user-visible . t)) "Minor mode to highlight unmatched-syntax tokens.
+With prefix argument ARG, turn on if positive, otherwise off.  The
+minor mode can be turned on only if semantic feature is available and
+the current buffer was set up for parsing.  Return non-nil if the
+minor mode is enabled.
+
+\\{semantic-show-unmatched-syntax-mode-map}" nil [17581 18576]) ("semantic-add-minor-mode" code nil [18578 18734]) ("semantic-show-unmatched-syntax-next" function nil nil ((user-visible . t)) "Move forward to the next occurance of unmatched syntax." nil [18736 18964]) ("timer" include nil nil nil [19016 19032]) ("semantic-auto-parse-timer" variable nil nil nil "Timer used to schedule automatic reparse." nil [19034 19118]) ("semantic-auto-parse-no-working-message" variable nil nil ((user-visible . t)) "*Non-nil disable display of working message during parse." nil [19120 19272]) ("semantic-auto-parse-working-in-modeline-flag" variable nil t ((user-visible . t)) "*Non-nil means show working messages in the mode line.
+Typically, parsing will show messages in the minibuffer.
+This will move the parse message into the mode-line." nil [19274 19537]) ("semantic-auto-parse-idle-time" variable nil 4 ((user-visible . t)) "*Time in seconds of idle time before auto-reparse.
+This time should be short enough to ensure that auto-parse will be
+run as soon as Emacs is idle." nil [19539 20022]) ("semantic-auto-parse-max-buffer-size" variable nil 0 ((user-visible . t)) "*Maximum size in bytes of buffers automatically reparsed.
+If this value is less than or equal to 0 buffers are automatically
+reparsed regardless of their size." nil [20024 20272]) ("global-semantic-auto-parse-mode" variable nil nil ((user-visible . t)) "*If non-nil enable global use of auto-parse mode." nil [20289 20582]) ("global-semantic-auto-parse-mode" function nil ("&optional" "arg") ((user-visible . t)) "Toggle global use of option `semantic-auto-parse-mode'.
+If ARG is positive, enable, if it is negative, disable.
+If ARG is nil, then toggle." nil [20599 20944]) ("semantic-auto-parse-mode-hook" variable nil nil ((user-visible . t)) "*Hook run at the end of function `semantic-show-dirty-mode'." nil [20946 21089]) ("semantic-auto-parse-mode" variable nil nil nil "Non-nil if auto-parse minor mode is enabled.
+Use the command `semantic-auto-parse-mode' to change this variable." nil [21091 21245]) ("make-variable-buffer-local" code nil [21246 21300]) ("semantic-auto-parse-enabled-p" function nil nil nil "Return non-nil if auto-parse is enabled for this buffer.
+See also the variable `semantic-auto-parse-max-buffer-size'." nil [21302 21617]) ("semantic-auto-parse-bovinate" function nil nil nil "Automatically reparse current buffer.
+Called after `semantic-auto-parse-idle-time' seconds of Emacs idle
+time.  Does nothing if option `semantic-auto-parse-mode' is not enabled or
+current buffer don't need re-parse or if its size don't match
+`semantic-auto-parse-max-buffer-size' threshold." nil [21619 22865]) ("semantic-auto-parse-setup-timer" function nil nil nil "Lazy initialization of the auto parse idle timer." nil [22867 23167]) ("semantic-auto-parse-mode-setup" function nil nil nil "Setup option `semantic-auto-parse-mode'.
+The minor mode can be turned on only if semantic feature is available
+and the current buffer was set up for parsing.  When minor mode is
+enabled parse the current buffer if needed.  Return non-nil if the
+minor mode is enabled." nil [23169 23871]) ("semantic-auto-parse-mode" function nil ("&optional" "arg") ((user-visible . t)) "Minor mode to auto parse buffer following a change.
+With prefix argument ARG, turn on if positive, otherwise off.  The
+minor mode can be turned on only if semantic feature is available and
+the current buffer was set up for parsing.  Return non-nil if the
+minor mode is enabled." nil [23888 24742]) ("semantic-add-minor-mode" code nil [24744 24853]) ("eval-when-compile" code nil [24919 24955]) ("global-semantic-summary-mode" function nil ("&optional" "arg") ((user-visible . t)) "Toggle global use of option `semantic-summary-mode'.
+If ARG is positive, enable, if it is negative, disable.
+If ARG is nil, then toggle." nil [24972 25305]) ("global-semantic-summary-mode" variable nil nil ((user-visible . t)) "*If non-nil enable global use of summary mode." nil [25322 25606]) ("semantic-summary-mode-hook" variable nil nil ((user-visible . t)) "*Hook run at the end of function `semantic-summary-mode'." nil [25608 25745]) ("semantic-summary-mode-map" variable nil (let ((km (make-sparse-keymap))) km) nil "Keymap for summary minor mode." nil [25747 25859]) ("semantic-summary-mode" variable nil nil nil "Non-nil if summary minor mode is enabled.
+Use the command `semantic-summary-mode' to change this variable." nil [25861 26006]) ("make-variable-buffer-local" code nil [26007 26058]) ("semantic-summary-mode-setup" function nil nil nil "Setup option `semantic-summary-mode'.
+The minor mode can be turned on only if semantic feature is available
+and the current buffer was set up for parsing.  When minor mode is
+enabled parse the current buffer if needed.  Return non-nil if the
+minor mode is enabled." nil [26060 26812]) ("semantic-summary-mode" function nil ("&optional" "arg") ((user-visible . t)) "Minor mode to show useful things about tokens in echo area.
+Enables/disables option `eldoc-mode' which supplies the support functions for
+this minor mode.
+With prefix argument ARG, turn on if positive, otherwise off.  The
+minor mode can be turned on only if semantic feature is available and
+the current buffer was set up for parsing.  Return non-nil if the
+minor mode is enabled.
+
+\\{semantic-summary-mode-map}" nil [26829 27790]) ("semantic-add-minor-mode" code nil [27792 27956]) ("semantic-util-modes" package nil nil nil [27958 27988]))
+    )
+   )
+  )

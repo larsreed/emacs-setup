@@ -1,0 +1,108 @@
+<localization lang="en" 
+	      xmlns="http://docbook2x.sourceforge.net/xmlns/xslt/gentext"
+>
+
+<element name="abstract">Abstract</element>
+<element name="answer">A: </element>
+<element name="appendix">Appendix</element>
+<element name="article">Article</element>
+<element name="bibliography">Bibliography</element>
+<element name="book">Book</element>
+<element name="caution">Caution</element>
+<element name="chapter">Chapter</element>
+<element name="colophon">Colophon</element>
+<element name="copyright">Copyright</element>
+<element name="dedication">Dedication</element>
+<element name="edition">Edition</element>
+<element name="equation">Equation</element>
+<element name="example">Example</element>
+<element name="figure">Figure</element>
+<element name="glossary">Glossary</element>
+<element name="glosssee">See <term/></element>
+<element name="glossseealso">See Also <term/></element>
+<element name="important">Important</element>
+<element name="index">Index</element>
+<element name="isbn">ISBN</element>
+<element name="legalnotice">Legal Notice</element>
+<element name="msgaud">Audience</element>
+<element name="msglevel">Level</element>
+<element name="msgorig">Origin</element>
+<element name="note">Note</element>
+<element name="part">Part</element>
+<element name="preface">Preface</element>
+<element name="procedure">Procedure</element>
+<element name="published">Published</element>
+<element name="question">Q: </element>
+<element name="reference">Reference</element>
+<element name="refnamediv">Name</element>
+<element name="refsynopsisdiv">Synopsis</element>
+<element name="revhistory">Revision History</element>
+<element name="revision">Revision</element>
+<element name="section">Section</element>
+<element name="sect1">Section</element>
+<element name="sect2">Section</element>
+<element name="sect3">Section</element>
+<element name="sect4">Section</element>
+<element name="sect5">Section</element>
+<element name="see">See </element>
+<element name="seealso">See Also </element>
+<element name="set">Set</element>
+<element name="setindex">Set Index</element>
+<element name="sidebar">Sidebar</element>
+<element name="step">Step</element>
+<element name="table">Table</element>
+<element name="tip">Tip</element>
+<element name="warning">Warning</element>
+
+<element name="secondary">, </element>
+<element name="tertiary">, </element>
+
+<element name="remark">[Remark: <content/>]</element>
+
+<char key="inline.separator">, </char>
+
+<char key="quote.start">&#x201C;</char>
+<char key="quote.end">&#x201D;</char>
+<char key="nestedquote.start">&#x2018;</char>
+<char key="nestedquote.end">&#x2019;</char>
+
+<!--
+<char key="list.bullet">&#x2022;</char>
+-->
+
+<char key="block.object.placeholder">[!!!]</char>
+
+<char key="arg.choice.plain.start" />
+<char key="arg.choice.plain.end" />
+<char key="arg.choice.req.start">{</char>
+<char key="arg.choice.req.end">}</char>
+<char key="arg.choice.opt.start">[</char>
+<char key="arg.choice.opt.end">]</char>
+<char key="arg.rep.repeat">...</char>
+<char key="group.arg.separator">|</char>
+
+<char key="keycombo.joinchar.seq"> </char>
+<char key="keycombo.joinchar.simul">+</char>
+<char key="keycombo.joinchar.press">-</char>
+<char key="keycombo.joinchar.click">-</char>
+<char key="keycombo.joinchar.double-click">-</char>
+<char key="keycombo.joinchar.other"> </char>
+<char key="keycombo.joinchar.">-</char>
+
+<message key="Section is too deep" />
+<message key="Element not matched by any template" />
+<message key="Unparsed entity reference not supported" />
+<message key="Footnote references not supported" />
+<message key="Video data not supported" />
+<message key="Audio data not supported" />
+<message key="Unrecognized computer language" />
+<message key="Multiple colspecs for same column" />
+<message key="Absolute column widths not supported" />
+<message key="texinfo.node called for non-node" />
+<message key="Cannot generate readable nodename" />
+<message key="Cannot generate readable, non-colliding nodename" />
+<message key="Reference to non-existant ID" />
+
+<notmatched>Source node <nodename/> not matched in stylesheet</notmatched>
+
+</localization>

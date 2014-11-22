@@ -528,14 +528,14 @@ from FILE"
 (defun lre-html-lit-amp () "Insert a &." (interactive "*") (insert "&amp;"))
 
 (defmacro lre--sgml-key (keys func &optional in-mode)
-  (` (define-key (cond ((eq (, in-mode) 'pxml) pxml-mode-map)
-		       ((eq (, in-mode) 'psgml) psgml-mode-map)
-		       ((eq (, in-mode) 'nxml) nxml-mode-map)
-		       ((eq (, in-mode) 'xml) xml-mode-map)
-		       ((eq (, in-mode) 'xsl) xsl-mode-map)
-		       (t  sgml-mode-map))
-       (, keys)
-       (, func))))
+  `(define-key
+     (cond ((eq ,in-mode 'pxml) pxml-mode-map)
+           ((eq ,in-mode 'psgml) psgml-mode-map)
+           ((eq ,in-mode 'nxml) nxml-mode-map)
+           ((eq ,in-mode 'xml) xml-mode-map)
+           ((eq ,in-mode 'xsl) xsl-mode-map)
+           (t  sgml-mode-map))
+       ,keys ,func))
 
 (defun lre-sgml-common (sub-mode)
   "Additions to (p)sgml/html/xml-mode setup."

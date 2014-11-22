@@ -1,0 +1,19 @@
+
+This package provides dbtotexi, a command line utility for converting
+XML documents that conform to the DocBook DTD into GNU Texinfo format.
+
+It requires a working Java VM like 'kaffe' or 'jre' to execute the
+translator engine.
+
+Installation is just 'make install' and 'make install-doc'. Obviously,
+take a look at the Makefile first.
+
+Please see 'doc/dbtotexi.info' or 'doc/dbtotexi.dvi' for further
+instructions.
+
+This release only provides the absolute minimum of functionality, just
+about enough to translate its own documentation!
+
+Any reasonable code contributions will be gratefully accepted.
+
+Mark Burton - markb@ordern.com

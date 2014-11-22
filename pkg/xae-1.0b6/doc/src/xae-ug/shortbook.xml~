@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE book PUBLIC "-//Arbortext//DTD DocBk XML V2.0//EN" "file:///d:/xae-dev/xae/doctypes/docbook/docbookx.dtd" []>
+
+<?xml-stylesheet href="file:///d:/xae-dev/xae/doctypes/docbook/styles/docbook/html/docbook.xsl" type="text/xsl"?>
+
+<book>
+  <title>The Short Book</title>
+  <chapter>
+    <title></title>
+  </chapter>
+</book>
+
+<!-- 
+Local Variables:
+mode: xae
+sgml-indent-step: 2
+sgml-indent-data: t
+sgml-set-face: t
+sgml-insert-missing-element-comment: nil
+End:
+--> 

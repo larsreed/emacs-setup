@@ -1,0 +1,17 @@
+<localization language="en">
+
+<message key="Section is too deep" />
+<message key="Element not matched by any template" />
+<message key="Unparsed entity reference not supported" />
+<message key="Footnote references not supported" />
+<message key="Video data not supported" />
+<message key="Audio data not supported" />
+<message key="Unrecognized computer language" />
+<message key="Multiple colspecs for same column" />
+<message key="Absolute column widths not supported" />
+<message key="texinfo.node called for non-node" />
+<message key="Cannot generate readable nodename" />
+<message key="Cannot generate readable, non-colliding nodename" />
+<message key="Reference to non-existant ID" />
+
+</localization>

@@ -1,0 +1,15 @@
+;; Object common/
+;; SEMANTICDB Tags save file
+(semanticdb-project-database-file "common/"
+  :tables (list 
+   (semanticdb-table "inversion.el"
+    :major-mode 'emacs-lisp-mode
+    :tags '(("inversion-version" variable (:default-value "1.1") nil [230 296]) ("inversion-incompatible-version" variable (:default-value "0.1alpha1") nil [297 412]) ("inversion-decoder-ring" variable (:default-value (quote ((alpha "^\\([0-9]+\\)\\.\\([0-9]+\\)alpha\\([0-9]+\\)$" 3) (beta "^\\([0-9]+\\)\\.\\([0-9]+\\)beta\\([0-9]+\\)$" 3) (full "^\\([0-9]+\\)\\.\\([0-9]+\\)$" 2) (point "^\\([0-9]+\\)\\.\\([0-9]+\\)\\.\\([0-9]+\\)$" 3)))) nil [2494 3183]) ("inversion-decode-version" function (:arguments ("version-string")) nil [3209 3953]) ("inversion-package-version" function (:arguments ("package")) nil [3955 4408]) ("inversion-package-incompatibility-version" function (:arguments ("package")) nil [4410 4909]) ("inversion-recode" function (:arguments ("code")) nil [4911 5252]) ("inversion-release-to-number" function (:arguments ("release-symbol")) nil [5254 5506]) ("inversion-=" function (:arguments ("ver1" "ver2")) nil [5508 5604]) ("inversion-<" function (:arguments ("ver1" "ver2")) nil [5606 6195]) ("inversion-check-version" function (:arguments ("version" "incompatible-version" "minimum" "&rest" "reserved")) nil [6197 7621]) ("inversion-test" function (:arguments ("package" "minimum" "&rest" "reserved")) nil [7623 8840]) ("inversion-reverse-test" function (:arguments ("package" "oldversion" "&rest" "reserved")) nil [8842 10253]) ("inversion-require" function (:arguments ("package" "version" "&optional" "file" "directory" "&rest" "reserved")) nil [10270 10967]) ("inversion-find-data" variable (:constant-flag t :default-value (quote ("(def\\(var\\|const\\)\\s-+%s-%s\\s-+\"\\([^\"]+\\)" 2))) nil [10971 11123]) ("inversion-find-version" function (:arguments ("package")) nil [11125 12227]) ("inversion-add-to-load-path" function (:arguments ("package" "minimum" "&optional" "installdir" "&rest" "subdirs")) nil [12229 13457]) ("inversion-unit-test" function (:user-visible-flag t) nil [13482 14716]) ("inversion-locate-package-files" function (:arguments ("package" "directory" "&optional" "version")) nil [14750 15463]) ("inversion-package-common-tails" variable (:default-value (quote (".tar.gz" ".tar" ".zip" ".gz"))) nil [15465 15623]) ("inversion-locate-package-files-and-split" function (:arguments ("package" "directory" "&optional" "version")) nil [15625 16753]) ("inversion-download-package-ask" function (:arguments ("err" "package" "directory" "version")) nil [16755 17603]) ("inversion-upgrade-package" function (:user-visible-flag t :arguments ("package" "&optional" "directory")) nil [17620 18382]) ("inversion" package nil nil [18539 18559]))
+    :file "inversion.el"
+    :pointmax 18588
+    )
+   )
+  :file "semantic.cache"
+  :semantic-tag-version "2.0beta3"
+  :semanticdb-version "2.0beta3"
+  )

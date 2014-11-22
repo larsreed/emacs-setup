@@ -1,0 +1,42 @@
+XAE 1.0beta6 Release Notes
+
+* Fixes XEmacs compatibility bugs that prevented
+  the XEA's document display and transformation
+  commands from working under XEmacs.
+
+
+XAE 1.0beta5 Release Notes
+
+Fixes eieio loading bug.
+
+XAE 1.0beta4 Release Notes
+
+* Fixed incorrect paths to standard stylesheets in Apply Stylesheet command.
+
+
+
+XAE 1.0beta3 Release Notes
+
+* Fixes bug that cause load-path not to be updated
+  with path of eieio package.
+
+* Fixes bugs in definitions of tool server
+  methods.
+
+XAE 1.0beta2 Release Notes
+
+* Includes value of CLASSPATH environment variable in
+  the XSLT processor classpath.
+
+* Eliminates extra / in URI on Linux.
+
+* Includes eieio package in XAE distribution
+  to eliminate need for user's to download this
+  package.
+
+* Adds the versions of psgml and eieio included in
+  the XAE distribution to the Emacs load-path only
+  if the load-path does not already include these
+  packages.
+
+* Adds the XAE User's Guide to the XAE Help menu.

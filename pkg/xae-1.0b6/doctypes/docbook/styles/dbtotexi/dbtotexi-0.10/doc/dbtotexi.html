@@ -1,0 +1,358 @@
+<html lang="en"><head>
+<title>Dbtotexi</title>
+<meta http-equiv="Content-Type" content="text/html">
+</head><body>
+
+<h1><a name="Top">Dbtotexi</a></h1>
+
+<ul>
+<li><a href="#Introduction">Introduction</a>:
+
+<li><a href="#License">License</a>:
+
+<li><a href="#Installation">Installation</a>:
+
+<li><a href="#Usage">Usage</a>:
+
+<li><a href="#Role%20Attributes">Role Attributes</a>:
+
+<li><a href="#sec_texinfopi">The texinfo Processing Instruction</a>:
+
+<li><a href="#sec_dirpi">The dircategory &amp; direntry Processing Instructions</a>:
+
+<li><a href="#sec_unicode">Support for Unicode Characters</a>:
+
+<li><a href="#Caveats">Caveats</a>:
+
+<li><a href="#Links">Links</a>:
+
+<li><a href="#app_unicode">Recognised Unicode Characters</a>: 
+</ul>
+
+<p><hr>
+Node:Introduction, Next:<a rel=next href="#License">License</a>, Up:<a rel=up href="#Top">Top</a>
+<p>
+
+<h2><a name="Introduction">Introduction</a></h2>
+
+<p>This document describes <code>dbtotexi</code>, a simple utility for converting <small>XML</small> documents that conform to a subset of the DocBook <small>DTD</small> into <small>GNU</small> texinfo format. The <code>dbtotexi</code> program is implemented using the <small>XSL</small> Transformations language as described in the working document <a href="http://www.w3.org/TR/1999/WD-xslt-19990421">http://www.w3.org/TR/1999/WD-xslt-19990421</a>. A Java based <small>XSL</small> engine<a rel=footnote href="#fn-1"><sup>1</sup></a> carries out the actual transformation as determined by the style sheet <code>dbtotexi.xsl</code>. A small amount of additional Java code provides a few utility routines not provided by the <small>XSL</small> implementation.
+
+<p><hr>
+Node:License, Next:<a rel=next href="#Installation">Installation</a>, Previous:<a rel=previous href="#Introduction">Introduction</a>, Up:<a rel=up href="#Top">Top</a>
+<p>
+
+<h2><a name="License">License</a></h2>
+
+<p>This software is subject to the terms of the <small>GNU</small> General Public License. Please see the file <code>COPYING</code> for details. The license terms that apply to the supplied third party software contained in the files <code>sax.jar</code>, <code>xp.jar</code> and <code>xt.jar</code> are specified in the files <code>sax-copying.txt</code>, <code>xp-copying.txt</code> and <code>xt-copying.txt</code> respectively.
+
+<p><hr>
+Node:Installation, Next:<a rel=next href="#Usage">Usage</a>, Previous:<a rel=previous href="#License">License</a>, Up:<a rel=up href="#Top">Top</a>
+<p>
+
+<h2><a name="Installation">Installation</a></h2>
+
+<p>Once the tar archive has been unpacked<a rel=footnote href="#fn-2"><sup>2</sup></a>, check the <code>Makefile</code> to see if the settings at the top are suitable for your site and then just type <code>make</code> and <code>make install</code>. By default, the <code>dbtotexi</code> bash shell script goes into <code>/usr/local/bin</code> and the support files into <code>/usr/local/share/dbtotexi</code>. A compiled version of the Java support code is supplied so that you do not need a Java compiler unless you change the Java code.
+
+<p>The installation defaults to using Sun's <code>jre</code> <small>VM</small> but any <small>JDK</small> 1.1 compliant implementation (such as Kaffe<a rel=footnote href="#fn-3"><sup>3</sup></a>) should work. No <small>GUI</small> facilities or additional libraries are required. If you use a different <small>VM</small> then the shell script, <code>dbtotexi.sh</code> may need editing.
+
+<p><hr>
+Node:Usage, Next:<a rel=next href="#Role%20Attributes">Role Attributes</a>, Previous:<a rel=previous href="#Installation">Installation</a>, Up:<a rel=up href="#Top">Top</a>
+<p>
+
+<h2><a name="Usage">Usage</a></h2>
+
+<p>A DocBook source file, <code>foo.xml</code>, is converted to texinfo format very simply:
+
+<pre>dbtotexi foo.xml
+</pre>
+
+<p>Will produce output in <code>foo.texinfo</code>. The name of the output file can be explicitly specified as a second argument. If the output file name is specified as <code>-</code>, the output is sent to stdout. A third argument will specify the name of the info file to produce, this defaults to the input file name modified to have a <code>.info</code> suffix. Any DocBook elements that are not recognised (due to either an error in the input document or because the translator does not yet support a translation for that element) are reported to stderr and shown in the output in bold.
+
+<p>A document that conforms to the <small>SGML</small> DocBook <small>DTD</small> must first be converted to <small>XML</small> before it can be processed by <code>dbtotexi</code>. This can be done using the <code>sx</code> program that is part of James Clark's <code>SP</code> <small>SGML</small> toolset. Typical usage would be:
+
+<pre>sx -xlower foo.sgm &gt; foo.xml
+</pre>
+
+<blockquote>
+
+<h4><a name="Usage">Note</a></h4>
+
+<p>The <small>XML</small> version of the DocBook <small>DTD</small> is not actually required by the conversion process (but see <a href="#sec_texinfopi">sec_texinfopi</a>). In fact, if the document to be converted doesn't contain a <code>DOCTYPE</code> declaration then the conversion process is somewhat quicker. Irrespective of whether the document contains a <code>DOCTYPE</code> declaration, it should be valid (i.e. it conforms to the DocBook <small>XML</small> <small>DTD</small>).
+
+</blockquote>
+
+<p><hr>
+Node:Role Attributes, Next:<a rel=next href="#sec_texinfopi">sec_texinfopi</a>, Previous:<a rel=previous href="#Usage">Usage</a>, Up:<a rel=up href="#Top">Top</a>
+<p>
+
+<h2><a name="Role%20Attributes">Role Attributes</a></h2>
+
+<p>This section describes how the translation of some the elements are influenced by the setting of the element's <code>role</code> attribute.
+
+<dl>
+
+<br><dt><code>indexterm</code>
+<dd>The <code>role</code> attribute can be set to one of <code>c</code>, <code>f</code>, <code>v</code>, <code>k</code>, <code>p</code> and <code>d</code> to indicate which index the entry should be entered in. If the <code>role</code> attribute is not specified the entry will be entered into the concept index by default.
+
+<br><dt><code>index</code>
+<dd>The <code>role</code> attribute can be set to one of <code>c</code>, <code>f</code>, <code>v</code>, <code>k</code>, <code>p</code> and <code>d</code> to indicate which index should be output. If the <code>role</code> attribute is not specified the concept index will be output by default.
+
+<br><dt><code>variablelist</code>
+<dd>The <code>role</code> attribute can be set to one of <code>bold</code> or <code>fixed</code> to indicate that the list's terms should be displayed in bold or fixed-width font respectively. If the <code>role</code> attribute is not specified, the list's terms be displayed "as is".
+
+</dl>
+
+<p><hr>
+Node:sec_texinfopi, Next:<a rel=next href="#sec_dirpi">sec_dirpi</a>, Previous:<a rel=previous href="#Role%20Attributes">Role Attributes</a>, Up:<a rel=up href="#Top">Top</a>
+<p>
+
+<h2><a name="sec_texinfopi">The <code>texinfo</code> Processing Instruction</a></h2>
+
+<p>The <code>texinfo</code> processing instruction can be used within a document to insert arbitrary markup into the output. The characters <code>@</code>, <code>{</code> and <code>}</code> are not escaped. This facility can be used to define entities that contain texinfo markup. For example, given that the following general entity declaration is placed in the DTD subset:
+
+<pre>&lt;!ENTITY hellip "&lt;?texinfo @dots{}?&gt;"&gt;
+</pre>
+
+<p>One can write <code>&amp;hellip;</code> and expect to get dots<small>...</small>!
+
+<p><hr>
+Node:sec_dirpi, Next:<a rel=next href="#sec_unicode">sec_unicode</a>, Previous:<a rel=previous href="#sec_texinfopi">sec_texinfopi</a>, Up:<a rel=up href="#Top">Top</a>
+<p>
+
+<h2><a name="sec_dirpi">The <code>dircategory</code> &amp; <code>direntry</code> Processing Instructions</a></h2>
+
+<p>The <code>dircategory</code> and <code>direntry</code> processing instructions may be used to set the resulting info file's directory category and menu entry. These processing instructions are best positioned after the document type declaration but before the first element (<code>&lt;book&gt;</code> or <code>&lt;article&gt;</code>). Here's what this document uses:
+
+<pre>&lt;?dircategory Texinfo documentation system?&gt;
+&lt;?direntry * Dbtotexi: (dbtotexi). DocBook to Texinfo convertor.?&gt;
+</pre>
+
+<p><hr>
+Node:sec_unicode, Next:<a rel=next href="#Caveats">Caveats</a>, Previous:<a rel=previous href="#sec_dirpi">sec_dirpi</a>, Up:<a rel=up href="#Top">Top</a>
+<p>
+
+<h2><a name="sec_unicode">Support for Unicode Characters</a></h2>
+
+<p>A few Unicode characters are recognised in element content and converted into the equivalent texinfo command. Unrecognised Unicode characters are passed through unchanged. Norman Walsh's DocBook <small>XML</small> <small>DTD</small> defines the <small>ISO</small> entity set in terms of Unicode characters. <a href="#app_unicode">app_unicode</a> lists the set of Unicode characters that are currently recognised.
+
+<p><hr>
+Node:Caveats, Next:<a rel=next href="#Links">Links</a>, Previous:<a rel=previous href="#sec_unicode">sec_unicode</a>, Up:<a rel=up href="#Top">Top</a>
+<p>
+
+<h2><a name="Caveats">Caveats</a></h2>
+
+<p>A couple of points should be born in mind:
+
+<ol type=1 start=1>
+
+</p><li>Only a small subset of the DocBook <small>DTD</small> has currently been implemented. Furthermore, of the elements that have been implemented, most of their attributes are ignored. As time goes by, the implementation will become more complete. However, some features of DocBook may never be implemented due to limitatations in the texinfo format and some features of DocBook may never be implemented because they are not considered useful enough. All contributions are welcome. Please send contributions and bug reports to <a href="mailto:markb@ordern.com">markb@ordern.com</a>.
+
+<li>The <small>XSL</small> Transformations language has not yet been standardised and, therefore, applications that use it are subject to change. I envisage having to modify the <small>XSL</small> script to track the development of <small>XSL</small> and its implementations.
+
+<li>It is possible that some existing <small>SGML</small> documents may require modification before they can be successfully converted to <small>XML</small> and hence into texinfo.
+
+</ol>
+
+<p><hr>
+Node:Links, Previous:<a rel=previous href="#Caveats">Caveats</a>, Up:<a rel=up href="#Top">Top</a>
+<p>
+
+<h2><a name="Links">Links</a></h2>
+
+<p>More information can be found from these links:
+
+<dl>
+
+<br><dt><code>http://www.w3.org/TR/WD-xslt</code>
+<dd>The latest version of the <small>XSL</small> Transformations (<small>XSLT</small>) Specification.
+
+<br><dt><code>http://www.jclark.com/</code>
+<dd>James Clark's website contains much useful stuff including the <small>XSLT</small> engine <code>xt</code> and the <code>SP</code> toolset.
+
+<br><dt><code>http://nwalsh.com/</code>
+<dd>Norman Walsh's website contains lots of DocBook and <small>XML</small>/<small>XSL</small> related stuff.
+
+<br><dt><code>http://www.kaffe.org/</code>
+<dd>Home of the "Open Source" Kaffe Java <small>VM</small>.
+
+</dl>
+
+<p><hr>
+Node:app_unicode, Up:<a rel=up href="#Top">Top</a>
+<p>
+
+<h1><a name="app_unicode">Recognised Unicode Characters</a></h1>
+
+<p>The following table lists the set of Unicode characters that are currently recognised. The name of the <small>XML</small> entity that yields each character is also listed.
+
+<p><table> <tr align=left><td><b>Unicode Character</b> <td><b>Rendered As</b> <td><b>Entity Name</b>
+  <br></tr><tr align=left><td><code>00a0</code> <td> <td><code>nbsp</code>
+ <br></tr><tr align=left><td><code>00a1</code> <td>&iexcl; <td><code>iexcl</code>
+ <br></tr><tr align=left><td><code>00a3</code> <td>&pound; <td><code>pound</code>
+ <br></tr><tr align=left><td><code>00a9</code> <td>&copy; <td><code>copy</code>
+ <br></tr><tr align=left><td><code>00bf</code> <td>&iquest; <td><code>iquest</code>
+ <br></tr><tr align=left><td><code>00c6</code> <td>&AElig; <td><code>AElig</code>
+ <br></tr><tr align=left><td><code>00df</code> <td>&szlig; <td><code>szlig</code>
+ <br></tr><tr align=left><td><code>00e6</code> <td>&aelig; <td><code>aelig</code>
+ <br></tr><tr align=left><td><code>2022</code> <td>&#149; <td><code>bull</code>
+ <br></tr><tr align=left><td><code>2026</code> <td><small>...</small> <td><code>hellip</code>
+ <br></tr><tr align=left><td><td><td>
+ <br></tr><tr align=left><td><code>0131</code> <td>i <td><code>inodot</code>
+ <br></tr><tr align=left><td><td><td>
+ <br></tr><tr align=left><td><code>00a8</code> <td>&uml;  <td><code>uml</code>
+ <br></tr><tr align=left><td><code>00e4</code> <td>&auml; <td><code>auml</code>
+ <br></tr><tr align=left><td><code>00c4</code> <td>&Auml; <td><code>Auml</code>
+ <br></tr><tr align=left><td><code>00eb</code> <td>&euml; <td><code>euml</code>
+ <br></tr><tr align=left><td><code>00cb</code> <td>&Euml; <td><code>Euml</code>
+ <br></tr><tr align=left><td><code>00ef</code> <td>&uml;i <td><code>iuml</code>
+ <br></tr><tr align=left><td><code>00cf</code> <td>&Iuml; <td><code>Iuml</code>
+ <br></tr><tr align=left><td><code>00f6</code> <td>&ouml; <td><code>ouml</code>
+ <br></tr><tr align=left><td><code>00d6</code> <td>&Ouml; <td><code>Ouml</code>
+ <br></tr><tr align=left><td><code>00fc</code> <td>&uuml; <td><code>uuml</code>
+ <br></tr><tr align=left><td><code>00dc</code> <td>&Uuml; <td><code>Uuml</code>
+ <br></tr><tr align=left><td><code>00ff</code> <td>&yuml; <td><code>yuml</code>
+ <br></tr><tr align=left><td><code>0178</code> <td>&uml;Y <td><code>Yuml</code>
+ <br></tr><tr align=left><td><td><td>
+ <br></tr><tr align=left><td><code>00b4</code> <td>&acute;  <td><code>acute</code>
+ <br></tr><tr align=left><td><code>00e1</code> <td>&aacute; <td><code>aacute</code>
+ <br></tr><tr align=left><td><code>00c1</code> <td>&Aacute; <td><code>Aacute</code>
+ <br></tr><tr align=left><td><code>00e9</code> <td>&eacute; <td><code>eacute</code>
+ <br></tr><tr align=left><td><code>00c9</code> <td>&Eacute; <td><code>Eacute</code>
+ <br></tr><tr align=left><td><code>00ed</code> <td>&acute;i <td><code>iacute</code>
+ <br></tr><tr align=left><td><code>00cd</code> <td>&Iacute; <td><code>Iacute</code>
+ <br></tr><tr align=left><td><code>00f3</code> <td>&oacute; <td><code>oacute</code>
+ <br></tr><tr align=left><td><code>00d3</code> <td>&Oacute; <td><code>Oacute</code>
+ <br></tr><tr align=left><td><code>00fa</code> <td>&uacute; <td><code>uacute</code>
+ <br></tr><tr align=left><td><code>00da</code> <td>&Uacute; <td><code>Uacute</code>
+ <br></tr><tr align=left><td><code>00fd</code> <td>&yacute; <td><code>yacute</code>
+ <br></tr><tr align=left><td><code>00dd</code> <td>&Yacute; <td><code>Yacute</code>
+ <br></tr><tr align=left><td><code>0107</code> <td>&acute;c <td><code>cacute</code>
+ <br></tr><tr align=left><td><code>0106</code> <td>&acute;C <td><code>Cacute</code>
+ <br></tr><tr align=left><td><code>01f5</code> <td>&acute;g <td><code>gacute</code>
+ <br></tr><tr align=left><td><code>013a</code> <td>&acute;l <td><code>lacute</code>
+ <br></tr><tr align=left><td><code>0139</code> <td>&acute;L <td><code>Lacute</code>
+ <br></tr><tr align=left><td><code>0144</code> <td>&acute;n <td><code>nacute</code>
+ <br></tr><tr align=left><td><code>0143</code> <td>&acute;N <td><code>Nacute</code>
+ <br></tr><tr align=left><td><code>0155</code> <td>&acute;r <td><code>racute</code>
+ <br></tr><tr align=left><td><code>0154</code> <td>&acute;R <td><code>Racute</code>
+ <br></tr><tr align=left><td><code>015b</code> <td>&acute;s <td><code>sacute</code>
+ <br></tr><tr align=left><td><code>015a</code> <td>&acute;S <td><code>Sacute</code>
+ <br></tr><tr align=left><td><code>017a</code> <td>&acute;z <td><code>zacute</code>
+ <br></tr><tr align=left><td><code>0179</code> <td>&acute;Z <td><code>Zacute</code>
+ <br></tr><tr align=left><td><td><td>
+ <br></tr><tr align=left><td><code>00b8</code> <td>&cedil;  <td><code>cedil</code>
+ <br></tr><tr align=left><td><code>00e7</code> <td>&ccedil; <td><code>ccedil</code>
+ <br></tr><tr align=left><td><code>00c7</code> <td>&Ccedil; <td><code>Ccedil</code>
+ <br></tr><tr align=left><td><code>0122</code> <td>&cedil;G <td><code>Gcedil</code>
+ <br></tr><tr align=left><td><code>0137</code> <td>&cedil;k <td><code>kcedil</code>
+ <br></tr><tr align=left><td><code>0136</code> <td>&cedil;K <td><code>Kcedil</code>
+ <br></tr><tr align=left><td><code>013c'</code> <td>&cedil;l <td><code>lcedil</code>
+ <br></tr><tr align=left><td><code>013b</code> <td>&cedil;L <td><code>Lcedil</code>
+ <br></tr><tr align=left><td><code>0146</code> <td>&cedil;n <td><code>ncedil</code>
+ <br></tr><tr align=left><td><code>0145</code> <td>&cedil;N <td><code>Ncedil</code>
+ <br></tr><tr align=left><td><code>0157</code> <td>&cedil;r <td><code>rcedil</code>
+ <br></tr><tr align=left><td><code>0156</code> <td>&cedil;R <td><code>Rcedil</code>
+ <br></tr><tr align=left><td><code>015f</code> <td>&cedil;s <td><code>scedil</code>
+ <br></tr><tr align=left><td><code>015e</code> <td>&cedil;S <td><code>Scedil</code>
+ <br></tr><tr align=left><td><code>0163</code> <td>&cedil;t <td><code>tcedil</code>
+ <br></tr><tr align=left><td><code>0162</code> <td>&cedil;T <td><code>Tcedil</code>
+ <br></tr><tr align=left><td><td><td>
+ <br></tr><tr align=left><td><code>00af</code> <td> &macr; <td><code>macr</code>
+ <br></tr><tr align=left><td><code>0101</code> <td>a&macr; <td><code>amacr</code>
+ <br></tr><tr align=left><td><code>0100</code> <td>A&macr; <td><code>Amacr</code>
+ <br></tr><tr align=left><td><code>0113</code> <td>e&macr; <td><code>emacr</code>
+ <br></tr><tr align=left><td><code>0112</code> <td>E&macr; <td><code>Emacr</code>
+ <br></tr><tr align=left><td><code>012a</code> <td>I&macr; <td><code>Imacr</code>
+ <br></tr><tr align=left><td><code>012b</code> <td>i&macr; <td><code>imacr</code>
+ <br></tr><tr align=left><td><code>014c</code> <td>O&macr; <td><code>Omacr</code>
+ <br></tr><tr align=left><td><code>014d</code> <td>o&macr; <td><code>omacr</code>
+ <br></tr><tr align=left><td><code>016b</code> <td>u&macr; <td><code>umacr</code>
+ <br></tr><tr align=left><td><code>016a</code> <td>U&macr; <td><code>Umacr</code>
+ <br></tr><tr align=left><td><td><td>
+ <br></tr><tr align=left><td><code>00e2</code> <td>&acirc; <td><code>acirc</code>
+ <br></tr><tr align=left><td><code>00c2</code> <td>&Acirc; <td><code>Acirc</code>
+ <br></tr><tr align=left><td><code>00ea</code> <td>&ecirc; <td><code>ecirc</code>
+ <br></tr><tr align=left><td><code>00cA</code> <td>&Ecirc; <td><code>Ecirc</code>
+ <br></tr><tr align=left><td><code>00ee</code> <td>^i <td><code>icirc</code>
+ <br></tr><tr align=left><td><code>00ce</code> <td>&Icirc; <td><code>Icirc</code>
+ <br></tr><tr align=left><td><code>00f4</code> <td>&ocirc; <td><code>ocirc</code>
+ <br></tr><tr align=left><td><code>00d4</code> <td>&Ocirc; <td><code>Ocirc</code>
+ <br></tr><tr align=left><td><code>00db</code> <td>&ucirc; <td><code>ucirc</code>
+ <br></tr><tr align=left><td><code>00fb</code> <td>&Ucirc; <td><code>Ucirc</code>
+ <br></tr><tr align=left><td><code>0109</code> <td>^c <td><code>ccirc</code>
+ <br></tr><tr align=left><td><code>0108</code> <td>^C <td><code>Ccirc</code>
+ <br></tr><tr align=left><td><code>011d</code> <td>^g <td><code>gcirc</code>
+ <br></tr><tr align=left><td><code>011c</code> <td>^G <td><code>Gcirc</code>
+ <br></tr><tr align=left><td><code>0125</code> <td>^h <td><code>hcirc</code>
+ <br></tr><tr align=left><td><code>0124</code> <td>^H <td><code>Hcirc</code>
+ <br></tr><tr align=left><td><code>0135</code> <td>^j <td><code>jcirc</code>
+ <br></tr><tr align=left><td><code>0134</code> <td>^J <td><code>Jcirc</code>
+ <br></tr><tr align=left><td><code>015d</code> <td>^s <td><code>scirc</code>
+ <br></tr><tr align=left><td><code>015c</code> <td>^S <td><code>Scirc</code>
+ <br></tr><tr align=left><td><code>0175</code> <td>^w <td><code>wcirc</code>
+ <br></tr><tr align=left><td><code>0174</code> <td>^W <td><code>Wcirc</code>
+ <br></tr><tr align=left><td><code>0177</code> <td>^y <td><code>ycirc</code>
+ <br></tr><tr align=left><td><code>0176</code> <td>^Y <td><code>Ycirc</code>
+ <br></tr><tr align=left><td><td><td>
+ <br></tr><tr align=left><td><code>00e0</code> <td>&agrave; <td><code>agrave</code>
+ <br></tr><tr align=left><td><code>00c0</code> <td>&Agrave; <td><code>Agrave</code>
+ <br></tr><tr align=left><td><code>00e8</code> <td>&egrave; <td><code>egrave</code>
+ <br></tr><tr align=left><td><code>00c8</code> <td>&Egrave; <td><code>Egrave</code>
+ <br></tr><tr align=left><td><code>00ec</code> <td>`i <td><code>igrave</code>
+ <br></tr><tr align=left><td><code>00cc</code> <td>&Igrave; <td><code>Igrave</code>
+ <br></tr><tr align=left><td><code>00f2</code> <td>&ograve; <td><code>ograve</code>
+ <br></tr><tr align=left><td><code>00d2</code> <td>&Ograve; <td><code>Ograve</code>
+ <br></tr><tr align=left><td><code>00f9</code> <td>&ugrave; <td><code>ugrave</code>
+ <br></tr><tr align=left><td><code>00d9</code> <td>&Ugrave; <td><code>Ugrave</code>
+ <br></tr><tr align=left><td><td><td>
+ <br></tr><tr align=left><td><code>00e3</code> <td>&atilde; <td><code>atilde</code>
+ <br></tr><tr align=left><td><code>00c3</code> <td>&Atilde; <td><code>Atilde</code>
+ <br></tr><tr align=left><td><code>00f1</code> <td>&ntilde; <td><code>ntilde</code>
+ <br></tr><tr align=left><td><code>00d1</code> <td>~N <td><code>Ntilde</code>
+ <br></tr><tr align=left><td><code>00f5</code> <td>&otilde; <td><code>otilde</code>
+ <br></tr><tr align=left><td><code>00d5</code> <td>&Otilde; <td><code>Otilde</code>
+ <br></tr><tr align=left><td><code>0129</code> <td>~i <td><code>itilde</code>
+ <br></tr><tr align=left><td><code>0128</code> <td>~I <td><code>Itilde</code>
+ <br></tr><tr align=left><td><code>0169</code> <td>~u <td><code>utilde</code>
+ <br></tr><tr align=left><td><code>0168</code> <td>~U <td><code>Utilde</code>
+<br></tr></table>
+
+
+<h1>Table of Contents</h1>
+<ul>
+<li><a href="#Top">Dbtotexi</a>
+<ul>
+<li><a href="#Introduction">Introduction</a>
+<li><a href="#License">License</a>
+<li><a href="#Installation">Installation</a>
+<li><a href="#Usage">Usage</a>
+<li><a href="#Role%20Attributes">Role Attributes</a>
+<li><a href="#sec_texinfopi">The <code>texinfo</code> Processing Instruction</a>
+<li><a href="#sec_dirpi">The <code>dircategory</code> &amp; <code>direntry</code> Processing Instructions</a>
+<li><a href="#sec_unicode">Support for Unicode Characters</a>
+<li><a href="#Caveats">Caveats</a>
+<li><a href="#Links">Links</a>
+</ul>
+<li><a href="#app_unicode">Recognised Unicode Characters</a>
+</ul>
+
+<hr><h4>Footnotes</h4>
+<ol type="1">
+<li><a name="fn-1"></a>
+<p>
+Currently, I am using James Clark's <code>xt</code>. 
+ </p>
+
+<li><a name="fn-2"></a>
+<p>
+You must have done that already to be reading this! 
+ </p>
+
+<li><a name="fn-3"></a>
+<p>
+<code>http://www.kaffe.org/</code>
+ </p>
+
+</ol><hr>
+
+</body></html>

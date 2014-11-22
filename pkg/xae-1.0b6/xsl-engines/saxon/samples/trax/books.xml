@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE BOOKLIST SYSTEM "books.dtd">
+<?xml-stylesheet href="books.xsl" type="text/xml"?>
+<?xml-stylesheet href="priced-books.xsl" type="text/xml" title="priced-books"?><BOOKLIST>
+
+<BOOKS>
+    <ITEM xmlns:unused="abc.uri" CAT="S">
+    	<TITLE>Number, the Language of Science</TITLE>
+    	<AUTHOR>Danzig</AUTHOR>
+    	<PRICE>5.95</PRICE>
+    	<QUANTITY>3</QUANTITY>
+	</ITEM>
+	<ITEM CAT="F">
+		<TITLE>Tales of Grandpa Cat</TITLE>
+		<PUBLISHER>Associated Press</PUBLISHER>
+		<AUTHOR>Wardlaw, Lee</AUTHOR>
+		<PRICE>6.58</PRICE>
+		<QUANTITY>5</QUANTITY>
+	</ITEM>
+	<ITEM CAT="S">
+		<TITLE>Language &amp; the Science of Number</TITLE>
+		<AUTHOR>Danzig</AUTHOR>
+		<PRICE>8.95</PRICE>
+		<QUANTITY>5</QUANTITY>
+	</ITEM>
+	<ITEM CAT="S">
+		<TITLE>Evolution of Complexity in Animal Culture</TITLE>
+		<AUTHOR>Bonner</AUTHOR>
+		<PRICE>5.95</PRICE>
+		<QUANTITY>2</QUANTITY>
+	</ITEM>
+	<ITEM CAT="X">
+		<TITLE>Patterns of Crime in Animal Culture</TITLE>
+		<AUTHOR>Bonner</AUTHOR>
+		<PRICE>15.95</PRICE>
+		<QUANTITY>0</QUANTITY>
+	</ITEM>
+
+	<ITEM TAX="7.5" CAT="F">
+		<TITLE>When We Were Very Young</TITLE>
+		<AUTHOR>Milne, A. A.</AUTHOR>
+		<PRICE>12.50</PRICE>
+		<QUANTITY>1</QUANTITY>
+	</ITEM>
+	<ITEM CAT="C">
+		<TITLE>Learn Java Now</TITLE>
+		<AUTHOR>Stephen R. Davis</AUTHOR>
+		<PUBLISHER>Microsoft Corporation</PUBLISHER>
+		<PRICE>9.95</PRICE>
+		<QUANTITY>12</QUANTITY>
+	</ITEM>
+	<ITEM TAX="12.5" CAT="U">
+		<TITLE>Design Patterns</TITLE>
+		<AUTHOR>Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides</AUTHOR>
+		<PUBLISHER>Addison Wesley</PUBLISHER>
+		<PRICE>49.95</PRICE>
+		<QUANTITY>2</QUANTITY>
+	</ITEM>
+	<?testpi1 here is a message ?>
+	<?testpi2 here is a message ?>
+	<garbage xmlns="garbage.uri"/>
+</BOOKS>
+<CATEGORIES DESC="Miscellaneous categories">
+A list of categories
+	<CATEGORY REF="othello/scene1.xml" DESC="Science" CODE="S"/>
+	<CATEGORY NOTE="Limited Stock" DESC="Science" CODE="I"/>
+	<CATEGORY DESC="Computing" CODE="C"/>
+	<CATEGORY DESC="Crime" CODE="X"/>
+	<CATEGORY DESC="Fiction" CODE="F"/>
+	<CATEGORY DESC="Unclassified" CODE="U"/>
+</CATEGORIES>
+
+<xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0" id="style1">
+<xsl:strip-space elements="*"/>
+<xsl:preserve-space elements="xsl:text"/>
+
+<xsl:template match="/">
+    <xsl:for-each select="/descendant::ITEM">
+        <item>
+<xsl:copy-of select="."/>
+</item>;
+    </xsl:for-each>
+</xsl:template>
+</xsl:transform>
+-
+</BOOKLIST>

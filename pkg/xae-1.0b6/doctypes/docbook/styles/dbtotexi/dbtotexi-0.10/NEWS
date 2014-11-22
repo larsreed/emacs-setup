@@ -1,0 +1,18 @@
+
+Noteworthy changes to dbtotexi
+---------------------------------
+
+0.10 - renamed project to dbtotexi
+
+0.09 - Various small tweaks & additions.
+
+0.08 - Added support for dircategory & direntry commands.
+
+0.07 - Compatible with WD-xslt-19990813.
+
+0.06 - Compatible with WD-xslt-19990709.
+
+0.05 - Adds support for mapping Unicode characters into texinfo
+       commands.
+
+0.01-0.04 - Initial releases.
