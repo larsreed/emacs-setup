@@ -3,7 +3,7 @@
 
 ;; Copyright (C) 2002-2014 Lars Reed
 ;;   See lresetup.el
-;; Author:		Lars Reed <Lars@kalars.net>
+;; Author:      Lars Reed <Lars@kalars.net>
 ; Hi-lock: (("^;;; lre.*\\.el[^\n]*" (0 (quote hi-black-hb) t)))
 ; Hi-lock: (("Lars.*R[e]ed" (0 (quote hi-blue) t)))
 ; Hi-lock: (("^;;; [^\n]+" (0 (quote hi-green) t)))
@@ -49,8 +49,8 @@
 (defun lre-nroff-electric (words estr &optional sfx pfx)
 "Inserts pair of strings."
   (let ((s1 (if pfx pfx "\\*"))
-	(s2 (if sfx sfx estr))
-	(pp (point)))
+    (s2 (if sfx sfx estr))
+    (pp (point)))
     (if (/= words 1) (forward-word -1))
     (insert s1 estr)
     (if (/= words 1) (goto-char (+ pp (length s1) (length estr))))
@@ -75,8 +75,8 @@
   (interactive "*p")
   (let (pfx sfx)
     (if (> dim 0) (progn
-		    (setq pfx (concat "-" (int-to-string dim)))
-		    (setq sfx (concat "+" (int-to-string dim))))
+            (setq pfx (concat "-" (int-to-string dim)))
+            (setq sfx (concat "+" (int-to-string dim))))
       (setq pfx (concat "+" (int-to-string dim)))
       (setq sfx (concat "-" (int-to-string dim))))
     (lre-nroff-electric 1 pfx sfx "\\s")))
@@ -85,7 +85,7 @@
   "Insert pair of \\*C/c."
   (interactive "*cChar: \np")
   (let ((pfx (char-to-string (upcase ch)))
-	(sfx (char-to-string (downcase ch))))
+    (sfx (char-to-string (downcase ch))))
     (lre-nroff-electric N pfx sfx)))
 
 (defun lre-nroff-bull ()  "Insert \\(bu."  (interactive "*")
@@ -114,10 +114,10 @@
 (autoload 'html-helper-mode "html-helper-mode" "Yay HTML" t)
 
 (defvar lre-Xml-use-nxml (and (lre-memb 'nxml)
-			       t))  ;; enabled!
+                   t))  ;; enabled!
 
 (defvar lre-Xml-use-psgml (and (lre-memb 'psgml)
-			       nil))  ;; disabled!
+                   nil))  ;; disabled!
 
 (defconst css-imenu-expression
   (list nil "^\\(.*\\)[{]\\s*$" 1)
@@ -150,12 +150,12 @@
   (interactive)
   (if lre-Xml-use-nxml
       (progn
-	(unless (or (fboundp 'nxml)
+    (unless (or (fboundp 'nxml)
                     (lre-memb 'e23+))
-	  (load-file (concat lre-slisp "/" LRE-nxml-pkg "/" "rng-auto.el")))
-	(nxml-mode))
+      (load-file (concat lre-slisp "/" LRE-nxml-pkg "/" "rng-auto.el")))
+    (nxml-mode))
     (if lre-Xml-use-psgml
-	(pxml-mode)
+    (pxml-mode)
       (xml-mode))))
 
 
@@ -168,7 +168,7 @@
     (lre-todays-date 6)
     (let ((p (point)))
       (if (search-forward "\"")
-	  (delete-region p (1- (point)))))
+      (delete-region p (1- (point)))))
     (goto-char (point-min))))
 
 (defun lre-quote--name-id(name &optional pcode)
@@ -176,28 +176,28 @@
   (if pcode pcode
     (let (code)
       (save-excursion
-	(set-buffer (get-buffer-create "*IDfix*"))
-	(erase-buffer)
-	(insert (upcase name))
-	(goto-char (point-min))
-	(when (re-search-forward "\\(.*\\),\\(.*\\)" nil t)
-	  (replace-match "\\2_\\1" t))
-	(goto-char (point-min))
-	(while (re-search-forward "[- ._,]+" nil t)
-	  (replace-match "_" t t))
-	(goto-char (point-max))
-	(backward-word 1)
-	(setq code
-	      (lre-replace-in-string
-	       (if (= (point) (point-min))
-		   (upcase name)
-		 (concat
-		  (buffer-substring-no-properties (point) (point-max))
-		  "_"
-		  (buffer-substring-no-properties (point-min)
-						  (1- (point)))))
-	       "__+"
-	       "_")))
+    (set-buffer (get-buffer-create "*IDfix*"))
+    (erase-buffer)
+    (insert (upcase name))
+    (goto-char (point-min))
+    (when (re-search-forward "\\(.*\\),\\(.*\\)" nil t)
+      (replace-match "\\2_\\1" t))
+    (goto-char (point-min))
+    (while (re-search-forward "[- ._,]+" nil t)
+      (replace-match "_" t t))
+    (goto-char (point-max))
+    (backward-word 1)
+    (setq code
+          (lre-replace-in-string
+           (if (= (point) (point-min))
+           (upcase name)
+         (concat
+          (buffer-substring-no-properties (point) (point-max))
+          "_"
+          (buffer-substring-no-properties (point-min)
+                          (1- (point)))))
+           "__+"
+           "_")))
       (setq code (read-from-minibuffer "ID: " code))
       code)))
 
@@ -214,68 +214,68 @@
   (interactive)
   (lre-quote-change)
   (let ((auth nil)
-	(n (1+ (lre-how-many "<quote ")))
-	name
-	code
-	s
-	has-auth
-	p)
+    (n (1+ (lre-how-many "<quote ")))
+    name
+    code
+    s
+    has-auth
+    p)
     (when (search-forward "<quotes" nil t)
       (forward-line 1)
       (insert (format "<quote id='q%05d'>\n<qtext>\n" n))
       (insert (or pquo (read-from-minibuffer "Quote: ")))
       (insert "\n</qtext>\n<qmeta>\n")
       (setq has-auth (or (and (not pauth)
-			      (y-or-n-p "By author? "))
-			 (not (string= pauth ""))))
+                  (y-or-n-p "By author? "))
+             (not (string= pauth ""))))
       (if has-auth
-	  (progn
-	    (setq name (or pauth (read-from-minibuffer "Name: " nil nil nil
-						       'lre-quotes-auth-hist)))
-	    (setq code (lre-quote--name-id name pauthid)
-		  auth t)
-	    (insert "<by aref='"
-		    code
-		    "'>"
-		    name
-		    "</by>")
-	    (if (or pwork (y-or-n-p "From work? "))
-		(if (or (not pwork) (not (string= pwork "")))
-		    (insert "\n<work>"
-			    (or pwork (read-from-minibuffer "Work: "))
-			    "</work>"))))
-	(insert "<source>"
-		(or psource (read-from-minibuffer "Source: "))
-		"</source>"))
+      (progn
+        (setq name (or pauth (read-from-minibuffer "Name: " nil nil nil
+                               'lre-quotes-auth-hist)))
+        (setq code (lre-quote--name-id name pauthid)
+          auth t)
+        (insert "<by aref='"
+            code
+            "'>"
+            name
+            "</by>")
+        (if (or pwork (y-or-n-p "From work? "))
+        (if (or (not pwork) (not (string= pwork "")))
+            (insert "\n<work>"
+                (or pwork (read-from-minibuffer "Work: "))
+                "</work>"))))
+    (insert "<source>"
+        (or psource (read-from-minibuffer "Source: "))
+        "</source>"))
       (insert "\n</qmeta>\n</quote>\n")
       (when auth
-	(when (and (= 0 (lre-how-many (concat "id=." code)))
-;;		   (y-or-n-p "Add author info? ")
-		   (search-forward "<authors>"))
-	  (setq p (1+ (point)))
-	  (insert "\n<auth id=\""
-		  code
-		  "\"")
-	  (setq s (read-from-minibuffer "Description (or blank): "))
-	  (or (string= s "")
-	      (insert " desc=\"" s "\""))
-	  (setq s (read-from-minibuffer "From year (or blank): "))
-	  (unless (string= s "")
-	    (insert " from=\"" s "\"")
-	    (setq s (read-from-minibuffer "To year (or blank): "))
-	    (or (string= s "")
-		(insert " to=\"" s "\""))
-	    (and (y-or-n-p "Approximate? ")
-		 (insert " approx=\"yes\"")))
-	  (setq s (read-from-minibuffer "Alias (or blank): "))
-	  (or (string= s "")
-	      (insert " alias=\"" s "\""))
-	  (insert ">" name "</auth>")
-	  (when (search-forward "</authors>")
-	    (beginning-of-line)
-	    (sort-lines nil p (point))))
-	(goto-char (point-max))
-	(search-backward code)))))
+    (when (and (= 0 (lre-how-many (concat "id=." code)))
+;;         (y-or-n-p "Add author info? ")
+           (search-forward "<authors>"))
+      (setq p (1+ (point)))
+      (insert "\n<auth id=\""
+          code
+          "\"")
+      (setq s (read-from-minibuffer "Description (or blank): "))
+      (or (string= s "")
+          (insert " desc=\"" s "\""))
+      (setq s (read-from-minibuffer "From year (or blank): "))
+      (unless (string= s "")
+        (insert " from=\"" s "\"")
+        (setq s (read-from-minibuffer "To year (or blank): "))
+        (or (string= s "")
+        (insert " to=\"" s "\""))
+        (and (y-or-n-p "Approximate? ")
+         (insert " approx=\"yes\"")))
+      (setq s (read-from-minibuffer "Alias (or blank): "))
+      (or (string= s "")
+          (insert " alias=\"" s "\""))
+      (insert ">" name "</auth>")
+      (when (search-forward "</authors>")
+        (beginning-of-line)
+        (sort-lines nil p (point))))
+    (goto-char (point-max))
+    (search-backward code)))))
 
 (defun lre-add-qauthor(&optional pauth pdesc palias papprox pfrom pto nosort)
   "Add author to quotes.xml
@@ -288,76 +288,76 @@ PALIAS: optional alias"
   (interactive)
   (lre-quote-change)
   (let ((qfrom
-	 (if pfrom (if (stringp pfrom) pfrom (number-to-string pfrom)) ""))
-	(qto
-	 (if pto (if (stringp pto) pto (number-to-string pto)) ""))
-	name
-	code
-	xcode
-	approx
-	s
-	p)
+     (if pfrom (if (stringp pfrom) pfrom (number-to-string pfrom)) ""))
+    (qto
+     (if pto (if (stringp pto) pto (number-to-string pto)) ""))
+    name
+    code
+    xcode
+    approx
+    s
+    p)
     (setq name (or pauth (read-from-minibuffer "Name: " nil nil nil
-					       'lre-quotes-auth-hist)))
+                           'lre-quotes-auth-hist)))
     (setq code (lre-quote--name-id name))
     (setq xcode (concat "id=." code))
     (goto-char (point-min))
     (when (search-forward "<authors>" nil t)
       (if (re-search-forward xcode nil t)
-	  (let ((dsc (concat (if palias (concat "alias=\"" palias "\" ") "")
-			     (if pdesc  (concat "desc=\""  pdesc  "\" ") "")
-			     (if qfrom  (concat "from=\""  qfrom  "\" ") "")
-			     (if qto    (concat "to=\""    qto    "\" ") ""))))
-	    (unless (y-or-n-p (concat name " " dsc))
-	      (end-of-line)
-	      (insert "<!-- " dsc " -->")))
-	(setq p (1+ (point)))
-	(insert "\n<auth id=\"" code "\"")
-	(setq s (or pdesc (read-from-minibuffer "Description (or blank): ")))
-	(or (string= s "")
-	    (insert " desc=\"" s "\""))
-	(setq s (if pfrom qfrom
-		  (read-from-minibuffer "From year (or blank): ")))
-	(unless (string= s "")
-	  (insert " from=\"" s "\"")
-	  (setq s (if pto qto (read-from-minibuffer "To year (or blank): ")))
-	  (or (string= s "")
-	      (insert " to=\"" s "\""))
-	  (setq approx (cond ((eq papprox t)
-			      t)
-			     ((or (null papprox)
-				  (= 0 papprox))
-			      (y-or-n-p "Approximate? "))
-			     ((> papprox 0) t)
-			     (t nil)))
-	  (if approx (insert " approx=\"yes\"")))
-	(setq s (or palias (read-from-minibuffer "Alias (or blank): ")))
-	(or (string= s "")
-	    (insert " alias=\"" s "\""))
-	(insert ">" name "</auth>")
-	(when (and (not nosort)
-		   (search-forward "</authors>" nil t))
-	  (beginning-of-line)
-	  (sort-lines nil p (point))
-	  (goto-char (point-max))
-	  (re-search-backward xcode))))))
+      (let ((dsc (concat (if palias (concat "alias=\"" palias "\" ") "")
+                 (if pdesc  (concat "desc=\""  pdesc  "\" ") "")
+                 (if qfrom  (concat "from=\""  qfrom  "\" ") "")
+                 (if qto    (concat "to=\""    qto    "\" ") ""))))
+        (unless (y-or-n-p (concat name " " dsc))
+          (end-of-line)
+          (insert "<!-- " dsc " -->")))
+    (setq p (1+ (point)))
+    (insert "\n<auth id=\"" code "\"")
+    (setq s (or pdesc (read-from-minibuffer "Description (or blank): ")))
+    (or (string= s "")
+        (insert " desc=\"" s "\""))
+    (setq s (if pfrom qfrom
+          (read-from-minibuffer "From year (or blank): ")))
+    (unless (string= s "")
+      (insert " from=\"" s "\"")
+      (setq s (if pto qto (read-from-minibuffer "To year (or blank): ")))
+      (or (string= s "")
+          (insert " to=\"" s "\""))
+      (setq approx (cond ((eq papprox t)
+                  t)
+                 ((or (null papprox)
+                  (= 0 papprox))
+                  (y-or-n-p "Approximate? "))
+                 ((> papprox 0) t)
+                 (t nil)))
+      (if approx (insert " approx=\"yes\"")))
+    (setq s (or palias (read-from-minibuffer "Alias (or blank): ")))
+    (or (string= s "")
+        (insert " alias=\"" s "\""))
+    (insert ">" name "</auth>")
+    (when (and (not nosort)
+           (search-forward "</authors>" nil t))
+      (beginning-of-line)
+      (sort-lines nil p (point))
+      (goto-char (point-max))
+      (re-search-backward xcode))))))
 
 (defun lre-add-qauth-fast (pauth pdesc
-				 &optional pfrom pto dosort papprox palias)
+                 &optional pfrom pto dosort papprox palias)
   "For standard batch entry of authors"
   (lre-add-qauthor pauth pdesc (or palias "") (if papprox 1 -1) pfrom pto
-		   (if dosort nil t)))
+           (if dosort nil t)))
 
 (defun lre-add-cookie(coo)
   "Add cookie to quotes.xml"
   (interactive "sCookie: ")
   (lre-quote-change)
   (let ((auth nil)
-	(n (1+ (lre-how-many "<cookie ")))
-	name
-	code
-	s
-	p)
+    (n (1+ (lre-how-many "<cookie ")))
+    name
+    code
+    s
+    p)
     (when (search-forward "<cookies" nil t)
       (forward-line 1)
       (insert (format "<cookie id='c%05d' tagline='yes'>" n))
@@ -369,23 +369,23 @@ PALIAS: optional alias"
 from FILE"
   (let ((xml (xml-parse-file file t)))
     (list (caar xml)
-	  (caadr xml)
-	  (delete-duplicates (mapcar 'car (cddadr xml)))
-	  (delete-duplicates (apply  'append
-				     (mapcar '(lambda (e)
-						(mapcar 'car e))
-					     (mapcar 'cddr (cddadr xml))))))))
+      (caadr xml)
+      (delete-duplicates (mapcar 'car (cddadr xml)))
+      (delete-duplicates (apply  'append
+                     (mapcar '(lambda (e)
+                        (mapcar 'car e))
+                         (mapcar 'cddr (cddadr xml))))))))
 
 
 (defun lre-xml-comment-def()
   "Set comment characters - why do I need these???"
   (interactive)
   (or (and (boundp 'comment-start)
-	   comment-start)
+       comment-start)
       (setq comment-start "<!-- "))
   (or (and (boundp 'comment-end)
-	   comment-end
-	   (not (string= comment-end "")))
+       comment-end
+       (not (string= comment-end "")))
       (setq comment-end " -->")))
 
 (defun lre-xml-get-doctype()
@@ -414,30 +414,30 @@ from FILE"
   (if (lre-memb 'xsltp) (xslt-process-mode))
   (let ((doctype (lre-xml-get-doctype)))
     (cond ((string-match "^rulez" doctype)
-	   (setq imenu-generic-expression
-		 '(
-		   (nil "<title>\\(.*\\)</title>" 1)
+       (setq imenu-generic-expression
+         '(
+           (nil "<title>\\(.*\\)</title>" 1)
                    ("Sect"
-		    "[<]\\(\\(rule\\)?sect\\|appendix\\).*id=.\\([A-Za-z0-9.]+\\)"
-		    3)
-		   ("Rule"
-		    "[<]\\(sub\\)?\\(tip\\|rule\\).*id=.\\([A-Za-z0-9.]+\\)"
-		    3) )))
-	  ((string= doctype "utility")
-	   (setq imenu-generic-expression
-		 '(
-		   (nil "^\\s-*<\\(history\\|customers\\|strings\\|doc\\|notes\\|bugs\\|messages\\|filerefs\\|seealso\\|retstats\\|sysdoc\\|instdoc\\)" 1)
-		   ("Files" "<file \\(.*\\)" 1))))
+            "[<]\\(\\(rule\\)?sect\\|appendix\\).*id=.\\([A-Za-z0-9.]+\\)"
+            3)
+           ("Rule"
+            "[<]\\(sub\\)?\\(tip\\|rule\\).*id=.\\([A-Za-z0-9.]+\\)"
+            3) )))
+      ((string= doctype "utility")
+       (setq imenu-generic-expression
+         '(
+           (nil "^\\s-*<\\(history\\|customers\\|strings\\|doc\\|notes\\|bugs\\|messages\\|filerefs\\|seealso\\|retstats\\|sysdoc\\|instdoc\\)" 1)
+           ("Files" "<file \\(.*\\)" 1))))
           ((string= doctype "project") ; Ant
-	   (setq imenu-generic-expression
-		 '(("Target" "^\\s-*<target\\([^>\n]+\\)" 1)
+       (setq imenu-generic-expression
+         '(("Target" "^\\s-*<target\\([^>\n]+\\)" 1)
                    ("Property" "^\\s-*<property\\([^>\n]+\\)" 1)
                    )))
-	  (t
-	   (setq imenu-generic-expression
-		 (cons '(nil
-			 "^\\(   \\|\t\\)\\{0,3\\}<\\([^!/>]\\{2,16\\}\\)" 2)
-		       imenu-generic-expression)))))
+      (t
+       (setq imenu-generic-expression
+         (cons '(nil
+             "^\\(   \\|\t\\)\\{0,3\\}<\\([^!/>]\\{2,16\\}\\)" 2)
+               imenu-generic-expression)))))
   (lre-xml-comment-def))
 
 ; ;   (defun xxy()
@@ -445,7 +445,7 @@ from FILE"
 ; ;     (rng-next-error 1)
 ; ;     (while (or (looking-at "span") (looking-at "</span>"))
 ; ;       (if (looking-at "</span>")
-; ;   	(delete-char 7)
+; ;     (delete-char 7)
 ; ;         (backward-delete-char-untabify 2 nil)
 ; ;         (delete-char 5 nil))
 ; ;       (previous-line 1)
@@ -508,7 +508,7 @@ from FILE"
   "Insert a >, or if used twice in a row insert &gt;."
   (interactive "*P")
   (if (or (eq major-mode 'psgml-mode)
-	  (eq major-mode 'pxml-mode))
+      (eq major-mode 'pxml-mode))
       (lre--double-keyfunfun pfx 'lre-html-gt ">" 'psgml-close-angle)
     (lre--double-keyfun pfx 'lre-html-gt ">" "&gt;")))
 
@@ -527,6 +527,20 @@ from FILE"
 (defun lre-html-lit-quo () "Insert a \"." (interactive "*") (insert "&quot;"))
 (defun lre-html-lit-amp () "Insert a &." (interactive "*") (insert "&amp;"))
 
+(defun lre-skip-to-next-blank-line () ;; Fra http://whattheemacsd.com/
+  (interactive)
+  (let ((inhibit-changing-match-data t))
+    (skip-syntax-forward " >")
+    (unless (search-forward-regexp "^\\s *$" nil t)
+      (goto-char (point-max)))))
+
+(defun lre-skip-to-previous-blank-line () ;; Fra http://whattheemacsd.com/
+  (interactive)
+  (let ((inhibit-changing-match-data t))
+    (skip-syntax-backward " >")
+    (unless (search-backward-regexp "^\\s *$" nil t)
+      (goto-char (point-min)))))
+
 (defmacro lre--sgml-key (keys func &optional in-mode)
   `(define-key
      (cond ((eq ,in-mode 'pxml) pxml-mode-map)
@@ -540,10 +554,10 @@ from FILE"
 (defun lre-sgml-common (sub-mode)
   "Additions to (p)sgml/html/xml-mode setup."
   (let ((p-p (or (eq sub-mode 'pxml)
-		 (eq sub-mode 'psgml))))
+         (eq sub-mode 'psgml))))
     (or (and (eq sub-mode 'nxml)
              (lre-not-memb 'nxml-hack))
-	(lre-safe-require 'sgml-mode))
+    (lre-safe-require 'sgml-mode))
     (if p-p (lre-safe-require 'psgml))
     (make-local-variable 'indent-tabs-mode)
     (setq indent-tabs-mode nil)
@@ -551,33 +565,33 @@ from FILE"
     (tplsub-mode 1)
     (lre-set-local fill-column 72)
     (setq sgml-transformation       'downcase
-	  sgml-font-lock-keywords-3 lre-font-lock-specials)
+      sgml-font-lock-keywords-3 lre-font-lock-specials)
     (lre-colors)
     (setq imenu-generic-expression
-	  '((nil
-	     "<!\\(element\\|ELEMENT\\)[ \t\n]+\\([A-Za-zæÆøØåÅ][-A-Za-z.0-9_æÆøØåÅ]*\\)"
-	     2)
-	    ("Entities"
-	     "<!\\(entity\\|ENTITY\\)[ \t\n]+\\([A-Za-zæÆøØåÅ][-A-Za-z.0-9_æÆøØåÅ]*\\)"
-	     2)
-	    ("Entities"
-	     "<!\\(entity\\|ENTITY\\)[ \t\n]+\\(%?[ \t]*[A-Za-zæÆøØåÅ][-A-Za-z.0-9_æÆøØåÅ]*\\)"
-	     2)
-	    ("Attributes"
-	     "<!\\(attlist\\|ATTLIST\\)[ \t\n]+\\([A-Za-zæÆøØåÅ][-A-Za-z.0-9_æÆøØåÅ]*\\)"
-	     2)
-	    ))
+      '((nil
+         "<!\\(element\\|ELEMENT\\)[ \t\n]+\\([A-Za-zæÆøØåÅ][-A-Za-z.0-9_æÆøØåÅ]*\\)"
+         2)
+        ("Entities"
+         "<!\\(entity\\|ENTITY\\)[ \t\n]+\\([A-Za-zæÆøØåÅ][-A-Za-z.0-9_æÆøØåÅ]*\\)"
+         2)
+        ("Entities"
+         "<!\\(entity\\|ENTITY\\)[ \t\n]+\\(%?[ \t]*[A-Za-zæÆøØåÅ][-A-Za-z.0-9_æÆøØåÅ]*\\)"
+         2)
+        ("Attributes"
+         "<!\\(attlist\\|ATTLIST\\)[ \t\n]+\\([A-Za-zæÆøØåÅ][-A-Za-z.0-9_æÆøØåÅ]*\\)"
+         2)
+        ))
     (lre--imenu-add)
     (when (and p-p
-	       (lre-memb-all 'flock 'psgml))
+           (lre-memb-all 'flock 'psgml))
       (make-local-variable 'font-lock-defaults)
       (setq font-lock-defaults
-	    '(("<\\([!?][a-z][-.a-z0-9]*\\)" 1 font-lock-keyword-face)
-	      ("<\\(/?[a-z][-.a-z0-9]*\\)" 1 font-lock-function-name-face)
-	      ("[&%][a-z][-.a-z0-9]*;?" . font-lock-variable-name-face)
-	      ("<! *--.*-- *>" . font-lock-comment-face)
-	      nil
-	      t)))
+        '(("<\\([!?][a-z][-.a-z0-9]*\\)" 1 font-lock-keyword-face)
+          ("<\\(/?[a-z][-.a-z0-9]*\\)" 1 font-lock-function-name-face)
+          ("[&%][a-z][-.a-z0-9]*;?" . font-lock-variable-name-face)
+          ("<! *--.*-- *>" . font-lock-comment-face)
+          nil
+          t)))
     (when (lre-memb 'e22+)
       (set (make-local-variable 'font-lock-defaults)
            '((sgml-font-lock-keywords
@@ -589,25 +603,27 @@ from FILE"
     (when (lre-memb 'keys)
       (lre--sgml-key "\C-b"           'lre-html-break sub-mode)
       (lre--sgml-key "\C-c "          'lre-sgml-space sub-mode)
-      (lre--sgml-key "\C-c."	      'lre-sgml-hellip sub-mode)
-      (lre--sgml-key "\C-c-"	      'lre-sgml-dash sub-mode)
-      (lre--sgml-key "\C-c<"	      'lre-sgml-tag sub-mode)
-;;      (lre--sgml-key "\C-c?"	      'lre-sgml-help sub-mode)
-      (lre--sgml-key "\C-c\C-q"	      'lre-add-quote sub-mode)
-      (lre--sgml-key "\C-cc"	      'comment-dwim sub-mode)
-      (lre--sgml-key "\C-cC"	      'lre-sgml-cdata sub-mode)
-      (lre--sgml-key "\C-ce"	      'lre-sgml-ent sub-mode)
-      (lre--sgml-key "\C-ch"	      'lre-xut-histrec sub-mode)
+      (lre--sgml-key "\C-c."          'lre-sgml-hellip sub-mode)
+      (lre--sgml-key "\C-c-"          'lre-sgml-dash sub-mode)
+      (lre--sgml-key "\C-c<"          'lre-sgml-tag sub-mode)
+;;      (lre--sgml-key "\C-c?"        'lre-sgml-help sub-mode)
+      (lre--sgml-key "\C-c\C-q"       'lre-add-quote sub-mode)
+      (lre--sgml-key "\C-cc"          'comment-dwim sub-mode)
+      (lre--sgml-key "\C-cC"          'lre-sgml-cdata sub-mode)
+      (lre--sgml-key "\C-ce"          'lre-sgml-ent sub-mode)
+      (lre--sgml-key "\C-ch"          'lre-xut-histrec sub-mode)
       (if p-p (lre--sgml-key "\C-c\C-i" 'psgml-insert-tag  sub-mode))
-      (lre--sgml-key "\C-cm"	      'lre-sgml-marked sub-mode)
-      (lre--sgml-key "\C-cp"	      'lre-sgml-pair sub-mode)
-      (lre--sgml-key "\C-cq&"	      'lre-html-lit-amp sub-mode)
-      (lre--sgml-key "\C-cq<"	      'lre-html-lit-lt sub-mode)
-      (lre--sgml-key "\C-cq>"	      'lre-html-lit-gt sub-mode)
-      (lre--sgml-key "\C-cq\""	      'lre-html-lit-quo sub-mode)
-      (lre--sgml-key "\C-cs"	      'lre-xml-scode sub-mode)
-      (lre--sgml-key "\C-ct"	      'lre-html-ins-table sub-mode)
+      (lre--sgml-key "\C-cm"          'lre-sgml-marked sub-mode)
+      (lre--sgml-key "\C-cp"          'lre-sgml-pair sub-mode)
+      (lre--sgml-key "\C-cq&"         'lre-html-lit-amp sub-mode)
+      (lre--sgml-key "\C-cq<"         'lre-html-lit-lt sub-mode)
+      (lre--sgml-key "\C-cq>"         'lre-html-lit-gt sub-mode)
+      (lre--sgml-key "\C-cq\""        'lre-html-lit-quo sub-mode)
+      (lre--sgml-key "\C-cs"          'lre-xml-scode sub-mode)
+      (lre--sgml-key "\C-ct"          'lre-html-ins-table sub-mode)
       (lre--sgml-key [backspace]      'backward-delete-char-untabify sub-mode)
+      (lre--sgml-key [remap forward-paragraph] 'lre-skip-to-next-blank-line)
+      (lre--sgml-key [remap backward-paragraph] 'lre-skip-to-previous-blank-line)
       )))
 
 (defun lre-html-mode ()
@@ -639,12 +655,12 @@ from FILE"
   (interactive "nRows: \nnColumns: ")
   (save-excursion
     (let (ci
-	  repl
-	  (th "tbody")
-	  (td "td")
-	  (blanks (make-string (current-column) ?\ ))
-	  (x-blanks (make-string lre-std-indent ?\ ))
-	  (ri 0))
+      repl
+      (th "tbody")
+      (td "td")
+      (blanks (make-string (current-column) ?\ ))
+      (x-blanks (make-string lre-std-indent ?\ ))
+      (ri 0))
       (insert "<table")
       (setq repl (read-from-minibuffer "Width (or blank): " "100%"))
       (or (string= repl "") (insert " width=\"" repl "\""))
@@ -656,23 +672,23 @@ from FILE"
       (insert ">\n")
       (setq repl (read-from-minibuffer "Caption (or blank): "))
       (or (string= repl "") (insert blanks x-blanks "<caption>"
-				    repl   "</caption>"))
+                    repl   "</caption>"))
       (while (< ri r)
-	(cond ((and (= ri 0) (y-or-n-p "Special header row? "))
-	       (setq th "thead"
-		     td "th"))
-	      (t (setq td "td")))
-	(or (string= th "") (insert blanks x-blanks "<" th ">\n"))
-	(insert blanks x-blanks x-blanks "<tr>\n")
-	(setq ci 0)
-	(while (< ci c)
-	  (insert blanks x-blanks x-blanks x-blanks "<" td "></" td ">\n")
-	  (incf ci))
-	(insert blanks x-blanks x-blanks "</tr>\n")
-	(unless (string= th "")
-	  (insert blanks x-blanks "</" th ">\n")
-	  (if (string= th "thead") (setq th "tbody") (setq th "")))
-	(incf ri))
+    (cond ((and (= ri 0) (y-or-n-p "Special header row? "))
+           (setq th "thead"
+             td "th"))
+          (t (setq td "td")))
+    (or (string= th "") (insert blanks x-blanks "<" th ">\n"))
+    (insert blanks x-blanks x-blanks "<tr>\n")
+    (setq ci 0)
+    (while (< ci c)
+      (insert blanks x-blanks x-blanks x-blanks "<" td "></" td ">\n")
+      (incf ci))
+    (insert blanks x-blanks x-blanks "</tr>\n")
+    (unless (string= th "")
+      (insert blanks x-blanks "</" th ">\n")
+      (if (string= th "thead") (setq th "tbody") (setq th "")))
+    (incf ri))
       (insert blanks x-blanks "</tbody>\n")
       (insert blanks "</table>"))))
 
@@ -688,9 +704,9 @@ from FILE"
 (defvar lre-sgml-font-lock-keywords
   (append (list (list "<\\([!?] *[a-zA-Z0-9%#]+\\)" 1 (lre-font-lock-ref-face)))
           lre-font-lock-specials
-	  '(("<\\([a-zA-Z0-9]+/?\\)" 1 font-lock-function-name-face)
-	    ("<\\(/[a-zA-Z0-9]+\\)" 1 font-lock-keyword-face)
-	    ("[&%][-.A-Za-z0-9#]+;?" . font-lock-type-face))))
+      '(("<\\([a-zA-Z0-9]+/?\\)" 1 font-lock-function-name-face)
+        ("<\\(/[a-zA-Z0-9]+\\)" 1 font-lock-keyword-face)
+        ("[&%][-.A-Za-z0-9#]+;?" . font-lock-type-face))))
 
 (defsubst lre-sgml-keys ()  "Noop"  nil)
 ;;  (lre-brace-mode 0)  ;; Used to be 2
@@ -705,20 +721,20 @@ from FILE"
     (when (lre-memb 'keys)
       (lre--sgml-key [?\C-c ?\C-<] 'lre-sgml-short-tag)
       (lre-set-norw (if lre-Xml-use-psgml psgml-mode-map
-		      sgml-mode-map)
-		    'lre-sgml-norw))
+              sgml-mode-map)
+            'lre-sgml-norw))
     (when (lre-memb 'hilit)
       (hilit-set-mode-patterns
        'sgml-mode
        '(
-	 ("</[^>]*>" nil include)
-	 ("<[^/>]+/[^/]/*>" nil defun)
-	 ("[%&][A-Za-z0-9#]+;" nil define)
-	 ("<!-- [^>]* -->\\|<!>" nil comment)
-	 ("<[A-Za-z]\\([-.A-Za-z0-9= \n\t]\\|\"[^\"]*\"\\|'[^']*'\\)*[>/]?"
-	  nil keyword)
-	 ("<! *[^ >]*" nil crossref)
-	 )
+     ("</[^>]*>" nil include)
+     ("<[^/>]+/[^/]/*>" nil defun)
+     ("[%&][A-Za-z0-9#]+;" nil define)
+     ("<!-- [^>]* -->\\|<!>" nil comment)
+     ("<[A-Za-z]\\([-.A-Za-z0-9= \n\t]\\|\"[^\"]*\"\\|'[^']*'\\)*[>/]?"
+      nil keyword)
+     ("<! *[^ >]*" nil crossref)
+     )
        nil 'case-insensitive)
       (lre-add-x-hilit 'sgml-mode))))
 
@@ -754,21 +770,21 @@ o  Or if the region is active, tag the region.
 o  Otherwise insert tag at point."
   (interactive "*sTag: \nP")
   (let ((pp (point))
-	(tag-name (if (string= tagn "")
-		      lre-sgml-last-tag
-		    (setq lre-sgml-last-tag tagn))))
+    (tag-name (if (string= tagn "")
+              lre-sgml-last-tag
+            (setq lre-sgml-last-tag tagn))))
     (cond
      (pfx         (forward-word -1))
      (mark-active (goto-char (region-beginning))))
     (insert "<" tag-name
-	    (if short-tag (if (eq major-mode 'xml-mode) "/>" "/") ">"))
+        (if short-tag (if (eq major-mode 'xml-mode) "/>" "/") ">"))
     (if (or pfx mark-active)
-	(goto-char (+ 2 pp (length tag-name))))
+    (goto-char (+ 2 pp (length tag-name))))
     (setq pp (point))
     (insert (if short-tag (if (not (eq major-mode 'xml-mode)) "/" "")
-	      (concat "</" tag-name ">")))
+          (concat "</" tag-name ">")))
     (if (not (or pfx mark-active))
-	(goto-char pp))))
+    (goto-char pp))))
 
 (defun lre-sgml-short-tag (tagn &optional pfx)
   "Insert minimized SGML tag."
@@ -790,20 +806,20 @@ o  Otherwise insert tag at point."
   "Insert hellipsis (...)."
   (interactive "*")
   (insert (if (eq major-mode 'sgml-mode)
-	      "&hellip;"
-	    "&#x2026;"))
+          "&hellip;"
+        "&#x2026;"))
   )
 
 (defun lre-sgml-dash ()
   "Insert ndash (--)."
   (interactive "*")
   (insert (if (eq major-mode 'sgml-mode)
-	      "&ndash;"
-	    "&#x2013;")))
+          "&ndash;"
+        "&#x2013;")))
 
 (defun lre-sgml-space (arg)  "Inserts nosp/nbsp."  (interactive "*P")
   (if (eq 'major-mode 'sgml-mode)
-	  (insert "&n" (if arg "o" "b") "sp;")
+      (insert "&n" (if arg "o" "b") "sp;")
     (insert (if arg "&nosp;" "&#xA0;"))))
 
 (defun lre-sgml-quote (arg)  "Inserts quote."  (interactive "*P")
@@ -813,10 +829,10 @@ o  Otherwise insert tag at point."
 (defun lre-sgml-electric (words estr &optional stago etago stagc etagc)
 "Inserts pair of strings."
   (let ((s1 (if stago stago "<"))
-	(s2 (if etago etago "</"))
-	(s3 (if stagc stagc ">"))
-	(s4 (if etagc etagc (if stagc stagc ">")))
-	(pp (point)))
+    (s2 (if etago etago "</"))
+    (s3 (if stagc stagc ">"))
+    (s4 (if etagc etagc (if stagc stagc ">")))
+    (pp (point)))
     (if (/= words 1) (forward-word -1))
     (insert s1 estr s3)
     (if (/= words 1) (goto-char (+ pp (length s1) (length estr) (length s3))))
@@ -836,7 +852,7 @@ o  Otherwise insert tag at point."
   (interactive "*p")
   (let (pfx)
     (if (< dim 0) (progn
-		    (setq pfx (concat "-" (int-to-string dim))))
+            (setq pfx (concat "-" (int-to-string dim))))
       (setq pfx (concat "+" (int-to-string dim))))
     (insert "<size spec=\"" pfx "\">")))
 
@@ -870,8 +886,8 @@ o  Otherwise insert tag at point."
   (if (lre-memb 'xsltp) (xslt-process-mode))
   (lre-set-local indent-line-function 'xsl-electric-tab)
   (setq imenu-generic-expression
-	(cons '(nil "^\\(   \\|\t\\)\\{0,3\\}<\\([^!/>]\\{2,16\\}\\)" 2)
-	      imenu-generic-expression))
+    (cons '(nil "^\\(   \\|\t\\)\\{0,3\\}<\\([^!/>]\\{2,16\\}\\)" 2)
+          imenu-generic-expression))
   (when (lre-memb 'keys)
     (easy-menu-define lre-xsl-menu xsl-mode-map "XSL menu"
       lre-xsl-menu-base)
@@ -896,9 +912,9 @@ o  Otherwise insert tag at point."
   (save-excursion
     (goto-char (point-min))
     (let ((re-kill
-	   " +span\\.lre-\\(tab\\|trailing-space\\)\\(-face\\)? {\n +background-color: [^\n]*\n +} /[*] lre-[^\n]*-face [*]/\n"))
+       " +span\\.lre-\\(tab\\|trailing-space\\)\\(-face\\)? {\n +background-color: [^\n]*\n +} /[*] lre-[^\n]*-face [*]/\n"))
       (while (re-search-forward re-kill nil t)
-	(replace-match "" nil nil)))))
+    (replace-match "" nil nil)))))
 
 (defun lre-xut-awkfunc()
   "konv awk-funksjon til XML-function"
@@ -926,7 +942,7 @@ o  Otherwise insert tag at point."
     (delete-region p-start p-end)
     (insert "<globuse var=\"" name "\"")
     (if (y-or-n-p "Doc?")
-	(save-excursion (insert "></globuse>"))
+    (save-excursion (insert "></globuse>"))
       (insert "/>"))))
 
 (defun lre-xut-histrec(&optional comment)
@@ -936,16 +952,16 @@ o  Otherwise insert tag at point."
   (search-forward "</history>")
   (beginning-of-line)
   (insert "        <histrec state=\"rel\">\n"
-	  "            <version>"
-	  (read-string "Version: " '("10." . 4))
-	  "</version>\n"
-	  "            <date>")
+      "            <version>"
+      (read-string "Version: " '("10." . 4))
+      "</version>\n"
+      "            <date>")
   (lre-todays-date 6)
   (insert "</date>\n"
-	  "            <author comp=\"Mesan AS\">"
-	  lre-fe-user
-	  "</author>\n"
-	  "            <description>")
+      "            <author comp=\"Mesan AS\">"
+      lre-fe-user
+      "</author>\n"
+      "            <description>")
   (save-excursion
     (insert "</description>\n        </histrec>\n"))
   (if comment (insert comment)))
@@ -1003,21 +1019,21 @@ o  Otherwise insert tag at point."
    "Insert footnote")
   (when (fboundp 'tplsub-register-mode)
       (tplsub-register-mode 'markup-mode
-			    tplsub-markup-tmpl-list
-			    tplsub-markup-help-list
-			    'default  ; template regexp
-			    'default  ; case sens.
-			    'default  ; cont string
-			    'default  ; expansion key
-			    )
+                tplsub-markup-tmpl-list
+                tplsub-markup-help-list
+                'default  ; template regexp
+                'default  ; case sens.
+                'default  ; cont string
+                'default  ; expansion key
+                )
       (tplsub-register-mode 'gfm-mode
-			    tplsub-markup-tmpl-list
-			    tplsub-markup-help-list
-			    'default  ; template regexp
-			    'default  ; case sens.
-			    'default  ; cont string
-			    'default  ; expansion key
-			    )
+                tplsub-markup-tmpl-list
+                tplsub-markup-help-list
+                'default  ; template regexp
+                'default  ; case sens.
+                'default  ; cont string
+                'default  ; expansion key
+                )
       (tplsub-mode t))
   (when buffer-file-name
     (add-hook 'after-save-hook

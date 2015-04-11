@@ -25,8 +25,8 @@
       LRE-eieio-pkg nil
       ;; LRE-eieio-pkg "pkg/eieio-0.17b3/lisp"
       ;; LRE-eieio-pkg "pkg/cedet-1.0beta3b/eieio"
-      LRE-elib-pkg "pkg/elib-1.0/lisp"
-      LRE-xsltp-pkg "pkg/xslt-process-2.1/lisp"
+      LRE-elib-pkg "pkg/elib-1.0"
+      LRE-xsltp-pkg "pkg/xslt-process-2.2/lisp"
       LRE-xslide-pkg "pkg/xslide-0.2"
       LRE-psgml-pkg (if (eq LRE-this-cfg 'lreibm) "pkg/psgml-1.2.0/lisp" nil)
       LRE-sb-pkg  (if (= emacs-major-version 21)
