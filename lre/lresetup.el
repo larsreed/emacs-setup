@@ -1820,6 +1820,7 @@ and can edit it until it has been confirmed."
 (autoload 'elint-initialize "elint" nil t)
 (autoload 'elint-defun "elint" "eLint the function at point" t)
 (autoload 'elint-current-buffer "elint" "eLint the current buffer" t)
+(autoload 'elisp-slime-nav-mode "elisp-slime-nav")
 ;; (autoload 'fe-mode "fe-mode" nil t)
 (autoload 'find-function "find-func" nil t)
 (autoload 'find-function-on-key "find-func" nil t)
@@ -2645,6 +2646,7 @@ Gi kommando \"\\[lre-tvist-key-description]\" for beskrivelse")
      [ "Open library" lre-open-library t ]
      [ "List libraries" lre-list-libs t ]
      [ "Search for defun" lre-search-defun t ]
+     [ "Goto definition" elisp-slime-nav-find-elisp-thing-at-point t ]
      "---"
      [ "Byte compile file" lre-byte-compile-file t ]
      [ "Recompile directory" byte-recompile-directory t ]
@@ -2784,6 +2786,7 @@ Gi kommando \"\\[lre-tvist-key-description]\" for beskrivelse")
   (define-key lre-keymap "D"      'lre-toggle-debug)
   (if (fboundp 'grep-tree) (define-key
               lre-keymap "G"      'grep-tree))
+  (define-key lre-keymap "J"      'lre-join-line-inverse)
   (define-key lre-keymap "P"      'ps-print-region-with-faces)
   (define-key lre-keymap "Q"      'lre-sql)
   (define-key lre-keymap "S"      'sysdul-mode)
@@ -2852,6 +2855,9 @@ Gi kommando \"\\[lre-tvist-key-description]\" for beskrivelse")
   (global-set-key [S-f9]        'lre-adjust-separator)
   (global-set-key [S-insert]    'lre-kill-yank)
   (global-set-key [print]       'lre-print)
+  (global-set-key (kbd "<C-S-down>") 'lre-move-line-down)
+  (global-set-key (kbd "<C-S-up>") 'lre-move-line-up)
+
 
   (when (lre-memb 'e22+)
     (global-set-key "\C-z\C-k" 'kmacro-keymap)
@@ -3659,6 +3665,32 @@ yank even with ARGS (thus it can be mapped to \C-y)"
     (unless (looking-at "\n")
       (goto-char (point-max))
       (insert "\n"))))
+
+(defun lre-join-line-inverse ()
+  "join-line to following"
+  (interactive)
+  (join-line -1))
+
+(defun lre-move-line-down ()
+  "move current line down"
+  (interactive)
+  ;; http://whattheemacsd.com/
+  (let ((col (current-column)))
+    (save-excursion
+      (forward-line)
+      (transpose-lines 1))
+    (forward-line)
+    (move-to-column col)))
+
+(defun lre-move-line-up ()
+  "move current line up"
+  (interactive)
+  ;; http://whattheemacsd.com/
+  (let ((col (current-column)))
+    (save-excursion
+      (forward-line)
+      (transpose-lines -1))
+    (move-to-column col)))
 
 (defun lre-replace-many-regexps (ins rlist)
   "For each (org . replace) in RLIST, perform replacement in INS"

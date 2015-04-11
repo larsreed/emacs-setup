@@ -110,7 +110,9 @@ rather than defun."
     (define-key emacs-lisp-mode-map "\C-cr" 'byte-recompile-directory)
     (define-key emacs-lisp-mode-map "\C-cf" 'lre-byte-compile-file)
     (define-key emacs-lisp-mode-map "\C-cs" 'lre-search-defun)
-    (define-key emacs-lisp-mode-map "\C-ce" 'eval-buffer))
+    (define-key emacs-lisp-mode-map "\C-ce" 'eval-buffer)
+    (elisp-slime-nav-mode t)
+    )
   (lre--imenu-add)
   (lre-brace-mode 1))
 
