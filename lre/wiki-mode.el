@@ -200,6 +200,7 @@ containing customizations for wiki editing."
   (define-key wiki-mode-map [?\C-c ?+] 'wiki-demote)
   (define-key wiki-mode-map [?\C-c ?c] 'wiki-code)
   (define-key wiki-mode-map [?\C-c ?m] 'wiki-mac)
+  (define-key wiki-mode-map [?\C-c ?s] 'wiki-sign)
   (define-key wiki-mode-map [C-return] 'wiki-list-enter)
   (when (fboundp 'tplsub-register-mode)
       (tplsub-register-mode 'wiki-mode
@@ -264,6 +265,22 @@ negative argument, increase or reduce indent by 1)."
     (insert "{" mac-name "}"
             new-txt
             "{" mac-name "}")))
+
+(defun wiki-sign (reg-start reg-end)
+  "Change name to user ID (Mesan)."
+  (interactive "*r")
+  (if (use-region-p)
+      (progn
+        (goto-char reg-start)
+        (insert "[~")
+        (downcase-region reg-start reg-end)
+        (goto-char (+ 2 reg-end))
+        (insert "]"))
+    (insert-before-markers "[~")
+    (downcase-word 2)
+    (insert "]"))
+  (backward-word)
+  (right-char))
 
 (defun wiki-scratch ()
   "Create a temp.buffer in wiki mode"

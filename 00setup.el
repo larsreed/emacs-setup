@@ -230,7 +230,10 @@
    (if (>= emacs-major-version 21) (setq lre-cfg (cons 'e21+ lre-cfg)))
    (if (>= emacs-major-version 22) (setq lre-cfg (cons 'e22+ lre-cfg)))
    (if (>= emacs-major-version 23) (setq lre-cfg (cons 'e23+ lre-cfg)))
-   (if (>= emacs-major-version 24) (setq lre-cfg (cons 'e24+ lre-cfg)))
+   (if (>= emacs-major-version 24)
+       (progn
+         (setq lre-cfg (cons 'e24+ lre-cfg))
+         (if (>= emacs-minor-version 4) (setq lre-cfg (cons 'e244+ lre-cfg)))))
    (if (not (eq LRE-this-cfg 'lreibm)) (setq lre-cfg (cons 'tvist lre-cfg)))
    (setq lre-cfg (cons (if uxver 'unix 'win32) lre-cfg))
    ))

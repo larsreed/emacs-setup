@@ -44,7 +44,6 @@
 
 ;;; History:
 ;; An endless number of changes!
-;; Current version: $Id: lresetup.el,v 1.18 2007/06/19 20:06:54 larsr Exp $
 
 ;;; TODO
 ;; - printer win32
@@ -1040,6 +1039,7 @@ and launch or redirect a browser to the specified URL."
       lazy-lock-defer-on-the-fly      nil
       line-number-display-limit-width 400
       lisp-code-directory             (concat (nth 0 lre-lisp) "/LCD-datafile")
+      load-prefer-newer               t
       local-use-mark-paren            t
       longlines-show-hard-newlines    t
       lpr-switches                    lre-printer-opt-lp
@@ -2000,6 +2000,8 @@ and can edit it until it has been confirmed."
 ;; TODO  (lre-safe-require 'smooth-scrolling)  ; keep buffer position when returning
   (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
   (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
+  (if (lre-memb 'e244+)
+      (add-hook 'eval-expression-minibuffer-setup-hook 'eldoc-mode))
   (when (lre-memb 'win32)  ; newer emacs on Win32
     (or (lre-memb 'e21+)
         (load "occurmod" t t))          ; ???
@@ -2373,7 +2375,8 @@ Gi kommando \"\\[lre-tvist-key-description]\" for beskrivelse")
      [ "Automatic hor. scrolling" hscroll-mode t
        :help "Toggle automatic scrolling" ]
      [ "Next long line" lre-next-long-line t :help "Goto next long line" ]
-     [ "Soft wrap long lines" longlines-mode (lre-memb 'e22+)
+     [ "Soft wrap long lines" (if (fboundp 'visual-line-mode) visual-line-mode
+                                longlines-mode) (lre-memb 'e22+)
        :help "Soft wrapping of long lines" ]
      "---"
      [ "Conv NOR 8-7" brace-swap-norwegian (not buffer-read-only)
@@ -2399,6 +2402,7 @@ Gi kommando \"\\[lre-tvist-key-description]\" for beskrivelse")
      [ "Sort lines" sort-lines (lre--men-reg) ]
      [ "Sort case-insensitive" lre-sort-lines-nocase (not buffer-read-only) ]
      [ "Copy line to other win" lre-copy-line-other-window t]
+     [ "Delete duplicate lines" delete-duplicate-lines (not buffer-read-only) ]
      [ "Duplicate line" lre-dup-line (not buffer-read-only) ]
      [ "Kill this line" lre-kill-this-line (not buffer-read-only) ]
      [ "Replace selection with kill" lre-kill-yank (lre--men-reg) ]
@@ -2783,6 +2787,7 @@ Gi kommando \"\\[lre-tvist-key-description]\" for beskrivelse")
   (define-key lre-keymap "P"      'ps-print-region-with-faces)
   (define-key lre-keymap "Q"      'lre-sql)
   (define-key lre-keymap "S"      'sysdul-mode)
+  (define-key lre-keymap "U"      'delete-duplicate-lines)
   (define-key lre-keymap "\t"     'indent-code-rigidly)
   (define-key lre-keymap "a"      'align-regexp)
   (define-key lre-keymap "b"      'commbox-quick)
@@ -2886,7 +2891,9 @@ Gi kommando \"\\[lre-tvist-key-description]\" for beskrivelse")
   (define-key esc-map ":"         'eval-expression)
   (define-key esc-map [f1]        'eval-expression)
   (if (lre-memb 'ispell)
-      (define-key esc-map "$"   'ispell-word))
+      (define-key esc-map "$"     'ispell-word))
+  (if (fboundp 'cycle-spacing)
+      (define-key esc-map " "     'cycle-spacing))
 
   (define-key ctl-x-4-map "v"   'view-file-other-window)
   (define-key ctl-x-4-map "g"   'lre-grape-open-non-diff)
@@ -2912,8 +2919,9 @@ Gi kommando \"\\[lre-tvist-key-description]\" for beskrivelse")
   (define-key help-map "Ad" 'apropos-documentation)
   (if (fboundp 'apropos-library)
       (define-key help-map "Al" 'apropos-library))
-  (define-key help-map "Au" 'apropos-value)
+  (define-key help-map "Au" 'apropos-user-option)
   (define-key help-map "Av" 'apropos-variable)
+  (define-key help-map "Aw" 'apropos-value)
   (define-key help-map "d"  'list-load-path-shadows)
   (define-key help-map "E"  'describe-face)
   (define-key help-map "M"  'man)
@@ -3025,7 +3033,7 @@ V     Show Sun keyboard (maybe...)"))
   (global-set-key [f5]            'goto-line)
   (global-set-key [C-f6]          'other-window)
   (global-set-key [f8]            'lre-compile)
-  (global-set-key [f11]           'dabbrev-expand)
+  (global-set-key [f12]           'dabbrev-expand)
   (when (lre-memb 'dos)
     (if (lre-memb 'braces)
         (global-set-key [f23]     'brace-mode))
