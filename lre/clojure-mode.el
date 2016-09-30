@@ -212,7 +212,7 @@ if that value is non-nil."
   "Scans the buffer backwards for the next top-level definition.
 Called by `imenu--generic-function'."
   (when (re-search-backward "^\\s *(def\\S *[ \n\t]+" nil t)
-    (save-excursion
+    (save-mark-and-excursion
       (goto-char (match-end 0))
       (when (looking-at "#?\\^")
         (let (forward-sexp-function) ; using the built-in one
@@ -570,7 +570,7 @@ himself, but since these are single objects I think it's right."
         (forward-sexp-function nil)) ; force the built-in version
     (while (not (zerop n))
       (forward-sexp dir)
-      (when (save-excursion ; move back to see if we're in a record literal
+      (when (save-mark-and-excursion ; move back to see if we're in a record literal
               (and
                (condition-case nil
                    (progn (backward-sexp) 't)
@@ -607,7 +607,7 @@ This function also returns nil meaning don't specify the indentation."
              (not (looking-at "\\sw\\|\\s_")))
         ;; car of form doesn't seem to be a symbol
         (progn
-          (if (not (> (save-excursion (forward-line 1) (point))
+          (if (not (> (save-mark-and-excursion (forward-line 1) (point))
                       calculate-lisp-indent-last-sexp))
               (progn (goto-char calculate-lisp-indent-last-sexp)
                      (beginning-of-line)
@@ -891,7 +891,7 @@ use (put-clojure-indent 'some-symbol 'defun)."
 
 (defun clojure-find-ns ()
   (let ((regexp clojure-namespace-name-regex))
-    (save-excursion
+    (save-mark-and-excursion
       (when (or (re-search-backward regexp nil t)
                 (re-search-forward regexp nil t))
         (match-string-no-properties 4)))))

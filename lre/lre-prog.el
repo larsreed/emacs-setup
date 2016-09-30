@@ -58,7 +58,7 @@
                             ("[|]" "_"))))
              )))
     ;; navigate & insert comment
-    (save-excursion
+    (save-mark-and-excursion
       (cond ((eq major-mode 'cf-mode)
              (beginning-of-line 0)
              (if (not (looking-at ".ifn?def"))
@@ -98,7 +98,7 @@
   "Merge compiled picture."
   (interactive
    "bBuffer with new picture \nbBuffer with old DDF \nsDialog name: ")
-  (save-excursion
+  (save-mark-and-excursion
     (let (buftxt
           start-p
           no-chars-new
@@ -188,7 +188,7 @@ Kjøres fra vsd-fila - fjerner del 2, og henter inn cf-filene."
   "For evt kall via rundoit."
   (if (< (length fna) 1)
       (error "Mangler filnavn")
-    (save-excursion
+    (save-mark-and-excursion
       (find-file fna)
       (lre-grape-ready-file)
       (save-buffer)
@@ -239,7 +239,7 @@ Kjøres fra vsd-fila - fjerner del 2, og henter inn cf-filene."
   (interactive)
   (let ((fnam (lre-replace-in-string buffer-file-name "org/diff." ""))
         go-line)
-    (save-excursion
+    (save-mark-and-excursion
       (if (= (point) (point-min))
           (forward-line 1))
       (if (re-search-backward
@@ -419,7 +419,7 @@ posisjoner cursor ved endring om mulig"
 With prefix, also replace punctuation & operators with space."
   (interactive "P")
   (goto-char (point-min))
-  (save-excursion
+  (save-mark-and-excursion
     (while (not (eobp))
       (end-of-line)
       (if (bolp)
@@ -428,16 +428,16 @@ With prefix, also replace punctuation & operators with space."
         (if (looking-at ":")
             (delete-char 2)
           (forward-line 1)))))
-  (save-excursion (replace-regexp "\t" " "))
-  (save-excursion (replace-regexp "  +" " "))
-  (save-excursion (delete-matching-lines "^ ?;"))
-  (save-excursion (replace-regexp "^ " ""))
-  (save-excursion (replace-regexp "\n\n+" "\n"))
-  (save-excursion (replace-regexp " *;[^'\"\n]*$" ""))
+  (save-mark-and-excursion (replace-regexp "\t" " "))
+  (save-mark-and-excursion (replace-regexp "  +" " "))
+  (save-mark-and-excursion (delete-matching-lines "^ ?;"))
+  (save-mark-and-excursion (replace-regexp "^ " ""))
+  (save-mark-and-excursion (replace-regexp "\n\n+" "\n"))
+  (save-mark-and-excursion (replace-regexp " *;[^'\"\n]*$" ""))
   (when words
-    (save-excursion (replace-regexp "[-!()=+,*/<>]" " "))
-    (save-excursion (replace-regexp "  +" " "))
-    (save-excursion (replace-regexp "^ " ""))
+    (save-mark-and-excursion (replace-regexp "[-!()=+,*/<>]" " "))
+    (save-mark-and-excursion (replace-regexp "  +" " "))
+    (save-mark-and-excursion (replace-regexp "^ " ""))
     ))
 
 

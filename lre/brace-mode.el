@@ -189,7 +189,7 @@
   "With prefix - convert from braces to 8-bit.
 Otherwise - convert from 8-bit to braces."
   (interactive "P")
-  (save-excursion
+  (save-mark-and-excursion
     (brace-subswap-norw "æ" "{"  pfx)
     (brace-subswap-norw "ø" "|"  pfx)
     (brace-subswap-norw "å" "}"  pfx)
@@ -207,7 +207,7 @@ Otherwise - convert from 8-bit to braces."
   "With prefix - convert from Windows to 8-bit.
 Otherwise - convert from 8-bit to Windows."
   (interactive "P")
-  (save-excursion
+  (save-mark-and-excursion
     (brace-subswap-norw "æ" "‘" pfx)
     (brace-subswap-norw "ø" "›" pfx)
     (brace-subswap-norw "å" "†" pfx)
@@ -220,7 +220,7 @@ Otherwise - convert from 8-bit to Windows."
   "With prefix - convert from Windows to HTML entitites.
 Otherwise - convert from HTML to Windows."
   (interactive "P")
-  (save-excursion
+  (save-mark-and-excursion
     (brace-subswap-norw "¦" "&aelig;" pfx)
     (brace-subswap-norw "¸" "&oslash;" pfx)
     (brace-subswap-norw "¥" "&aring;" pfx)
@@ -250,7 +250,7 @@ Otherwise - convert from HTML to Windows."
 (defun brace-swap-ml (pfx &optional r-beg r-end)
   "With prefix - convert to <>& from entities, otherwise from ent. to <>&"
   (interactive "P\nr")
-  (save-excursion
+  (save-mark-and-excursion
     (save-restriction
       (if (and r-beg r-end)
 	  (narrow-to-region r-beg r-end))

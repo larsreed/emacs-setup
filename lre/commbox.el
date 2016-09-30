@@ -61,7 +61,7 @@
   (let* ((apoint (if (< p m) p m))
 	 (bpoint (if (< p m) m p))
 	 (s (commbox-buffer-substring apoint bpoint)))
-    (save-excursion
+    (save-mark-and-excursion
       (set-buffer (get-buffer-create commbox-buffer-name))
       (erase-buffer)
       (insert s)
@@ -78,7 +78,7 @@
   ;;  Return length of the longest line in the temp.buffer
   (let (thislen
 	maxlen)
-    (save-excursion
+    (save-mark-and-excursion
       (set-buffer (get-buffer commbox-buffer-name))
       (goto-char (point-min))
       (setq maxlen (commbox-line-length))
@@ -98,7 +98,7 @@
   (let (w1-len
 	w2-len
 	pfx)
-    (save-excursion
+    (save-mark-and-excursion
       (set-buffer (get-buffer commbox-buffer-name))
       (goto-char (point-min))
       (setq w1-len (skip-chars-forward " \t"))
@@ -139,9 +139,9 @@ existing frame."
 	start-marker        ; marker at abs-start
 	end-marker          ; marker at abs-end
 	)
-    (save-excursion
+    (save-mark-and-excursion
       ;;  Set variables according to how the function is called
-      (cond ((and (interactive-p) mark-active)
+      (cond ((and (called-interactively-p) mark-active)
 	     (setq abs-start (mark)))
 	    ((and from-pos to-pos)
 	     (setq abs-start from-pos

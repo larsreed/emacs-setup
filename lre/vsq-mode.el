@@ -53,7 +53,7 @@
 	  "#define " name " " vsq-sep "\n")
   (insert (if P "\t"
 	    (concat "\t; <\""  name "\" " vsq-sep "\n\t")))
-  (save-excursion
+  (save-mark-and-excursion
     (if P (insert "\n#endif\n")
       (insert " " vsq-sep "\n"
 	      "\t; \"" name "\">\n"

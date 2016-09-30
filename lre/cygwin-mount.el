@@ -334,7 +334,7 @@ Only set by `cygwin-mount-get-cygwin-version'.")
           (fullname (cygwin-mount-get-full-progname cygwin-mount-uname-program)))
       (if (null fullname)
           (error "Cannot find the program '%s', please check 'cygwin-mount-cygwin-bin-directory'!" cygwin-mount-uname-program)
-        (save-excursion
+        (save-mark-and-excursion
           (set-buffer buf)
           (erase-buffer)
           (call-process fullname nil buf nil "-r")
@@ -363,7 +363,7 @@ The result is either \"/\" or \"/<string>/\"."
 		 "--show-cygdrive-prefix" "--show-cygdrive-prefixes")))
     (if (null fullname)
         (error "Cannot find the program '%s', please check 'cygwin-mount-cygwin-bin-directory'!" cygwin-mount-program)
-      (save-excursion
+      (save-mark-and-excursion
         (set-buffer buf)
         (erase-buffer)
         (call-process fullname nil buf nil arg)
@@ -419,7 +419,7 @@ Precondition of this function is current buffer must be the buffer named
   (if (or (eq (process-status proc) 'exit)
 	  (eq (process-status proc) 'signal))
       (let ((buf (get-buffer-create cygwin-mount-buffername)))
-	(save-excursion
+	(save-mark-and-excursion
 	  (set-buffer buf)
           (setq cygwin-mount-table--internal (cygwin-mount-parse-mount)))
 	(kill-buffer buf)
@@ -441,7 +441,7 @@ really done by `cygwin-mount-sentinel'."
             (process-kill-without-query proc))
         ;; synchron building
         (let ((buf (get-buffer-create cygwin-mount-buffername)))
-          (save-excursion
+          (save-mark-and-excursion
             (set-buffer buf)
             (erase-buffer)
             (call-process fullname nil buf)

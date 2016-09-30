@@ -673,7 +673,7 @@ The list should contain cells \(\"chr\" . \"description\"\)."
 
 (defun tplsub-vars (&optional main)
   "Substitute variables"
-  (save-excursion
+  (save-mark-and-excursion
     (goto-char (point-min))
     (let* (var
            (after-change-functions nil)
@@ -713,7 +713,7 @@ The list should contain cells \(\"chr\" . \"description\"\)."
 
 (defun tplsub-rest-of-line (n)
   "Return the rest of the line - excluding leading blanks - as a string."
-  (save-excursion
+  (save-mark-and-excursion
     (forward-char n)
     (skip-chars-forward " \t")
     (if (or (looking-at "\\\\ ")
@@ -728,7 +728,7 @@ The list should contain cells \(\"chr\" . \"description\"\)."
 
 (defun tplsub-var-and-prompt (n &optional only-one)
   "Parse current line, return (var . text)"
-  (save-excursion
+  (save-mark-and-excursion
     (let (ws
           var
           txt)
@@ -784,7 +784,7 @@ The list should contain cells \(\"chr\" . \"description\"\)."
       (setq repl-string nil
             del-count nil
             repl-short-string nil)
-      (save-excursion
+      (save-mark-and-excursion
         (beginning-of-line)
         (setq line-start (point))
         (if (looking-at "§\\(do\\|ask\\|if\\|select\\)")
@@ -996,7 +996,7 @@ The list should contain cells \(\"chr\" . \"description\"\)."
           (setq buf-sub (tplsub-file-name
                          (tplsub-string-vars (tplsub-rest-of-line 7)) t))
           (if buf-sub
-              (save-excursion
+              (save-mark-and-excursion
                 (beginning-of-line 2)
                 (condition-case err-symb
                     (insert-file-contents buf-sub)
@@ -1098,7 +1098,7 @@ Not ready!"
     (let ((file (tplsub-file-name tplsub-save-file)))
       (if (and file
                (file-readable-p file))
-          (save-excursion
+          (save-mark-and-excursion
             (set-buffer (get-buffer-create " *tplsubsave*"))
             (delete-region (point-min) (point-max))
             (insert-file-contents file)
@@ -1181,7 +1181,7 @@ Not ready!"
   "Save default replies for next emacs session."
   (interactive "P")
   (if (null file) (setq file (tplsub-file-name tplsub-save-file)))
-  (save-excursion
+  (save-mark-and-excursion
     (set-buffer (get-buffer-create " *tplsubsave*"))
     (delete-region (point-min) (point-max))
     (when (file-readable-p file)
@@ -1738,7 +1738,7 @@ arguments are handled."
       (tplsub-insert-undefined "No appropriate templates installed")
     (let ((pt (point))
           fun)
-      (save-excursion
+      (save-mark-and-excursion
         (when (re-search-backward tplsub-tmpl-regexp nil t nil)
           (setq tplsub--current-tmpl (tplsub-buf-sub
                                       (match-end 0) pt)
@@ -1830,7 +1830,7 @@ Tries to guess topic according to cursor position."
   (interactive)
   (let (begin)
     (unless topic
-      (save-excursion
+      (save-mark-and-excursion
         (skip-syntax-backward "w_")
         (setq begin (point))
         (skip-syntax-forward "w_")

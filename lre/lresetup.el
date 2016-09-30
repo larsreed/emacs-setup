@@ -619,6 +619,12 @@ number: each N line"
 ;;; /// Different versions... ///
 ;;;
 
+(or (fboundp 'called-interactively-p)
+    (defalias 'called-interactively-p 'interactive-p))
+
+(or (fboundp 'save-mark-and-excursion)
+    (defalias 'save-mark-and-excursion 'save-excursion))
+
 (or (fboundp 'set-frame-font)
     (defalias 'set-frame-font 'set-default-font))
 
@@ -637,7 +643,7 @@ number: each N line"
 
 (or (fboundp 'with-output-to-string)
     (defmacro with-output-to-string (&rest body)
-      `(save-excursion
+      `(save-mark-and-excursion
          (set-buffer (get-buffer-create " *string-output*"))
          (setq buffer-read-only nil)
          (buffer-disable-undo (current-buffer))
@@ -694,19 +700,19 @@ stopping when a single additional previous character cannot be part
 of a match for REGEXP."
       (let ((start (point))
             (pos
-             (save-excursion
+             (save-mark-and-excursion
                (and (re-search-backward (concat "\\(?:" regexp "\\)\\=") limit t)
                     (point)))))
         (if (and greedy pos)
             (save-restriction
               (narrow-to-region (point-min) start)
               (while (and (> pos (point-min))
-                          (save-excursion
+                          (save-mark-and-excursion
                             (goto-char pos)
                             (backward-char 1)
                             (looking-at (concat "\\(?:"  regexp "\\)\\'"))))
                 (setq pos (1- pos)))
-              (save-excursion
+              (save-mark-and-excursion
                 (goto-char pos)
                 (looking-at (concat "\\(?:"  regexp "\\)\\'")))))
         (not (null pos)))))
@@ -757,7 +763,7 @@ Use a MESSAGE of \"\" to temporarily clear the echo area."
       "Return the first textual item to the nearest point."
       (interactive)
                                         ;alg stolen from etag.el
-      (save-excursion
+      (save-mark-and-excursion
         (if (not (memq (char-syntax (preceding-char)) '(?w ?_)))
             (while (not (looking-at "\\sw\\|\\s_\\|\\'"))
               (forward-char 1)))
@@ -781,7 +787,7 @@ Use a MESSAGE of \"\" to temporarily clear the echo area."
   "See `undo'!"
   (interactive "P")
   (if p
-      (save-excursion
+      (save-mark-and-excursion
         (goto-char (point-max))
         (set-mark (point-min))
         (undo p))
@@ -918,7 +924,7 @@ and launch or redirect a browser to the specified URL."
       csdiff-program                  (lre-fixed :csdiff)
       dabbrev-abbrev-char-regexp      "\\sw\\|\\s_"
       default-frame-alist             (list (cond ((lre-memb 'lreibm)
-                                                   '(height . 60))
+                                                   '(height . 58))
                                                   ((lre-memb 'lredell
                                                              'lredigital)
                                                    '(height . 39))
@@ -1163,6 +1169,7 @@ and launch or redirect a browser to the specified URL."
       scroll-margin                   0
       scroll-preserve-screen-position t
       scroll-step                     5
+      search-default-mode             'char-fold-to-regexp
       search-exit-char                1
       search-highlight                t
       semantic-load-turn-everything-on nil
@@ -1397,6 +1404,7 @@ and launch or redirect a browser to the specified URL."
 
 ;;; main-setq-default
 (setq-default save-place                   t
+              save-place-mode              t
               case-fold-search             t
               default-indicate-empty-lines t
               show-trailing-whitespace     t
@@ -2101,7 +2109,7 @@ and can edit it until it has been confirmed."
 
 (defun lre-save-registers()
   "Saves values in registers"
-  (save-excursion
+  (save-mark-and-excursion
     (set-buffer (get-buffer-create "*saveregs*"))
     (erase-buffer)
     (insert (lre--outvar 'register-alist))
@@ -2171,7 +2179,7 @@ and can edit it until it has been confirmed."
                (cadr mode))
           (setq mode (car mode)
                 name (substring name 0 (match-beginning 0)))
-        (setq name)))
+        (setq name nil)))
     mode))
 
 (defconst lre-auto-mode-0
@@ -2934,7 +2942,8 @@ Gi kommando \"\\[lre-tvist-key-description]\" for beskrivelse")
   (define-key help-map "Gl" 'locate-library)
   (define-key help-map "Gf" 'find-function)
   (define-key help-map "Gk" 'find-function-on-key)
-  (define-key help-map "o"  'bookmark-bmenu-list)
+  (define-key help-map "O"  'bookmark-bmenu-list)
+  (define-key help-map "o"  'describe-symbol)
   (define-key help-map "P"  'lre-show-save-places)
   (define-key help-map "y"  'describe-syntax)
   (define-key help-map "W"  'woman)
@@ -2956,7 +2965,7 @@ Gl    Locate library
 Gf    Find function
 Gk    Find function on key
 M     Run `man'
-o     Show bookmark list
+O     Show bookmark list
 P     Show save-places
 y     Describe syntax
 W     Run `woman'
@@ -2977,7 +2986,7 @@ Gl    Locate library
 Gf    Find function
 Gk    Find function on key
 M     Run `man'
-o     Show bookmark list
+O     Show bookmark list
 S     Show save-places
 y     Describe syntax
 W     Run `woman'
@@ -3655,7 +3664,7 @@ yank even with ARGS (thus it can be mapped to \C-y)"
 (defun lre-trim (pfx)
   "Remove unwanted space"
   (interactive "*P")
-  (save-excursion
+  (save-mark-and-excursion
     (if pfx
         (let ((tab-width 4))
           (untabify (point-min) (point-max))))
@@ -3676,7 +3685,7 @@ yank even with ARGS (thus it can be mapped to \C-y)"
   (interactive)
   ;; http://whattheemacsd.com/
   (let ((col (current-column)))
-    (save-excursion
+    (save-mark-and-excursion
       (forward-line)
       (transpose-lines 1))
     (forward-line)
@@ -3687,7 +3696,7 @@ yank even with ARGS (thus it can be mapped to \C-y)"
   (interactive)
   ;; http://whattheemacsd.com/
   (let ((col (current-column)))
-    (save-excursion
+    (save-mark-and-excursion
       (forward-line)
       (transpose-lines -1))
     (move-to-column col)))
@@ -3746,9 +3755,9 @@ By Bob Wiener"
 (defun lre-dup-line (pfx)
   "Copy current line to kill-ring.  Without prefix, also insert immediately."
   (interactive "P")
-  (save-excursion
+  (save-mark-and-excursion
     (beginning-of-line)
-    (save-excursion
+    (save-mark-and-excursion
       (let ((p1 (point)))
         (forward-line 1)
         (copy-region-as-kill p1 (point))))
@@ -3829,7 +3838,7 @@ By Bob Wiener"
 
 (defun lre-is-greip-p ()
   "Bestem om buffer er greip-buffer."
-  (save-excursion
+  (save-mark-and-excursion
     (goto-char (point-min))
     (search-forward-regexp "^\\*V INCLUDE IF SRCTYPE" nil t)))
 
@@ -4011,7 +4020,7 @@ By Bob Wiener"
     "*Compile-Log*"     "*Apropos*"     "*Occurr*"      "*grep*"
     "*Text Properties*" "*Faces*"       "*cbox*"        "*DefMacro*"
     "*Ediff Registry*"  "*Shadows*"     "*Buffer List*" "*vc*"
-    "*ediff-merge*"     "*Warnings*"
+    "*ediff-merge*"     "*Warnings*"    "*eww*"
     "*Directory Summary Information*")
   "Buffers that are always expendable...")
 
@@ -4092,7 +4101,7 @@ By Bob Wiener"
 (defun lre-mouse-open (evt pfx)
   "Open-file-other-window for file under mouse."
   (interactive "e\nP")
-  (save-excursion
+  (save-mark-and-excursion
     (mouse-set-point evt)
     (let ((name (or (thing-at-point 'filename)
                     (buffer-file-name)
@@ -4266,7 +4275,7 @@ forward."
         (goal-column nil)
         p1)
     (insert
-     (save-excursion
+     (save-mark-and-excursion
        (forward-line -1)
        (setq p1 (point))
        (if arg (end-of-line)
@@ -4388,7 +4397,7 @@ With prefix (WITH-SIGN), signature is added."
     (beginning-of-line)
     (setq lre-last-hist (buffer-substring (point) pp))
     (search-forward-regexp (concat "^" (regexp-quote lre-last-hist) "$"))
-    (save-excursion
+    (save-mark-and-excursion
       (setq pp (point))
       (beginning-of-line 0)
       (if (search-forward-regexp "[0-9]+" pp t)
@@ -4422,7 +4431,7 @@ With prefix (WITH-SIGN), signature is added."
 (defun lre-sub-hist-search (usr-n org-n)
    "Search for username\", \"orgname."
   (let ((s-str (concat usr-n ", " org-n)))
-    (save-excursion
+    (save-mark-and-excursion
       (goto-char (point-min))
       (search-forward s-str nil t))))
 
@@ -4560,7 +4569,7 @@ With prefix (WITH-SIGN), signature is added."
   "LRE SCCS-string."
   (interactive "*")
   (insert sccs-prefix-string)
-  (save-excursion
+  (save-mark-and-excursion
     (insert " " sccs-suffix-string)))
 
 (defun lre-merge (fCreate fOld fNew &optional fAncestor)
@@ -4696,9 +4705,9 @@ Default del 1 - numerisk prefiks avgjør hvilken."
   "* Fixup Word2WordPress-output"
   (interactive)
   (goto-char (point-min))
-  (save-excursion (query-replace "[" "&#91;"))
-  (save-excursion (query-replace "]" "&#93;"))
-  (save-excursion
+  (save-mark-and-excursion (query-replace "[" "&#91;"))
+  (save-mark-and-excursion (query-replace "]" "&#93;"))
+  (save-mark-and-excursion
     (when (search-forward "code lang=X" nil t)
       (goto-char (point-min))
       (let ((lang (read-from-minibuffer "Kodespråk: " "java")))
@@ -4765,11 +4774,11 @@ Dvs.:
 (defun lre-script-conv ()
   "Convert from 7-bit to 8-bit XML, replace script name"
   (interactive)
-  (save-excursion
+  (save-mark-and-excursion
     (goto-char (point-min))
-    (save-excursion (brace-swap-norwegian t))
-    (save-excursion (brace-swap-ml nil))
-    (save-excursion (query-replace "SPE" "\&System;"))
+    (save-mark-and-excursion (brace-swap-norwegian t))
+    (save-mark-and-excursion (brace-swap-ml nil))
+    (save-mark-and-excursion (query-replace "SPE" "\&System;"))
     (let ((script (read-string "Script name (or blank): "
                                (file-name-sans-extension (buffer-name)))))
       (if script
@@ -4873,7 +4882,7 @@ Dvs.:
 ;;        ;; replacement for count-lines-region
 ;;        "Count lines/words/characters from START to END"
 ;;        (interactive "r")
-;;        (save-excursion
+;;        (save-mark-and-excursion
 ;;          (save-restriction
 ;;            (narrow-to-region start end)
 ;;            (goto-char (min start end))
@@ -4957,7 +4966,7 @@ Dvs.:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  (defun favorites-write-url (url-name)
 ;;    (interactive "sName For Favorite File: ") ; By Galen Boyer
-;;    (save-excursion
+;;    (save-mark-and-excursion
 ;;      (switch-to-buffer url-name)
 ;;      (insert "[DEFAULT]\nBASEURL=")
 ;;      (yank)

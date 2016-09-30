@@ -150,7 +150,7 @@
 FLAG==0:  create if necessary, pop return buffer
 FLAG==1:  run cmd - return value is command output
 FLAG==-1: close buffer, return t/nil."
-  (save-excursion
+  (save-mark-and-excursion
     (let (bf txt)
       (cond ((= flag 0)
 	     (set-buffer (get-buffer-create spe-sccs-buffer-name)))
@@ -168,7 +168,7 @@ flag <0 => invisible."
   (let ((mtxt (format "SCCS %s ..." cmd))
 	currb)
     (message "%s" mtxt)
-    (save-excursion
+    (save-mark-and-excursion
       (set-buffer (sub-sccs-scratch 0))
       (if (> flag 0) (progn
 		       (goto-char (point-min))

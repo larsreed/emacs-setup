@@ -938,15 +938,15 @@ existing frame."
 		 (setq dele (y-or-n-p "Delete lines above&below "))))
     (if dele
 	(progn
-	  (save-excursion
+	  (save-mark-and-excursion
 	    (beginning-of-line 0)
 	    (kill-line 1))
-	  (save-excursion
+	  (save-mark-and-excursion
 	    (beginning-of-line 2)
 	    (kill-line 1))))
     (beginning-of-line)
     (setq ps (point))
-    (save-excursion
+    (save-mark-and-excursion
       (setq pe (+ ps (skip-chars-forward "^ \t")))
       (setq ts (+ pe (skip-chars-forward " \t")))
       (setq ts (point))
@@ -1008,7 +1008,7 @@ See also `sysdul-window-create'."
   "Break line at point and insert continuation marker and alignment."
   (interactive "*")
   (delete-horizontal-space)
-  (if (save-excursion (beginning-of-line) (looking-at comment-line-start-skip))
+  (if (save-mark-and-excursion (beginning-of-line) (looking-at comment-line-start-skip))
       (insert "\n" comment-line-start " ")
     (insert " " sysdul-continuation-string "\n "));Space after \n important
   (sysdul-indent-line))		          ;when the cont string is ;, C, c or *.
@@ -1058,7 +1058,7 @@ non-comment Sysdul statement in the file, and nil otherwise."
     (setq continue-test
 	  (and
 	   (not (looking-at comment-line-start-skip))
-	   (save-excursion (if (= (skip-chars-backward
+	   (save-mark-and-excursion (if (= (skip-chars-backward
 				   (concat " \n" cont-quot))
 				  0)
 			       nil
@@ -1067,7 +1067,7 @@ non-comment Sysdul statement in the file, and nil otherwise."
     (while (and (setq not-first-statement (= (forward-line -1) 0))
 		(or (looking-at comment-line-start-skip)
 		    (looking-at " *$")
-		    (save-excursion
+		    (save-mark-and-excursion
 		      (if (= (skip-chars-backward
 					    (concat " \n" cont-quot))
 			     0)
@@ -1096,7 +1096,7 @@ non-comment Sysdul statement in the file, and nil otherwise."
 			   (not (eobp))))
  		(or (looking-at comment-line-start-skip)
  		    (looking-at " *$")
-		    (save-excursion (skip-chars-backward
+		    (save-mark-and-excursion (skip-chars-backward
 				     (concat " \n" cont-quot))
 				    (looking-at
 				     (concat ".*" cont-quot "\n")))
@@ -1118,11 +1118,11 @@ non-comment Sysdul statement in the file, and nil otherwise."
   "From a Sysdul END statement, blink the matching XX statement."
   (let ((count 1) (top-of-window (window-start)) matching-stm
 	(endif-point (point)) message)
-    (if (save-excursion (beginning-of-line)
+    (if (save-mark-and-excursion (beginning-of-line)
 			(skip-chars-forward " ")
 			(looking-at sysdul-RE-end))
 	(progn
-	  (save-excursion
+	  (save-mark-and-excursion
 	    (while (and
 		    (not (= count 0))
 		    (not (eq (sysdul-previous-statement)
@@ -1152,7 +1152,7 @@ non-comment Sysdul statement in the file, and nil otherwise."
   "From a Sysdul END statement, goto the matching XX statement."
   (interactive)
   (let ((count 1) matching-stm message (endif-point (point)))
-    (if (save-excursion (beginning-of-line)
+    (if (save-mark-and-excursion (beginning-of-line)
 			(skip-chars-forward " ")
 			(looking-at sysdul-RE-end))
 	(progn
@@ -1178,7 +1178,7 @@ non-comment Sysdul statement in the file, and nil otherwise."
   "Indents current Sysdul line based on its contents and on previous lines."
   (interactive "*")
   (let ((cfi (calculate-sysdul-indent)))
-    (save-excursion
+    (save-mark-and-excursion
       (beginning-of-line)
       (if (not (= cfi (sysdul-current-line-indentation)))
 	  (sysdul-indent-to-column cfi)
@@ -1190,8 +1190,8 @@ non-comment Sysdul statement in the file, and nil otherwise."
     (if (< (current-column) cfi)
 	(move-to-column cfi))
     (if (and auto-fill-function
-	     (> (save-excursion (end-of-line) (current-column)) fill-column))
-	(save-excursion
+	     (> (save-mark-and-excursion (end-of-line) (current-column)) fill-column))
+	(save-mark-and-excursion
 	  (end-of-line)
 	  (sysdul-do-auto-fill)))
     (if sysdul-blink-matching
@@ -1200,7 +1200,7 @@ non-comment Sysdul statement in the file, and nil otherwise."
 (defun sysdul-indent-new-line ()
   "Reindent the current Sysdul line, insert a newline and indent the newline."
   (interactive "*")
-  (save-excursion
+  (save-mark-and-excursion
     (beginning-of-line)
     (skip-chars-forward " ")
     (if (or (looking-at sysdul-RE-or-if)
@@ -1220,7 +1220,7 @@ non-comment Sysdul statement in the file, and nil otherwise."
   "Properly indents the Sysdul subprogram which contains point."
   (interactive "*")
   (let (blink-state sysdul-blink-matching)
-    (save-excursion
+    (save-mark-and-excursion
       (mark-sysdul-subprogram)
       (message "Indenting subprogram...")
       (indent-region (point) (mark t) nil))
@@ -1237,7 +1237,7 @@ non-comment Sysdul statement in the file, and nil otherwise."
 	 (if indent-tabs-mode
 	     sysdul-minimum-statement-indent-tab
 	   sysdul-minimum-statement-indent-fixed)))
-    (save-excursion
+    (save-mark-and-excursion
       (setq first-statement (sysdul-previous-statement))
       (if first-statement
 	  (setq icol sysdul-minimum-statement-indent)
@@ -1272,7 +1272,7 @@ non-comment Sysdul statement in the file, and nil otherwise."
 		((looking-at (concat sysdul-RE-end "[^ \t=(a-z]"))
 		 ;; Previous END resets indent to minimum
 		 (setq icol sysdul-minimum-statement-indent))))))
-    (save-excursion
+    (save-mark-and-excursion
       (beginning-of-line)
       (cond ((looking-at " *$"))
 	    ((looking-at comment-line-start-skip)
@@ -1282,7 +1282,7 @@ non-comment Sysdul statement in the file, and nil otherwise."
 		    (setq icol (+ sysdul-minimum-statement-indent
 				  sysdul-comment-line-extra-indent))))
 	     (setq sysdul-minimum-statement-indent 0))
-	    ((save-excursion
+	    ((save-mark-and-excursion
 	       (skip-chars-backward (concat " \n" quot-cont))
 	       (looking-at (concat ".*" quot-cont " *\n")))
 	     (setq icol (+ icol sysdul-continuation-indent)))
@@ -1315,7 +1315,7 @@ non-comment Sysdul statement in the file, and nil otherwise."
 This is the column position of the first non-whitespace character.
 For comment lines, returns indentation of the first
 non-indentation text within the comment."
-  (save-excursion
+  (save-mark-and-excursion
     (beginning-of-line)
     (cond ((looking-at comment-line-start-skip)
 	   (goto-char (match-end 0))
@@ -1329,7 +1329,7 @@ non-indentation text within the comment."
 
 (defun sysdul-indent-to-column (col)
   "Indents current line with spaces to column COL."
-  (save-excursion
+  (save-mark-and-excursion
     (beginning-of-line)
     (if (looking-at comment-line-start-skip)
 	(if sysdul-comment-indent-style
@@ -1353,26 +1353,26 @@ non-indentation text within the comment."
   "Move to past `comment-start-skip' found on current line.
 Return t if `comment-start-skip' found, nil if not."
 ;;; In order to move point only if comment-start-skip is found,
-;;; this one uses a lot of save-excursions.  Note that re-search-forward
+;;; this one uses a lot of save-mark-and-excursions.  Note that re-search-forward
 ;;; moves point even if comment-start-skip is inside a string-constant.
 ;;; Some code expects certain values for match-beginning and end
   (interactive)
   (let ((save-match-beginning) (save-match-end))
-    (if (save-excursion
+    (if (save-mark-and-excursion
 	  (re-search-forward comment-start-skip
-			     (save-excursion (end-of-line) (point)) t))
+			     (save-mark-and-excursion (end-of-line) (point)) t))
 	(progn
 	  (setq save-match-beginning (match-beginning 0))
 	  (setq save-match-end (match-end 0))
 	  (if (sysdul-is-in-string-p (match-beginning 0))
 	      (progn
-		(save-excursion
+		(save-mark-and-excursion
 		  (goto-char save-match-end)
 		  (sysdul-find-comment-start-skip)) ; recurse for rest of line
 		)
 	    (goto-char save-match-beginning)
 	    (re-search-forward comment-start-skip
-			       (save-excursion (end-of-line) (point)) t)
+			       (save-mark-and-excursion (end-of-line) (point)) t)
 	    (goto-char (match-end 0))
 	    t))
       nil)))
@@ -1382,11 +1382,11 @@ Return t if `comment-start-skip' found, nil if not."
 (defun sysdul-is-in-string-p (where)
   "Return non-nil if POS (a buffer position) is inside a Sysdul string,
 nil else."
-  (save-excursion
+  (save-mark-and-excursion
     (goto-char where)
     (cond
      ((bolp) nil)			; bol is never inside a string
-     ((save-excursion			; comment lines too
+     ((save-mark-and-excursion			; comment lines too
 	(beginning-of-line)(looking-at comment-line-start-skip)) nil)
      (t (let (;; ok, serious now. Init some local vars:
 	      (parse-state '(0 nil nil nil nil nil 0))
@@ -1419,11 +1419,11 @@ nil else."
 	      ;; whitespace, labels and tab continuation markers.
 	      (if (bolp) (skip-chars-forward " "))
 	      ;; find out parse-limit from here
-	      (setq end-of-line (save-excursion (end-of-line)(point)))
+	      (setq end-of-line (save-mark-and-excursion (end-of-line)(point)))
 	      (setq parse-limit (min where end-of-line))
 	      ;; parse max up to comment-start, if non-nil and in current line
 	      (if comment-start
-		  (save-excursion
+		  (save-mark-and-excursion
 		    (if (re-search-forward quoted-comment-start end-of-line t)
 			(setq parse-limit (min (point) parse-limit)))))
 	      ;; now parse if still in limits
@@ -1455,17 +1455,17 @@ automatically breaks the line at a previous space."
 (defun sysdul-do-auto-fill ()
   (interactive)
   (let* ((opoint (point))
-	 (bol (save-excursion (beginning-of-line) (point)))
-	 (eol (save-excursion (end-of-line) (point)))
+	 (bol (save-mark-and-excursion (beginning-of-line) (point)))
+	 (eol (save-mark-and-excursion (end-of-line) (point)))
 	 (bos (min eol (+ bol (sysdul-current-line-indentation))))
 	 (quote
-	  (save-excursion
+	  (save-mark-and-excursion
 	    (goto-char bol)
 	    (if (looking-at comment-line-start-skip)
 		nil			; OK to break quotes on comment lines.
 	      (move-to-column fill-column)
 	      (cond ((sysdul-is-in-string-p (point))
-		     (save-excursion (re-search-backward "[^']'[^']" bol t)
+		     (save-mark-and-excursion (re-search-backward "[^']'[^']" bol t)
 				     (if sysdul-break-before-delimiters
 					 (point)
 				       (1+ (point)))))
@@ -1479,7 +1479,7 @@ automatically breaks the line at a previous space."
 	 ;;
 	 (fill-point
 	  (or quote
-	      (save-excursion
+	      (save-mark-and-excursion
 		(move-to-column (1+ fill-column))
 		(skip-chars-backward "^ \t\n,'+-/*=)"
 ;;;		 (if sysdul-break-before-delimiters
@@ -1507,22 +1507,22 @@ automatically breaks the line at a previous space."
     ;;
     ;; Need to use sysdul-find-comment-start-skip to make sure that quoted !'s
     ;; don't prevent a break.
-    (if (not (or (save-excursion
+    (if (not (or (save-mark-and-excursion
 		   (if (and (re-search-backward comment-start-skip bol t)
 			    (not (sysdul-is-in-string-p (point))))
 		       (progn
 			 (skip-chars-backward " ")
 			 (< (current-column) (1+ fill-column)))))
-		 (save-excursion
+		 (save-mark-and-excursion
 		   (goto-char fill-point)
 		   (bolp))))
-	(if (> (save-excursion
+	(if (> (save-mark-and-excursion
 		 (goto-char fill-point) (current-column))
 	       (1+ fill-column))
 	    (progn (goto-char fill-point)
 		   (sysdul-break-line))
-	  (save-excursion
-	    (if (> (save-excursion
+	  (save-mark-and-excursion
+	    (if (> (save-mark-and-excursion
 		     (goto-char fill-point)
 		     (current-column))
 		   (+ (calculate-sysdul-indent) sysdul-continuation-indent))
@@ -1532,18 +1532,18 @@ automatically breaks the line at a previous space."
     ))
 
 (defun sysdul-break-line ()
-  (let ((bol (save-excursion (beginning-of-line) (point)))
-	(eol (save-excursion (end-of-line) (point)))
+  (let ((bol (save-mark-and-excursion (beginning-of-line) (point)))
+	(eol (save-mark-and-excursion (end-of-line) (point)))
 	(comment-string nil))
 
-    (save-excursion
+    (save-mark-and-excursion
       (if (and comment-start-skip (sysdul-find-comment-start-skip))
 	  (progn
 	    (re-search-backward comment-start-skip bol t)
 	    (setq comment-string (buffer-substring (point) eol))
 	    (delete-region (point) eol))))
 ;;; Forward line 1 really needs to go to next non white line
-    (if (save-excursion (forward-line 1)
+    (if (save-mark-and-excursion (forward-line 1)
 			(or (looking-at "     [^ 0\n]")
 			    (looking-at "\t[1-9]")))
 	(progn
@@ -1554,7 +1554,7 @@ automatically breaks the line at a previous space."
 	  (sysdul-do-auto-fill))
       (sysdul-split-line))
     (if comment-string
-	(save-excursion
+	(save-mark-and-excursion
 	  (goto-char bol)
 	  (end-of-line)
 	  (delete-horizontal-space)
@@ -1565,7 +1565,7 @@ automatically breaks the line at a previous space."
 (defun sysdul-fix-white (&optional pfx)
   "Remove superfluous whitespace.  With prefix, also untabify."
   (interactive "*P")
-  (save-excursion
+  (save-mark-and-excursion
     (if pfx
 	(untabify (point-min) (point-max)))
     (goto-char (point-min))
@@ -1584,9 +1584,9 @@ automatically breaks the line at a previous space."
     (let ((pos-var 0)
 	  (collim 77))
       (goto-char (point-min))
-      (save-excursion (replace-regexp " +" " " nil))
-      (save-excursion (replace-regexp " *, *" "," nil))
-      (save-excursion (replace-regexp ",:\n" "," nil))
+      (save-mark-and-excursion (replace-regexp " +" " " nil))
+      (save-mark-and-excursion (replace-regexp " *, *" "," nil))
+      (save-mark-and-excursion (replace-regexp ",:\n" "," nil))
       (setq pos-var (- (point-max) (point)))
       (while (> pos-var collim)
 	(message "[%d]" pos-var)
@@ -1644,7 +1644,7 @@ This is typically overridden in local libraries."
 
 (defun he-sysdul-symbol-beg ()
   "Goto start of current name"
-  (save-excursion
+  (save-mark-and-excursion
     (skip-chars-backward "a-zA-Z0-9_Ê¯Â∆ÿ≈")
     (point)))
 

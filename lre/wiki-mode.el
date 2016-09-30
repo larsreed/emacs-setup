@@ -170,7 +170,7 @@
 (defun wiki-demote (&optional pfx)
   "* Increase heading levels, from this point onwards"
   (interactive "*p")
-  (save-excursion
+  (save-mark-and-excursion
     (let ((amount (if pfx pfx 1))
           level)
       (while (re-search-forward "^h\\([1-9]\\)[.] " nil t)
@@ -190,12 +190,20 @@
 containing customizations for wiki editing."
   (define-key wiki-mode-map [menu-bar wiki]
     (cons "WIKI" (make-sparse-keymap "WIKI")))
+  (define-key wiki-mode-map [menu-bar wiki scratch]
+    '("New scratchpad" . wiki-scratch))
   (define-key wiki-mode-map [menu-bar wiki help]
     '("Syntax help" . wiki-help-file))
   (define-key wiki-mode-map [menu-bar wiki demote]
     '("Increase heading level" . wiki-demote))
   (define-key wiki-mode-map [menu-bar wiki promote]
     '("Decrease heading level" . wiki-promote))
+  (define-key wiki-mode-map [menu-bar wiki code]
+    '("Markup as code" . wiki-code))
+  (define-key wiki-mode-map [menu-bar wiki mac]
+    '("Surround by macro" . wiki-mac))
+  (define-key wiki-mode-map [menu-bar wiki sign]
+    '("Signature" . wiki-sign))
   (define-key wiki-mode-map [?\C-c ?-] 'wiki-promote)
   (define-key wiki-mode-map [?\C-c ?+] 'wiki-demote)
   (define-key wiki-mode-map [?\C-c ?c] 'wiki-code)

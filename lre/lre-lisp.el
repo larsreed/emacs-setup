@@ -50,7 +50,7 @@ Displays progress message unless QUIET is non-nil."
   "List files in `load-path' matching REGX.
 Automatically adds .*\\.elc? to REGX if not already ending in .el/.elc."
   (interactive "sSearch libraries matching: \nP")
-  (save-excursion
+  (save-mark-and-excursion
     (let ((lib-buffer "*Libraries*"))
       (switch-to-buffer-other-window (get-buffer-create lib-buffer))
       (goto-char (point-min))
@@ -58,7 +58,7 @@ Automatically adds .*\\.elc? to REGX if not already ending in .el/.elc."
     (insert "\n")
     (forward-char -1))
       (insert (format "Libraries in load-path matching `%s':\n" regx))
-      (mapcar (function (lambda (s)
+      (mapc (function (lambda (s)
               (insert (format "\t%s\n" s))))
           (lre--library-list regx elc-also))
       (goto-char (point-min))

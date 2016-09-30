@@ -993,7 +993,7 @@
   "Set preceding_var = preceding_var OP prefix."
   (let (var-name
         cpos)
-    (save-excursion
+    (save-mark-and-excursion
       (skip-chars-backward "- \t,:\n._")
       (skip-chars-backward "-a-zA-Z0-9_@./")
       (setq cpos (point))

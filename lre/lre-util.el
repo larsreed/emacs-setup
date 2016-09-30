@@ -68,7 +68,7 @@ internal buffers (see `lre-internal-buf-p') are never killed."
 
 (defun lre-occ-at-point (evt)
   (interactive "e")
-  (save-excursion
+  (save-mark-and-excursion
     (mouse-set-point evt)
     (let ((name (word-at-point)))
       (setq name (read-string "Search for: " name))
@@ -115,7 +115,7 @@ the matching is case-sensitive."
   (let ((count 0) opoint
         (case-fold-search  (and case-fold-search
                                 (isearch-no-upper-case-p regexp t))))
-    (save-excursion
+    (save-mark-and-excursion
       (while (and (not (eobp))
                   (progn (setq opoint (point))
                          (re-search-forward regexp nil t)))
@@ -172,7 +172,7 @@ By Peter Breton."
   (let ((curr-pt (point))
         beg-pt)
     (next-line 1)
-    (save-excursion
+    (save-mark-and-excursion
       (goto-char curr-pt)
       (beginning-of-line)
       (setq beg-pt (point))
@@ -203,14 +203,14 @@ By Peter Breton."
 ;  (interactive "*r\nsRegexp: \nsInitial string: \np")
 ;  (if (not incr)
 ;      (setq incr 1))
-;  (save-excursion
+;  (save-mark-and-excursion
 ;    (let ((lines (count-lines begin end))
 ;         (delta (if (not incr) 1 incr))
 ;         (s-reg (if regex (if (> (length regex) 0) regex "^.*$") "^.*$")))
 ;      (goto-char begin)
 ;      (while (> lines 0)
 ;        (if (re-search-forward s-reg)
-;           (save-excursion (progn (end-of-line) (point))) t)
+;           (save-mark-and-excursion (progn (end-of-line) (point))) t)
 ;       (progn
 ;              (goto-char (match-beginning 1))
 ;              (delete-region (match-end 1) (match-beginning 1))
@@ -235,7 +235,7 @@ or the whole file, if the region is not active."
                 p1   (mark-marker)))
       (setq p1       (point-min-marker)
             p2       (point-max-marker)))
-    (save-excursion
+    (save-mark-and-excursion
       (goto-char p1)
       (while (< (point) p2)
         (insert (format "%5d\t" cnt))
@@ -278,9 +278,9 @@ or the whole file, if the region is not active."
 (defun lre-fix-ps ()
   "Fix HP prn/ps file."
   (interactive "*")
-  (save-excursion
+  (save-mark-and-excursion
     (goto-char (point-min))
-    (save-excursion
+    (save-mark-and-excursion
       (beginning-of-line 5)
       (kill-region (point-min) (point)))
     (while (re-search-forward "\r" nil t)

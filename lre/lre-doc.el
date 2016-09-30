@@ -175,7 +175,7 @@
   "Derive ID from name"
   (if pcode pcode
     (let (code)
-      (save-excursion
+      (save-mark-and-excursion
     (set-buffer (get-buffer-create "*IDfix*"))
     (erase-buffer)
     (insert (upcase name))
@@ -390,7 +390,7 @@ from FILE"
 
 (defun lre-xml-get-doctype()
   "Search for document type"
-  (save-excursion
+  (save-mark-and-excursion
     (save-match-data
       (let (dt)
         (goto-char (point-min))
@@ -484,7 +484,7 @@ from FILE"
 (defun lre-xml-scode(&optional pbeg pend)
   "Add scode-tags to all lines in region"
   (interactive "r")
-  (save-excursion
+  (save-mark-and-excursion
     (goto-char pend)
     (if (bolp) (setq pend (1- pend)))
     (save-restriction
@@ -653,7 +653,7 @@ from FILE"
 (defun lre-html-ins-table (r c)
   "Insert table tags."
   (interactive "nRows: \nnColumns: ")
-  (save-excursion
+  (save-mark-and-excursion
     (let (ci
       repl
       (th "tbody")
@@ -755,7 +755,7 @@ from FILE"
 \\{sgml-mode-map}
 "
   (interactive)
-  (save-excursion
+  (save-mark-and-excursion
     (describe-function 'lre-sgml-help)))
 
 (defvar lre-sgml-last-tag "p")
@@ -824,7 +824,7 @@ o  Otherwise insert tag at point."
 
 (defun lre-sgml-quote (arg)  "Inserts quote."  (interactive "*P")
   (insert "&quot;")
-  (if arg (save-excursion (insert "&quot;"))))
+  (if arg (save-mark-and-excursion (insert "&quot;"))))
 
 (defun lre-sgml-electric (words estr &optional stago etago stagc etagc)
 "Inserts pair of strings."
@@ -859,13 +859,13 @@ o  Otherwise insert tag at point."
 (defun lre-sgml-glossent (pfx)
   "Insert <glossent>."
   (interactive "*P")
-  (save-excursion
+  (save-mark-and-excursion
     (cond
      (pfx         (forward-word -1))
      (mark-active (goto-char (region-beginning))))
     (insert "<glossent word=\""))
   (insert "\">")
-  (save-excursion
+  (save-mark-and-excursion
     (insert "</glossent>")))
 
 (defvar lre-xsl-menu-base
@@ -909,7 +909,7 @@ o  Otherwise insert tag at point."
   (setq tplsub-tmpl-help t))
 
 (defun lre-htmlize-notab ()
-  (save-excursion
+  (save-mark-and-excursion
     (goto-char (point-min))
     (let ((re-kill
        " +span\\.lre-\\(tab\\|trailing-space\\)\\(-face\\)? {\n +background-color: [^\n]*\n +} /[*] lre-[^\n]*-face [*]/\n"))
@@ -942,7 +942,7 @@ o  Otherwise insert tag at point."
     (delete-region p-start p-end)
     (insert "<globuse var=\"" name "\"")
     (if (y-or-n-p "Doc?")
-    (save-excursion (insert "></globuse>"))
+    (save-mark-and-excursion (insert "></globuse>"))
       (insert "/>"))))
 
 (defun lre-xut-histrec(&optional comment)
@@ -962,7 +962,7 @@ o  Otherwise insert tag at point."
       lre-fe-user
       "</author>\n"
       "            <description>")
-  (save-excursion
+  (save-mark-and-excursion
     (insert "</description>\n        </histrec>\n"))
   (if comment (insert comment)))
 

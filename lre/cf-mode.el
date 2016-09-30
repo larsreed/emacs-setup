@@ -47,7 +47,7 @@
 	  "#define " name " @@\\\n")
   (insert (if P "\t"
 	    (concat "\t; <\""  name "\" @@\\\n\t")))
-  (save-excursion
+  (save-mark-and-excursion
     (if P (insert "\n#endif\n")
       (insert " @@\\\n"
 	      "\t; \"" name "\">\n"
@@ -63,8 +63,8 @@
 (defun cf-grape-proc-empty ()
   "Erstatter Tad______Empty i proc-filer"
   (interactive)
-  (save-excursion (sysdul-fix-white))
-  (save-excursion (query-replace-regexp "^$" (concat (make-string 60 ?\ )
+  (save-mark-and-excursion (sysdul-fix-white))
+  (save-mark-and-excursion (query-replace-regexp "^$" (concat (make-string 60 ?\ )
 						     "Tad______Empty"))))
 
 (defun cf-grape-insert-empty ()
@@ -93,11 +93,11 @@ Konvertering til Sysdulformat inverterer disse."
 	 (empty-symb "Tad______Empty")
 	 (empty-rx   "^[ \t]*Tad_[_]+Empty")
 	 (toggle-tab (or do-tab
-			 (and (interactive-p)
+			 (and (called-interactively-p)
 			      (y-or-n-p
 			       "Legge til  tabulator i starten av linja? "))))
 	 (toggle-quo (or do-quo
-			 (and (interactive-p)
+			 (and (called-interactively-p)
 			      (y-or-n-p
 			       (concat "Konvertere enkle anførselstegn "
 				       "til prosenttegn? "))))))
@@ -108,7 +108,7 @@ Konvertering til Sysdulformat inverterer disse."
 						  1))
 				   ?\ )
 		      empty-symb))
-    (save-excursion
+    (save-mark-and-excursion
       (goto-char r-begin)
       (beginning-of-line)
       (setq r-begin (point))
@@ -120,27 +120,27 @@ Konvertering til Sysdulformat inverterer disse."
       (save-restriction
 	(narrow-to-region r-begin r-end)
 	(goto-char (point-min))
-	(save-excursion
+	(save-mark-and-excursion
 	  (if invert
 	      (while (re-search-forward empty-rx nil t)
 		(replace-match ""))
 	    (while (re-search-forward "^[ \t]*$" nil t)
 	      (replace-match empty-line))))
 	(if toggle-quo
-	    (save-excursion
+	    (save-mark-and-excursion
 	      (if invert
 		  (while (re-search-forward "%" nil t)
 		    (replace-match "\'"))
 		(while (re-search-forward "\'" nil t)
 		  (replace-match "%")))))
 	(if toggle-tab
-	    (save-excursion
+	    (save-mark-and-excursion
 	      (if invert
 		  (while (re-search-forward "^\t" nil t)
 		    (replace-match ""))
 		(while (re-search-forward "^" nil t)
 		  (replace-match "\t")))))
-	(save-excursion
+	(save-mark-and-excursion
 	  (if invert
 	      (while (re-search-forward cont-rx nil t)
 		(replace-match ""))
@@ -218,7 +218,7 @@ Konvertering til Sysdulformat inverterer disse."
 		(not (eobp)))
       (end-of-line)
       (forward-char (- (length cont-mark)))
-      (save-excursion
+      (save-mark-and-excursion
 	(beginning-of-line)
 	(setq s-pos (point)))
       (if (not (or (looking-at (regexp-quote cont-mark))
@@ -229,7 +229,7 @@ Konvertering til Sysdulformat inverterer disse."
 		(unwind-protect
 		    (progn
 		      (if no-faces ()
-			(save-excursion
+			(save-mark-and-excursion
 			  (end-of-line)
 			  (setq reg-extent (cf-make-extent s-pos (point))))
 			(if (fboundp 'set-extent-priority)
