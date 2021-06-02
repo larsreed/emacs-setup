@@ -1,6 +1,6 @@
 ;; lresetup.el --- Lars Reed - Emacs init file
 
-;; Copyright (C) 1993-2014 Lars Reed
+;; Copyright (C) 1993-2021 Lars Reed
 ;; Author: Lars Reed <Lars@kalars.net>
 ;; Maintainer: Lars Reed
 ;; Keywords: Emacs setup
@@ -26,7 +26,9 @@
 ; Hi-lock: (("^;;; [^\n]+" (0 (quote hi-green) t)))
 
 ;; Todo: sjekk combine-and-quote-strings, format-seconds, read-shell-command,
-;  locate-user-emacs-file, looking-at-p, string-match-p
+;  locate-user-emacs-file, looking-at-p, string-match-p,
+; 'find-library-other-window' and 'find-library-other-frame', electric-quote-mode
+; display-line-numbers, 'apropos-local-variable' and 'apropos-local-value'
 
 
 ;;; --------------------------------------------------------------
@@ -267,13 +269,13 @@
 (defcustom lre-user-sign "LRE"
   "*User signature for history records."
   :group 'lresetup :type 'string)
-(defcustom lre-user-org "Mesan"
+(defcustom lre-user-org "Kalars"
   "* User organization for history records."
   :group 'lresetup :type 'string)
 (defcustom lre-full-name "Lars Reed"
   "* Full user name."
   :group 'lresetup :type 'string)
-(defcustom lre-full-org "Mesan"
+(defcustom lre-full-org "Kalars"
   "* Full organization name."
   :group 'lresetup :type 'string)
 (defcustom lre-fe-org lre-user-org
@@ -924,7 +926,7 @@ and launch or redirect a browser to the specified URL."
       csdiff-program                  (lre-fixed :csdiff)
       dabbrev-abbrev-char-regexp      "\\sw\\|\\s_"
       default-frame-alist             (list (cond ((lre-memb 'lreibm)
-                                                   '(height . 58))
+                                                   '(height . 52))
                                                   ((lre-memb 'lredell
                                                              'lredigital)
                                                    '(height . 39))
@@ -944,7 +946,7 @@ and launch or redirect a browser to the specified URL."
                                                   ((lre-memb-all 'personal 'tadntp4 'win32)
                                                    '(top . 24)))
                                             (cond ((lre-memb 'lreibm)
-                                                   '(left . 150)))
+                                                   '(left . 300)))
                                             (if (lre-memb 'toolbar)
                                                 '(tool-bar-lines . 1)
                                               '(tool-bar-lines . 0))
@@ -1719,7 +1721,8 @@ and can edit it until it has been confirmed."
         (imenu-add-menubar-index)
       (imenu-add-to-menubar "Index"))
     (when (featurep 'which-func)
-      (or (member major-mode which-func-modes)
+      (or (eq which-func-modes t)
+          (member major-mode which-func-modes)
           (setq which-func-modes (cons major-mode which-func-modes)))
       (if (lre-memb 'e24+)
           (which-function-mode t)
@@ -2281,7 +2284,7 @@ and can edit it until it has been confirmed."
             ("less" . text-mode)
             ("pg" . text-mode))
         nil))
-
+(defvar speedbar-ignored-path-expressions '())
 (eval-after-load "speedbar"
   '(setq speedbar-obj-alist (append speedbar-obj-alist
                                    '(("\\.v?sd" . ".o")

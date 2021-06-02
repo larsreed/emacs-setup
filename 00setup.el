@@ -62,15 +62,15 @@
       '((:printer-path . "//msprint02/h9505eh") ; 1
         (:printer1 . "p9505jh") ; 2
         (:printer2 . "h9505eh") ; 3
-        (:text-print . "d:/000out/E-txt.prn")   ; 4
-        (:ps-print . "d:/000out/E-ps.prn")    ; 5
+        (:text-print . "c:/000out/E-txt.prn")   ; 4
+        (:ps-print . "c:/000out/E-ps.prn")    ; 5
         (:csdiff . "c:/progra~1/csdiff/csdiff.exe") ; 6
         (:pmd . "c:\\progra~2\\java\\pmd-1.2.1") ; 7
         (:winzip . "c:/program files/winzip") ; 8
         (:xmlspy . "C:/Program Files/Altova/XMLSPY/XMLspy.exe") ; 9
         (:wincvs . "c:/program files/GNU/WinCvs 1.1") ; 10
-        (:def-xsl . "d:/usr/lib/xml/default.xsl") ; 11
-        (:lre-start . "d:/usr/lre/desktop/toolbars/lre-start.html") ; 12
+        (:def-xsl . "c:/usr/lib/xml/default.xsl") ; 11
+        (:lre-start . "C:/Users/larsr/OneDrive/desktop/toolbars/lre-start.html") ; 12
         (:site-lisp . "p:/GNUemacs/Site-lisp") ; 13
         (:recentf1 . "c:/_recentf") ; 14
         (:recentf2 . "~/.recentf") ; 15
@@ -83,7 +83,7 @@
         ))
 
 (setq lre-office-path (cond ((eq LRE-this-cfg 'lreibm)
-                             "C:/Program Files/Microsoft Office/Office15")
+                             "C:/Program Files/Microsoft Office/root/Office16")
                             ((eq LRE-this-cfg 'tadnt)
                              "C:/Programfiler/Microsoft Office/Office")
                             ((eq LRE-this-cfg 'tadntp4)
@@ -220,7 +220,7 @@
          lre-00   (LRE-std-00)
          lre-cfg  '(stdsetup))
    (if (or (string= "lare9505" (user-login-name))
-           (string= "larsr" (user-login-name))
+           (string= "larsr" (substring (user-login-name) 0 5))
            (string= "lare" (user-login-name))
            (string= "lars.reed" (user-login-name))
            (string= "lreed" (user-login-name))
