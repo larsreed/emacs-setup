@@ -2304,6 +2304,7 @@ and can edit it until it has been confirmed."
   (tplsub-reg-fast 'sh-mode     tplsub-ksh-list)
   (tplsub-reg-fast 'wml-mode    tplsub-wml-tmpl-list  tplsub-wml-help-list)
   (lre--reg-xml 'html-mode)
+  (lre--reg-xml 'mhtml-mode)
   (lre--reg-xml 'xml-mode)
   (lre--reg-xml 'nxml-mode)
   (lre--reg-xml 'pxml-mode)
