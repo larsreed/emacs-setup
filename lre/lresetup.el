@@ -106,8 +106,8 @@
   (lre-safe-require 'advice)
   (lre-safe-require 'custom)
   (lre-safe-require 'sgml-mode)
-  (lre-safe-require 'cc-mode)
-  (lre-safe-require 'cf-mode)
+  ;; (lre-safe-require 'cc-mode)
+  ;; (lre-safe-require 'cf-mode)
   (lre-safe-require 'font-lock)
   ;; (lre-safe-require 'fe-mode)
   (lre-safe-require 'imenu)
@@ -2705,8 +2705,8 @@ Gi kommando \"\\[lre-tvist-key-description]\" for beskrivelse")
                                                (not (eq 'special
                                                         (get major-mode
                                                              'mode-class)))))
-    (if (lre-memb 'personal)
-        (tool-bar-add-item  "contact" 'wiki-scratch 'wiki-scratch))
+;;    (if (lre-memb 'personal)
+;;        (tool-bar-add-item  "contact" 'wiki-scratch 'wiki-scratch))
     (tool-bar-add-item  "saveas" 'write-file 'write-file
                         :visible '(or buffer-file-name
                                       (not (eq 'special

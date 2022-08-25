@@ -121,7 +121,7 @@
            (setq
             jde-jdk          "JDK1.4.2"
             jde-jdk-registry '(("JDK1.4.2" .
-                                "C:\j2sdk1.4.2_08"))))
+                                "C:/j2sdk1.4.2_08"))))
           ((eq LRE-this-cfg 'gnunix)
            (setq
             jde-jdk          "JDK1.1.8"
