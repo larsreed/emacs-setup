@@ -630,6 +630,9 @@ number: each N line"
 (or (fboundp 'set-frame-font)
     (defalias 'set-frame-font 'set-default-font))
 
+(or (fboundp 'duplicate-line)
+    (defalias 'duplicate-line 'lre-dup-line))
+
 (or (fboundp 'read-only-mode)
     (defsubst read-only-mode (&optional arg)
       (toggle-read-only arg)))
@@ -1822,10 +1825,12 @@ and can edit it until it has been confirmed."
 (autoload 'csdiff-revisions "csdiff" "Compare file revisions using csdiff" t)
 (autoload 'csh-mode "csh-mode2" "Major mode for editing csh scripts" t)
 (autoload 'css-mode "css-mode")
+(autoload 'csv-mode "csv-mode" "Edit CSV-files" t)
 (autoload 'debug-on-condition "dbfrobs" "selective debug" t)
 (autoload 'debug-on-interesting-errors "dbfrobs" "selective debug" t)
 (autoload 'diff-mode "diff-mode" "Diff major mode" t)
 (autoload 'diminish "diminish" "Diminish mode-line" t)
+(autoload 'dockerfile-mode "dockerfilemode" "Edit Dockerfiles" t)
 (unless (commandp 'repeat)
   (autoload 'dot-mode "dot-mode" nil t))
 (autoload 'elint-initialize "elint" nil t)
@@ -1850,6 +1855,8 @@ and can edit it until it has been confirmed."
 (autoload 'html-helper-mode "html-helper-mode" "HTML major mode." t)
 (autoload 'htmlize-buffer "htmlize" "Create HTML from colored buffer" t)
 (autoload 'htmlize-file "htmlize" "Create HTML from file" t)
+(autoload 'htmlize-many-files "htmlize" "Create HTML from many files" t)
+(autoload 'htmlize-region "htmlize" "Create HTML from region" t)
 (when (lre-memb 'ispell)
   (autoload 'ispell-word "ispell"  "Check the spelling of word in buffer." t)
   (autoload 'ispell-region "ispell"  "Check the spelling of region." t)
@@ -1860,10 +1867,12 @@ and can edit it until it has been confirmed."
   (autoload 'ispell-complete-word "ispell"
     "Look up current word in dictionary and try to complete it." t))
 (autoload 'jargon-mode "jargon-mode" "Jargon File major mode." t)
+(autoload 'kotlin-mode "kotlin-mode" "Major mode for editing Kotlin files" t)
 (autoload 'ksh-mode "ksh-mode" "Major mode for editing ksh scripts" t)
 (autoload 'lisp-dir-apropos "lispdir" nil t)
 (autoload 'lisp-dir-retrieve "lispdir" nil t)
 (autoload 'lisp-dir-verify "lispdir" nil t)
+(autoload 'lorem-ipsum-insert-sentences "lorem-ipsum" "Insert lorem ipsum" t)
 (autoload 'make-regexp "make-regexp" "Create regexp" t)
 (autoload 'make-regexps "make-regexp" "Create regexp" t)
 (autoload 'markdown-mode "markdown-mode" "Mode for editing markdown files" t)
@@ -1880,6 +1889,7 @@ and can edit it until it has been confirmed."
 (autoload 'pxml-mode "psgml" "Major mode for editing XML" t)
 (if (lre-memb 'e21+)
     (autoload 're-builder "re-builder" "Build regexps" t))
+(autoload 'register-list "register-list" "Display a list of registers" t)
 (autoload 'sc-cite-original "sc" "Supercite 2.3" t)
 (autoload 'select-buffer "buffer-select" nil t)
 (autoload 'sgml-mode "sgml-mode" "Major mode to edit SGML files" t nil)
@@ -2236,6 +2246,9 @@ and can edit it until it has been confirmed."
     ("\\.\\(xml\\|tld\\|xut\\|xsd\\|rng\\|xhtml\\)$" . lre-choose-xml-mode)
     ("\\.g\\(d[imop]\\|rd\\|os\\|ca\\|bi\\|mp\\)x$" . lre-choose-xml-mode)
     ("\\.\\(cmd\\|bat\\)$" . bat-generic-mode)
+    ("\\.csv\\'" . csv-mode)
+    ("\\.dockerfile\\'" . dockerfile-mode)
+    ("\\.kts?\\'" . kotlin-mode)
     )
   "Always")
 (setq auto-mode-alist
@@ -2416,7 +2429,7 @@ Gi kommando \"\\[lre-tvist-key-description]\" for beskrivelse")
      [ "Sort case-insensitive" lre-sort-lines-nocase (not buffer-read-only) ]
      [ "Copy line to other win" lre-copy-line-other-window t]
      [ "Delete duplicate lines" delete-duplicate-lines (not buffer-read-only) ]
-     [ "Duplicate line" lre-dup-line (not buffer-read-only) ]
+     [ "Duplicate line" duplicate-line (not buffer-read-only) ]
      [ "Kill this line" lre-kill-this-line (not buffer-read-only) ]
      [ "Replace selection with kill" lre-kill-yank (lre--men-reg) ]
      )
@@ -2824,7 +2837,7 @@ Gi kommando \"\\[lre-tvist-key-description]\" for beskrivelse")
   (define-key lre-keymap "\C-a"   'lre-copy-from-above)
   (define-key lre-keymap "\C-b"   'bury-buffer)
   (define-key lre-keymap "\C-c"   'comment-out-region)
-  (define-key lre-keymap "\C-d"   'lre-dup-line)
+  (define-key lre-keymap "\C-d"   'duplicate-line)
   (define-key lre-keymap "\C-k"   'kmacro-keymap)
   (define-key lre-keymap "\C-m"   'lre-disp-macro)
   (define-key lre-keymap "\C-n"   'lre-subst-tmpl)
@@ -4818,19 +4831,21 @@ Dvs.:
   "Renames current buffer and file it is visiting."
   ;; http://whattheemacsd.com/
   (interactive)
-  (let ((name (buffer-name))
-        (filename (buffer-file-name)))
-    (if (not (and filename (file-exists-p filename)))
-        (error "Buffer '%s' is not visiting a file!" name)
-      (let ((new-name (read-file-name "New name: " filename)))
-        (if (get-buffer new-name)
-            (error "A buffer named '%s' already exists!" new-name)
-          (rename-file filename new-name 1)
-          (rename-buffer new-name)
-          (set-visited-file-name new-name)
-          (set-buffer-modified-p nil)
-          (message "File '%s' successfully renamed to '%s'"
-                   name (file-name-nondirectory new-name)))))))
+  (if (fboundp 'rename-visited-file)
+      (call-interactively 'rename-visited-file)
+    (let ((name (buffer-name))
+          (filename (buffer-file-name)))
+      (if (not (and filename (file-exists-p filename)))
+          (error "Buffer '%s' is not visiting a file!" name)
+        (let ((new-name (read-file-name "New name: " filename)))
+          (if (get-buffer new-name)
+              (error "A buffer named '%s' already exists!" new-name)
+            (rename-file filename new-name 1)
+            (rename-buffer new-name)
+            (set-visited-file-name new-name)
+            (set-buffer-modified-p nil)
+            (message "File '%s' successfully renamed to '%s'"
+                     name (file-name-nondirectory new-name))))))))
 
 (defun lre-delete-current-buffer-file ()
   "Removes file connected to current buffer and kills buffer."
