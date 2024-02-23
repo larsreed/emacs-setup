@@ -3439,7 +3439,7 @@ Return only one group for each buffer."
   `(progn
      (if ,force (make-face (quote ,face)))
      (when (facep (quote ,face))
-       (set-face-underline-p (quote ,face) ,uline)
+       (set-face-underline (quote ,face) ,uline)
        (set-face-inverse-video-p (quote ,face) ,inv)
        (if ,fg (set-face-foreground (quote ,face) ,fg))
        (if ,bg (set-face-background (quote ,face) ,bg))
