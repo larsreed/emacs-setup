@@ -620,6 +620,22 @@ number: each N line"
 ;;; --------------------------------------------------------------
 ;;; /// Different versions... ///
 ;;;
+(custom-set-variables
+ '(package-selected-packages
+   '(register-list
+     multiple-cursors
+     markdown-mode
+     lorem-ipsum
+     kotlin-mode
+     htmlize
+     filladapt
+     dockerfile-mode
+     csv-mode))
+ )
+
+;;; --------------------------------------------------------------
+;;; /// Different versions... ///
+;;;
 
 (or (fboundp 'called-interactively-p)
     (defalias 'called-interactively-p 'interactive-p))
