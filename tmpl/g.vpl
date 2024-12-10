@@ -25,7 +25,7 @@
 ; ==========================================================================
 ; PROSJEKT:    TVIST2000
 ; FIL:         §FileID§
-; MAL:         g.vpl 27.5
+; MAL:         g.vpl 38.1
 ;
 ; BESKRIVELSE:
 §ask Description Beskrivelse av fila
@@ -465,7 +465,7 @@ procedure P§ForG§§System§_§FileGrp§_HENT_ALLE_§IKey§R§§ imports W_PARTYPE, :
 ;                                          @STAT_OK@   = OK
 ;                                          @STAT_NULL@ = Ikke funnet
 ;                                          @STAT_ERR@  = Annen feil
-;                                          -9          = Hent uten forutgående
+;                                          @STAT_OP@   = Hent uten forutgående
 ;                                                        søk
 ;                                          -10         = Ukjent parameter
 ;                                       De to siste er programmeringsfeil
@@ -682,7 +682,7 @@ Tidligere gjorde vi mye av dette, men nå kan man oppnå mye med ignorering:
    if ( W_PARTYPE equal to @OP_INITGET@ ) or :
       ( W_PARTYPE equal to @OP_GET@     )
       if not ZQ_§FileGrp§_GRSN_OK
-         W_RETSTAT = -9                         ; Ingen kjent
+         W_RETSTAT = @STAT_OP@                  ; Ingen kjent
       else
          identify next §FileGrp§ :
                        and get @ALLE_§FileGrp§@

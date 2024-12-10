@@ -14,57 +14,69 @@
 M_DROP_PROC(MX_PROCNAME)
 /*****************************************************************************
 
- Prosedyre: 	MX_PROCNAME
- Mal:		@@(#)TVIST sqlproc.vpl 29.2 04/08/13>
+ Prosedyre:     §ProcName§
+ Mal:           @@(#)TVIST sqlproc.vpl 38.1 07/06/08>
  Versjon:       §SCCSid§
- Filnavn:	§FileID§
+ Filnavn:       §FileID§
 
 §ask Beskr Beskrivelse
- Beskrivelse: 	§Beskr§
+ Beskrivelse:   §Beskr§
 
  Parametere:
- 	Navn		Type	       Beskrivelse
-	----		----	       -----------
+        Navn            Type           Beskrivelse
+        ----            ----           -----------
+§if stdSQLpar Inkludere standard skall (2 ekstra param)
         @m_retstat      int out        Status
         @m_feiltekst    vchar(255) out Feilmeldingstekst
-§append execList \ @m_retstat out, @m_feiltekst out
+§append execList §_§ @m_retstat out, @m_feiltekst out
+§fi
 §do AntParam Antall param
 §ask Navn§R§ Navn param §R§
 §ask Type§R§ Type param §R§
 §ask Besk§R§ Beskrivelse param §R§
-§append execList ,§Navn§R§§
+§append execList §_§ ,§Navn§R§§
         §Navn§R§§       §Type§R§§      §Besk§R§§
 §done
 
  Returstatus:
-	Verdi	Beskrivelse
-	-----	-----------
+        Verdi   Beskrivelse
+        -----   -----------
 
  Eksempel på kall:
+§if stdSQLpar
         declare @m_retstat int, @m_feiltekst varchar(255)
+§fi
 §do AntParam
         declare §Navn§R§§ §Type§R§§
 §done
-	§execList§
+        §execList§
 
  Endringslogg
- Dato	Sign	Beskrivelse
- ------	----	-----------
+ Dato   Sign    Beskrivelse
+ ------ ----    -----------
 §ask Date Dagens dato
 §ask User Brukernavnet ditt
- §Date§ §User§    Opprettet (§PMnr§)
+ §Date§ §User§    Opprettet (PM§PMnr§)
 *****************************************************************************/
+§if stdSQLpar
 M_CREATE_PROC(MX_PROCNAME)
-§do AntParam Antall param
-	,§Navn§R§§ §Type§R§§
+§else
+create procedure MX_PROCNAME
+§fi
+§do AntParam
+        ,§Navn§R§§ §Type§R§§
 §done
 as begin
 
+§if stdSQLpar
 M_PROC_START(`MX_PROCNAME`)
+§fi
 
    declare ...
 
+§if stdSQLpar
 M_PROC_SLUTT
+§fi
 end
 go
 M_GRANT_PROC(MX_PROCNAME)

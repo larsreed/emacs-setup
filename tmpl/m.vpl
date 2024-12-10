@@ -5,9 +5,8 @@
 ; =========================================================================
 ; PROSJEKT:    TVIST2000
 ; FIL:         §FileID§
-§ASK Appl Applikasjonsnavn
-; APPLIKASJON: §Appl§
-; MAL:         m.vpl 27.4
+§asku Appl Applikasjonsnavn
+; MAL:         m.vpl 38.1
 ;
 ; BESKRIVELSE:
 §ask Desc Beskrivelse av hovedprogrammet
@@ -549,8 +548,8 @@ program M_§Appl§ employs automarking
 §if GUIapp
        start event-processing
 §else
-§ASK BatchName Navn på batchen (ekskl. prefiks)
-§ASK System Systemnavn (A=AFS osv)
+§asku BatchName Navn på batchen (ekskl. prefiks)
+§asku System Systemnavn (A=AFS osv)
 ;      ------------------------------------
 ;      Hent ut BATCH-ID fra kallende script
 ;      ------------------------------------
@@ -561,7 +560,7 @@ program M_§Appl§ employs automarking
 ;         Kjør batchen
 ;         ------------
           call PJ§System§_§BatchName§ exporting Z_ID :
-			      importing W_RETSTAT
+                              importing W_RETSTAT
        else
           W_RETSTAT = @BATCH_EINIT@ ; Feil under oppstart
        end if

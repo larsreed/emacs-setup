@@ -1,5 +1,4 @@
 §rem <!-- -*-xml-*- -->
-§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
 §default notttused (eval (progn (make-variable-buffer-local 'tplsub-enable-eval) (setq tplsub-enable-eval t) ""))
 §define SCCStdId (eval (concat "@(" "#)SPE %" "M% " "%I" "% " "%E" "%>"))
 §if useSCCSvers Use SCCS for version control (otherwise RCS)
@@ -43,7 +42,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
    <!-- Default style sheet for viewing -->
    <?xml-stylesheet type="text/xsl" href="util-html.xsl"?>
-   <!-- Template version: kshxml.vpl TVIST kshxml.vpl 27.5 04/03/15 SPE $Id: kshxml.vpl,v 1.3 2004/03/15 21:24:36 larsr Exp $ -->
+   <!-- Template version: kshxml.vpl TVIST kshxml.vpl 38.1 07/06/08 SPE $Id$ -->
 <!DOCTYPE utility SYSTEM "utility.dtd" [
     <!ENTITY I "§ScriptName§" >
     <!ENTITY System "§SPE§" >
@@ -232,24 +231,15 @@
     <!-- **************************************************************** -->
     <history>
 	<revinfo
-§define TrickA $
-§define TrickB Revision
-§define TrickC Author
-§define TrickD Date
-§define TrickE State
-§define TrickF Name
-§define TrickG Id
-§define TrickH Locker
-§define TrickI Log
-	    rev="§TrickA§§TrickB§§TrickA§"
-	    author="§TrickA§§TrickC§§TrickA§"
-	    date="§TrickA§§TrickD§§TrickA§"
-	    state="§TrickA§§TrickE§§TrickA§"
-	    name="§TrickA§§TrickF§§TrickA§">
-	    <revid>§TrickA§§TrickG§§TrickA§</revid>
-	    <revlock>§TrickA§§TrickH§§TrickA§</revlock>
+	    rev="$Revision$"
+	    author="$Author$"
+	    date="$Date$"
+	    state="$State$"
+	    name="$Name$">
+	    <revid>$Id$</revid>
+	    <revlock>$Locker$</revlock>
 	    <revlog><![CDATA[
-$§TrickI§§TrickA§
+$Log$
 	    ]]></revlog>
 	</revinfo>
 §define hMaxR 0

@@ -1,6 +1,6 @@
 ;; lresetup.el --- Lars Reed - Emacs init file
 
-;; Copyright (C) 1993-2021 Lars Reed
+;; Copyright (C) 1993-2014 Lars Reed
 ;; Author: Lars Reed <Lars@kalars.net>
 ;; Maintainer: Lars Reed
 ;; Keywords: Emacs setup
@@ -26,9 +26,7 @@
 ; Hi-lock: (("^;;; [^\n]+" (0 (quote hi-green) t)))
 
 ;; Todo: sjekk combine-and-quote-strings, format-seconds, read-shell-command,
-;  locate-user-emacs-file, looking-at-p, string-match-p,
-; 'find-library-other-window' and 'find-library-other-frame', electric-quote-mode
-; display-line-numbers, 'apropos-local-variable' and 'apropos-local-value'
+;  locate-user-emacs-file, looking-at-p, string-match-p
 
 
 ;;; --------------------------------------------------------------
@@ -46,6 +44,7 @@
 
 ;;; History:
 ;; An endless number of changes!
+;; Current version: $Id: lresetup.el,v 1.18 2007/06/19 20:06:54 larsr Exp $
 
 ;;; TODO
 ;; - printer win32
@@ -106,8 +105,8 @@
   (lre-safe-require 'advice)
   (lre-safe-require 'custom)
   (lre-safe-require 'sgml-mode)
-  ;; (lre-safe-require 'cc-mode)
-  ;; (lre-safe-require 'cf-mode)
+  (lre-safe-require 'cc-mode)
+  (lre-safe-require 'cf-mode)
   (lre-safe-require 'font-lock)
   ;; (lre-safe-require 'fe-mode)
   (lre-safe-require 'imenu)
@@ -269,13 +268,13 @@
 (defcustom lre-user-sign "LRE"
   "*User signature for history records."
   :group 'lresetup :type 'string)
-(defcustom lre-user-org "Kalars"
+(defcustom lre-user-org "Mesan"
   "* User organization for history records."
   :group 'lresetup :type 'string)
 (defcustom lre-full-name "Lars Reed"
   "* Full user name."
   :group 'lresetup :type 'string)
-(defcustom lre-full-org "Kalars"
+(defcustom lre-full-org "Mesan"
   "* Full organization name."
   :group 'lresetup :type 'string)
 (defcustom lre-fe-org lre-user-org
@@ -620,34 +619,9 @@ number: each N line"
 ;;; --------------------------------------------------------------
 ;;; /// Different versions... ///
 ;;;
-(custom-set-variables
- '(package-selected-packages
-   '(register-list
-     multiple-cursors
-     markdown-mode
-     lorem-ipsum
-     kotlin-mode
-     htmlize
-     filladapt
-     dockerfile-mode
-     csv-mode))
- )
-
-;;; --------------------------------------------------------------
-;;; /// Different versions... ///
-;;;
-
-(or (fboundp 'called-interactively-p)
-    (defalias 'called-interactively-p 'interactive-p))
-
-(or (fboundp 'save-mark-and-excursion)
-    (defalias 'save-mark-and-excursion 'save-excursion))
 
 (or (fboundp 'set-frame-font)
     (defalias 'set-frame-font 'set-default-font))
-
-(or (fboundp 'duplicate-line)
-    (defalias 'duplicate-line 'lre-dup-line))
 
 (or (fboundp 'read-only-mode)
     (defsubst read-only-mode (&optional arg)
@@ -664,7 +638,7 @@ number: each N line"
 
 (or (fboundp 'with-output-to-string)
     (defmacro with-output-to-string (&rest body)
-      `(save-mark-and-excursion
+      `(save-excursion
          (set-buffer (get-buffer-create " *string-output*"))
          (setq buffer-read-only nil)
          (buffer-disable-undo (current-buffer))
@@ -721,19 +695,19 @@ stopping when a single additional previous character cannot be part
 of a match for REGEXP."
       (let ((start (point))
             (pos
-             (save-mark-and-excursion
+             (save-excursion
                (and (re-search-backward (concat "\\(?:" regexp "\\)\\=") limit t)
                     (point)))))
         (if (and greedy pos)
             (save-restriction
               (narrow-to-region (point-min) start)
               (while (and (> pos (point-min))
-                          (save-mark-and-excursion
+                          (save-excursion
                             (goto-char pos)
                             (backward-char 1)
                             (looking-at (concat "\\(?:"  regexp "\\)\\'"))))
                 (setq pos (1- pos)))
-              (save-mark-and-excursion
+              (save-excursion
                 (goto-char pos)
                 (looking-at (concat "\\(?:"  regexp "\\)\\'")))))
         (not (null pos)))))
@@ -784,7 +758,7 @@ Use a MESSAGE of \"\" to temporarily clear the echo area."
       "Return the first textual item to the nearest point."
       (interactive)
                                         ;alg stolen from etag.el
-      (save-mark-and-excursion
+      (save-excursion
         (if (not (memq (char-syntax (preceding-char)) '(?w ?_)))
             (while (not (looking-at "\\sw\\|\\s_\\|\\'"))
               (forward-char 1)))
@@ -808,7 +782,7 @@ Use a MESSAGE of \"\" to temporarily clear the echo area."
   "See `undo'!"
   (interactive "P")
   (if p
-      (save-mark-and-excursion
+      (save-excursion
         (goto-char (point-max))
         (set-mark (point-min))
         (undo p))
@@ -945,7 +919,7 @@ and launch or redirect a browser to the specified URL."
       csdiff-program                  (lre-fixed :csdiff)
       dabbrev-abbrev-char-regexp      "\\sw\\|\\s_"
       default-frame-alist             (list (cond ((lre-memb 'lreibm)
-                                                   '(height . 52))
+                                                   '(height . 60))
                                                   ((lre-memb 'lredell
                                                              'lredigital)
                                                    '(height . 39))
@@ -965,7 +939,7 @@ and launch or redirect a browser to the specified URL."
                                                   ((lre-memb-all 'personal 'tadntp4 'win32)
                                                    '(top . 24)))
                                             (cond ((lre-memb 'lreibm)
-                                                   '(left . 300)))
+                                                   '(left . 150)))
                                             (if (lre-memb 'toolbar)
                                                 '(tool-bar-lines . 1)
                                               '(tool-bar-lines . 0))
@@ -1058,6 +1032,7 @@ and launch or redirect a browser to the specified URL."
       ispell-look-p                   t
       jit-lock-chunk-size             1000
       jit-lock-stealth-time           5
+      js-indent-level                 2
       kill-do-not-save-duplicates     t
       kill-whole-line                 t
       kmacro-call-mouse-event         nil
@@ -1066,7 +1041,6 @@ and launch or redirect a browser to the specified URL."
       lazy-lock-defer-on-the-fly      nil
       line-number-display-limit-width 400
       lisp-code-directory             (concat (nth 0 lre-lisp) "/LCD-datafile")
-      load-prefer-newer               t
       local-use-mark-paren            t
       longlines-show-hard-newlines    t
       lpr-switches                    lre-printer-opt-lp
@@ -1075,8 +1049,6 @@ and launch or redirect a browser to the specified URL."
       magic-mode-alist                nil
       mail-archive-file-name          "~/Mail/outbox.VM"
       mail-yank-prefix                "> "
-      markdown-italic-underscore      t
-      markdown-open-command           (lre-fixed :markdown)
       max-lisp-eval-depth             1000
       max-specpdl-size                2000
       message-log-max                 500
@@ -1177,7 +1149,7 @@ and launch or redirect a browser to the specified URL."
                                         lre-menu-lines)
       save-place-file                 (expand-file-name
                                        (convert-standard-filename
-                                        (if (lre-memb-all 'win32 'tvist)
+                                        (if (lre-memb-all 'win32 'tvist 'tvust-nix)
                                             "~/_emacs_places"
                                          "~/.emacs-places")))
       save-place-ignore               lre-fignore-re ;; pre-emacs 24
@@ -1190,7 +1162,6 @@ and launch or redirect a browser to the specified URL."
       scroll-margin                   0
       scroll-preserve-screen-position t
       scroll-step                     5
-      search-default-mode             'char-fold-to-regexp
       search-exit-char                1
       search-highlight                t
       semantic-load-turn-everything-on nil
@@ -1209,8 +1180,8 @@ and launch or redirect a browser to the specified URL."
       shell-prompt-pattern            "[^])>]+[])>%] +"
       show-paren-style                'mixed
       show-paren-ring-bell-on-mismatch t
-      special-display-buffer-names     '("*Compile-Log*"
-                                         "*Shadows*" "*Faces*")
+      smooth-scroll-margin            2
+      special-display-buffer-names    '("*Compile-Log*" "*Shadows*" "*Faces*")
       speedbar-use-tool-tips-flag     t
       split-height-threshold          12
       sql-user                        (if (lre-memb 'personal) "sa"
@@ -1300,16 +1271,11 @@ and launch or redirect a browser to the specified URL."
       (list
        (list "ls" "ls" 'source (lre-memb 'gnunix 'personal))
        (list "ls -l" "ls" 'source (lre-memb 'gnunix 'personal) nil nil "-l")
-       (list "du" "du" 'source (lre-memb 'gnunix 'personal) nil nil "-k")
+;;       (list "du" "du" 'source (lre-memb 'gnunix 'personal) nil nil "-k")
        (list "Notepad" "notepad.exe" 'editor
              (eq window-system 'w32))
        (list "WinWord" "winword.exe" 'editor
              (eq window-system 'w32)
-             (list (list 'path ext-cmd-w32-office-path)))
-       (list "FrontPage" "frontpg.exe" 'editor
-             (and (eq window-system 'w32)
-                  (lre-memb 'personal)
-                  nil)
              (list (list 'path ext-cmd-w32-office-path)))
        (list "Excel" "excel.exe" 'editor
              (eq window-system 'w32)
@@ -1319,14 +1285,6 @@ and launch or redirect a browser to the specified URL."
        (list "IE" "iexplore.exe" 'editor
              (eq window-system 'w32)
              (list (list 'path lre-ie-path)))
-       (list "Zip!" "wzzip.exe" 'editor
-             (and (eq window-system 'w32)
-                  (lre-memb 'personal))
-             (list (list 'path (lre-fixed :winzip)))
-             "ZIP file"
-             "-a" "-ex" "%d/%b.zip" "%f")
-;;       (list "sqldbgr" "sqldbgr" 'free
-;;           (lre-memb-all 'tvist 'gnunix))
        (list "WinZip" "winzip32.exe" 'free
              (eq window-system 'w32)
              (list (list 'path (lre-fixed :winzip))))
@@ -1425,7 +1383,6 @@ and launch or redirect a browser to the specified URL."
 
 ;;; main-setq-default
 (setq-default save-place                   t
-              save-place-mode              t
               case-fold-search             t
               default-indicate-empty-lines t
               show-trailing-whitespace     t
@@ -1891,7 +1848,8 @@ and can edit it until it has been confirmed."
 (autoload 'lorem-ipsum-insert-sentences "lorem-ipsum" "Insert lorem ipsum" t)
 (autoload 'make-regexp "make-regexp" "Create regexp" t)
 (autoload 'make-regexps "make-regexp" "Create regexp" t)
-(autoload 'markdown-mode "markdown-mode" "Mode for editing markdown files" t)
+(if (lre-memb 'e24+)
+    (autoload 'markdown-mode "markdown-mode" "Mode for editing markdown files" t))
 (if (lre-memb-all 'inet 'win32)
     (autoload 'nt-url-browse-url "nt-url"
       "Browse a URL using Windows web browser" t))
@@ -2038,7 +1996,7 @@ and can edit it until it has been confirmed."
 ;; TODO  (lre-safe-require 'smooth-scrolling)  ; keep buffer position when returning
   (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
   (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
-  (if (lre-memb 'e244+)
+  (if (lre-memb 'e24+)
       (add-hook 'eval-expression-minibuffer-setup-hook 'eldoc-mode))
   (when (lre-memb 'win32)  ; newer emacs on Win32
     (or (lre-memb 'e21+)
@@ -2313,7 +2271,7 @@ and can edit it until it has been confirmed."
             ("less" . text-mode)
             ("pg" . text-mode))
         nil))
-(defvar speedbar-ignored-path-expressions '())
+
 (eval-after-load "speedbar"
   '(setq speedbar-obj-alist (append speedbar-obj-alist
                                    '(("\\.v?sd" . ".o")
@@ -2899,7 +2857,6 @@ Gi kommando \"\\[lre-tvist-key-description]\" for beskrivelse")
   (global-set-key (kbd "<C-S-down>") 'lre-move-line-down)
   (global-set-key (kbd "<C-S-up>") 'lre-move-line-up)
 
-
   (when (lre-memb 'e22+)
     (global-set-key "\C-z\C-k" 'kmacro-keymap)
     (global-set-key [S-f4] 'kmacro-start-macro-or-insert-counter)
@@ -2938,7 +2895,7 @@ Gi kommando \"\\[lre-tvist-key-description]\" for beskrivelse")
   (define-key esc-map ":"         'eval-expression)
   (define-key esc-map [f1]        'eval-expression)
   (if (lre-memb 'ispell)
-      (define-key esc-map "$"     'ispell-word))
+      (define-key esc-map "$"   'ispell-word))
   (if (fboundp 'cycle-spacing)
       (define-key esc-map " "     'cycle-spacing))
 
@@ -2981,8 +2938,6 @@ Gi kommando \"\\[lre-tvist-key-description]\" for beskrivelse")
   (define-key help-map "y"  'describe-syntax)
   (define-key help-map "W"  'woman)
   (define-key help-map "\M-w" 'bill-help-on-topic)
-  (if (fboundp 'view-sun4at-keys)
-      (define-key help-map "V" 'view-sun4at-keys))
 
   (if (fboundp 'help-for-help-doc)
       (defadvice help-for-help-doc (before lre-more-docs activate)
@@ -3019,7 +2974,7 @@ Gl    Locate library
 Gf    Find function
 Gk    Find function on key
 M     Run `man'
-O     Show bookmark list
+o     Show bookmark list
 S     Show save-places
 y     Describe syntax
 W     Run `woman'
@@ -3871,7 +3826,7 @@ By Bob Wiener"
 
 (defun lre-is-greip-p ()
   "Bestem om buffer er greip-buffer."
-  (save-mark-and-excursion
+  (save-excursion
     (goto-char (point-min))
     (search-forward-regexp "^\\*V INCLUDE IF SRCTYPE" nil t)))
 
@@ -5001,7 +4956,7 @@ Dvs.:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  (defun favorites-write-url (url-name)
 ;;    (interactive "sName For Favorite File: ") ; By Galen Boyer
-;;    (save-mark-and-excursion
+;;    (save-excursion
 ;;      (switch-to-buffer url-name)
 ;;      (insert "[DEFAULT]\nBASEURL=")
 ;;      (yank)

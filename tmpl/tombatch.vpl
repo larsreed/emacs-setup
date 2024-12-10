@@ -1,5 +1,5 @@
 §rem -*-sysdul-*-
-§rem Malversjon: @@(#)TVIST tombatch.vpl 29.3 04/07/06>
+§rem Malversjon: @@(#)TVIST tombatch.vpl 38.1 07/06/08>
 §rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
 §ask SCCSid SCCS-ID
 §ask FileID Fil/versjonskode
@@ -28,7 +28,6 @@ m-pros ----8<------------8<------------8<------------8<------------8<--------
 ; =========================================================================
 ; PROSJEKT:    TVIST
 ; FIL:         §FileID§
-; APPLIKASJON: M§BatchName§
 ; MAL:         m2.vpl 3.3
 ;
 ; BESKRIVELSE:
