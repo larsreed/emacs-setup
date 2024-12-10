@@ -1809,7 +1809,7 @@ and can edit it until it has been confirmed."
 (autoload 'elint-initialize "elint" nil t)
 (autoload 'elint-defun "elint" "eLint the function at point" t)
 (autoload 'elint-current-buffer "elint" "eLint the current buffer" t)
-(autoload 'elisp-slime-nav-mode "elisp-slime-nav")
+;; (autoload 'elisp-slime-nav-mode "elisp-slime-nav")
 ;; (autoload 'fe-mode "fe-mode" nil t)
 (autoload 'find-function "find-func" nil t)
 (autoload 'find-function-on-key "find-func" nil t)
@@ -2645,7 +2645,6 @@ Gi kommando \"\\[lre-tvist-key-description]\" for beskrivelse")
      [ "Open library" lre-open-library t ]
      [ "List libraries" lre-list-libs t ]
      [ "Search for defun" lre-search-defun t ]
-     [ "Goto definition" elisp-slime-nav-find-elisp-thing-at-point t ]
      "---"
      [ "Byte compile file" lre-byte-compile-file t ]
      [ "Recompile directory" byte-recompile-directory t ]
@@ -2660,6 +2659,7 @@ Gi kommando \"\\[lre-tvist-key-description]\" for beskrivelse")
      )
     )
   "My own menu...")
+;;     [ "Goto definition" elisp-slime-nav-find-elisp-thing-at-point t ]
 
 (when (lre-memb-all 'keys 'toolbar)
   (defun lre-toolbar()
