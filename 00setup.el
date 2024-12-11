@@ -177,15 +177,18 @@
 	)
     (setq LRE-base (if uxver "/emacs"
 		     (if (or (eq LRE-this-cfg 'tadnt)
-			         (eq LRE-this-cfg 'tadntp4))
+			     (eq LRE-this-cfg 'tadntp4)
+			     (eq LRE-this-cfg 'tadntp5)
+			     )
 			 "P:/GNUemacs"
 		       lre-emacs-dir))
 	  LRE-load (if uxver load-path
                      (LRE-build-dir
                       '("" "calc" "calendar" "cedet" "emacs-lisp" "emulation"
-                        "erc" "eshell" "gnus" "international" "language" "mail"
-                        "mh-e" "net" "nxml" "org" "play" "progmodes"
-                        "term" "textmodes" "toolbar" "url" "vc")
+                        "erc" "eshell" "gnus" "image" "international"
+			"language" "leim" "mail" "mh-e" "net" "nxml" "obsolete"
+			"org" "play" "progmodes" "term" "textmodes" "toolbar"
+			"url" "use-package" "vc")
                        "lisp" (if (or (eq LRE-this-cfg 'tadnt)
                                      (eq LRE-this-cfg 'tadntp4))
                                   lre-emacs-dir nil)))
