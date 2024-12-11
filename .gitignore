@@ -1,6 +1,5 @@
 *.exe
 *.elc
 /BACKUP/
-/pkg/
 *.lnk
 #*#
