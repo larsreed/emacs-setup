@@ -1140,7 +1140,7 @@ and launch or redirect a browser to the specified URL."
       replace-lax-whitespace          t
       require-final-newline           'ask
       save-interprogram-paste-before-kill t
-      save-place                      t
+      save-place-mode                 t
       save-place-keep-eof             t
       save-place-use-file-menu        (not (lre-memb 'e21+))
       save-place-version-control      nil
@@ -5167,6 +5167,7 @@ Dvs.:
 (add-hook 'psgml-mode-hook 'lre-psgml-mode)
 (add-hook 'pxml-mode-hook 'lre-pxml-mode)
 (add-hook 'save-place-recent-hooks 'lre-save-place-hook)
+(if (fboundp 'save-place-mode) (save-place-mode 1))
 (add-hook 'shell-mode-hook 'lre-cygwin)
 (add-hook 'sh-mode-hook 'lre-shell-mode)
 (add-hook 'sgml-mode-hook 'lre-sgml-keys)
