@@ -1,0 +1,6 @@
+[submodule "pkg/expand-region"]
+	path = pkg/expand-region
+	url = https://github.com/magnars/expand-region.el.git
+[submodule "pkg/multiple-cursors"]
+	path = pkg/multiple-cursors
+	url = https://github.com/magnars/multiple-cursors.el.git

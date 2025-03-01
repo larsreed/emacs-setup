@@ -2,13 +2,12 @@
 §ask PMnr PM-nr til historikken
 §ask SCCSid SCCS-ID
 §ask FileID Fil/versjonskode
-§ASK ApplShort Kortnavn på batchen (type abf01)
-§ASK Appl Applikasjonsnavn (type M_ABF01)
+§asku ApplShort Kortnavn på batchen (type abf01)
+§asku Appl Applikasjonsnavn (type M_ABF01)
 ; =========================================================================
 ; PROSJEKT:    TVIST2000
 ; FIL:         §FileID§
-; APPLIKASJON: §Appl§
-; MAL:         m2.vpl 27.4
+; MAL:         m2.vpl 38.1
 ;
 ; BESKRIVELSE:
 §ask Desc Beskrivelse av hovedprogrammet
@@ -34,7 +33,7 @@
 
 @LOCAL@_program = §Appl§
 @LOCAL@_short   = §ApplShort§
-§ASK BatchName Navn på batchen (type PJA_ABF01)
+§asku BatchName Navn på batchen (type PJA_ABF01)
 @LOCAL@_batch   = §BatchName§
 @LOCAL@_ver_id  = '§xSCCSid§'
 

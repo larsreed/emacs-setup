@@ -1,4 +1,3 @@
-§rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
 §ask SCCSid SCCS-ID
 §ask FileID Fil/versjonskode
 §ASK Pict Kortnavn på bildet (f.eks. AV0017L)
@@ -6,7 +5,7 @@
 ; ==========================================================================
 ; PROSJEKT:    TVIST2000
 ; FIL:         §FileID§
-; MAL:         tillegg.vpl 24.1
+; MAL:         tillegg.vpl 19.1
 ;
 §ask Description Beskrivelse av fila
 ; BESKRIVELSE:

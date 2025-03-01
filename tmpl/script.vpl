@@ -1,4 +1,5 @@
 §rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
+§default notttused (eval (progn (make-variable-buffer-local 'tplsub-enable-eval) (setq tplsub-enable-eval t) ""))
 §ask PMnr PM-nr til historikken
 §ask SCCSid SCCS-ID
 §ask FileID Fil/versjonskode
@@ -11,7 +12,7 @@
 # ==========================================================================
 # PROSJEKT:    TVIST2000
 # FIL:         §FileID§
-# MAL:         script.vpl 27.4
+# MAL:         script.vpl 38.1
 # BATCH:       §SRMname§
 #
 §ask Description Beskrivelse av scriptet
@@ -31,12 +32,13 @@
 # PARAM         -h                      Vis syntakssammendrag
 §if SQL
 # PARAM         Standard param for SQL-batcher
-§else
+§fi
+§defbool hasScriptParam nil
 §do antScriptParam Antall kommandolinjeparametere
+§defbool hasScriptParam t
 # PARAM         parameter§R§              ...
 §done
 §ask SyntaxHelp Syntaksbeskrivelse (uten -h)
-§fi
 # RETURNS       0                       OK
 #               1                       Ingenting å gjøre
 §if SQL
@@ -85,13 +87,13 @@
 typeset -r I=${0##*/}   # Scriptets navn
 §fi SQL
 typeset -r Ver="§SCCSid§"
-§if SQL
-typeset -r Syntax="parameterfil batchnavn batch-ID | -h"
-typeset -r OptString=":h"
-§else
+§if hasScriptParam
 typeset -r Syntax="§SyntaxHelp§  | -h"
 §ask OptString Syntaksstreng til getopts (uten h)
 typeset -r OptString=":§OptString§h"
+§else
+typeset -r Syntax="parameterfil batchnavn batch-ID | -h"
+typeset -r OptString=":h"
 §fi (SQL)
 
 # ----

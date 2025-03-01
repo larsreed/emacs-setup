@@ -24,7 +24,7 @@
 # Installasjonsscript for §SYSTEM§ §Versjon§.
 # Opprettet §Date§ av §User§.
 #
-# Malversjon: @(#)TVIST install.vpl 29.5 04/07/15>
+# Malversjon: @(#)TVIST install.vpl 38.1 07/06/08>
 # ---------------------------------------------------------------------
 typeset -i err=0 warndb=2 warninst=2 instrun=0
 §if forTVIST
@@ -84,7 +84,6 @@ typeset sqlsrvAgr=${sqlsrv%SQL}AGR
 typeset sqltz=${pfx}a.tz
 §if forTVIST
 typeset dbn_A=TVIST_A dbo_A=TVIST_A
-typeset dbn_B=TVIST_B dbo_B=TVIST_B
 typeset dbn_C=TVIST_C dbo_C=TVIST_C
 typeset dbn_F=TVIST_F dbo_F=TVIST_F
 typeset dbn_I=TVIST_I dbo_I=TVIST_I
@@ -189,7 +188,6 @@ function runSqlSubst {
        -e 's/TVIST_VERSJON/9813679164592648920457674992766499264992634/g' \
        -e 's/TVIST_FELT/7541585741558784456987841230557412058574748885/g' \
        -e "s/TVIST_A/$dbn_A/g"  \
-       -e "s/TVIST_B/$dbn_B/g"  \
        -e "s/TVIST_C/$dbn_C/g"  \
        -e "s/TVIST_F/$dbn_F/g"  \
        -e "s/TVIST_I/$dbn_I/g"  \
@@ -199,7 +197,6 @@ function runSqlSubst {
        -e "s/TVIST_R/$dbn_R/g"  \
        -e "s/srm51/$dbn_S/g"    \
        -e "s/USR_A/$dbo_A/g"    \
-       -e "s/USR_B/$dbo_B/g"    \
        -e "s/USR_C/$dbo_C/g"    \
        -e "s/USR_F/$dbo_F/g"    \
        -e "s/USR_I/$dbo_I/g"    \
@@ -305,6 +302,7 @@ function getDbs {
             (TESTSQL)   dbn_R=UTV_R1  ; dbo_R=UTV_R1;;
             (XSTESTSQL) dbn_R=UTV_R2  ; dbo_R=UTV_R2;;
             (attvistdb) dbn_R=TEST_R3 ; dbo_R=TEST_R3;;
+            (TADKURS)   dbn_R=KURS_R1 ; dbo_R=KURS_R1;;
          esac
 §fi forTVIST
       fi
@@ -321,7 +319,6 @@ function getDbs {
          case "$sqlsrv" in
             (TESTSQL)
                       dbn_A=UTV_A1 ; dbo_A=UTV_A
-                      dbn_B=UTV_B1 ; dbo_B=UTV_B
                       dbn_C=UTV_C1 ; dbo_C=UTV_C
                       dbn_F=UTV_F1 ; dbo_F=UTV_F
                       dbn_I=UTV_I1 ; dbo_I=UTV_I
@@ -331,7 +328,6 @@ function getDbs {
                       ;;
             (XSTESTSQL)
                       dbn_A=UTV_A2 ; dbo_A=UTV_A
-                      dbn_B=UTV_B2 ; dbo_B=UTV_B
                       dbn_C=UTV_C2 ; dbo_C=UTV_C
                       dbn_F=UTV_F2 ; dbo_F=UTV_F
                       dbn_I=UTV_I2 ; dbo_I=UTV_I
@@ -341,7 +337,6 @@ function getDbs {
                       ;;
             (tvtvTVIST)
                       dbn_A=AFS  ; dbo_A=$dbn_A
-                      dbn_B=SBR  ; dbo_B=$dbn_B
                       dbn_C=TRAV ; dbo_C=$dbn_C
                       dbn_F=FEL  ; dbo_F=$dbn_F
                       dbn_I=AVSK ; dbo_I=$dbn_I
@@ -351,13 +346,30 @@ function getDbs {
                       ;;
             (attvistdb)
                       dbn_A=TEST_A3 ; dbo_A=TEST_A
-                      dbn_B=TEST_B3 ; dbo_B=TEST_B
                       dbn_C=TEST_C3 ; dbo_C=TEST_C
                       dbn_F=TEST_F3 ; dbo_F=TEST_F
                       dbn_I=TEST_I3 ; dbo_I=TEST_I
                       dbn_K=TEST_K3 ; dbo_K=TEST_K
                       dbn_P=TEST_P3 ; dbo_P=TEST_P
                       dbn_V=TEST_V3 ; dbo_V=TEST_V
+                      ;;
+            (attvistdb)
+                      dbn_A=TEST_A1 ; dbo_A=TEST_A
+                      dbn_C=TEST_C1 ; dbo_C=TEST_C
+                      dbn_F=TEST_F1 ; dbo_F=TEST_F
+                      dbn_I=TEST_I1 ; dbo_I=TEST_I
+                      dbn_K=TEST_K1 ; dbo_K=TEST_K
+                      dbn_P=TEST_P1 ; dbo_P=TEST_P
+                      dbn_V=TEST_V1 ; dbo_V=TEST_V
+                      ;;
+            (TADKURS)
+                      dbn_A=KURS_A1 ; dbo_A=KURS_A
+                      dbn_C=KURS_C1 ; dbo_C=KURS_C
+                      dbn_F=KURS_F1 ; dbo_F=KURS_F
+                      dbn_I=KURS_I1 ; dbo_I=KURS_I
+                      dbn_K=KURS_K1 ; dbo_K=KURS_K
+                      dbn_P=KURS_P1 ; dbo_P=KURS_P
+                      dbn_V=KURS_V1 ; dbo_V=KURS_V
                       ;;
          esac
 §fi forTVIST
@@ -372,12 +384,6 @@ function getDbs {
                 dbn_A=$dbn_x
                 dbo_A=$dbo_x
 		dbZA=1
-	     fi;;
-	 (B) if [[ $dbZB -eq 0 ]]; then
-                ask1db SBR $dbn_B $dbo_B
-                dbn_B=$dbn_x
-                dbo_B=$dbo_x
-		dbZB=1
 	     fi;;
 	 (C) if [[ $dbZC -eq 0 ]]; then
                 ask1db TRAV $dbn_C $dbo_C
@@ -673,7 +679,6 @@ EOF
       cd $orgdir
    fi
 §fi FullVer
-   checkFiles STD
 §if FullVer
 §else
    chmod 755 $flist
@@ -681,6 +686,7 @@ EOF
    mv ./§Filnavn§R§§ §basedir§/§Dir§R§§/§Filnavn§R§§
 §done
 §fi FullVer
+   checkFiles STD
    cd ${orgdir}
    [[ -n "$instpref" ]] && rm -rf i$$
 §fi inclAppl
@@ -705,6 +711,8 @@ fi
 
 print "_________________________ Database..."
 §if DBoppgRun
+export TVISTDBDEFUSR="$sqlusr"
+export TVISTDBDEFSRV="$sqlsrv"
 runDbUpg
 §fi
 §if AgressoDB

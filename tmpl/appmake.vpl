@@ -2,7 +2,7 @@
 §rem ; Hi-lock: (("^§[a-z]*" (0 (quote hi-yellow) t)))
 §ask SCCSid SCCS-ID
 # FIL:         §SCCSid§
-# MAL:         appmake.vpl 27.4
+# MAL:         appmake.vpl 38.1
 §ask Date Dagens dato
 §ask User Brukernavnet ditt
 # §Date§  §User§  Opprettet

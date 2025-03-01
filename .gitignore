@@ -1,2 +1,5 @@
-*.elc
 *.exe
+*.elc
+/BACKUP/
+*.lnk
+#*#
