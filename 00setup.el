@@ -45,7 +45,7 @@
       ;; LRE-cedet-x-pkg "pkg/cedet-1.0beta3b/contrib"
       LRE-autocomplete-pkg nil
       ;; LRE-autocomplete-pkg "pkg/auto-complete-1.3.1"
-      LRE-multiple-cursors-pkg (if (>= emacs-major-version 24) "pkg/multiple-cursors" nil)
+      LRE-multiple-cursors-pkg (if (and (>= emacs-major-version 24) (<= emacs-major-version 29))"pkg/multiple-cursors" nil)
       LRE-expand-region-pkg (if (>= emacs-major-version 24) "pkg/expand-region" nil)
       )
 (setq LRE-pkg-list
