@@ -161,7 +161,7 @@
 
 
 (cond
- ((string-match "^2[0-9][.]" emacs-version)
+ ((string-match "^[23][0-9][.]" emacs-version)
   (setq LRE-ver (if (string= window-system "w32") 'win2k
                    'gnunix)))
  ((>= emacs-major-version 22)
