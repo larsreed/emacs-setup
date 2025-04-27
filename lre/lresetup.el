@@ -84,7 +84,9 @@
     (condition-case err-symb
         (setq ok (require symbol fname t))
       ((file-error error)
-       (message "REQUIRE: %s" (prin1-to-string  err-symb))
+       (message "REQUIRE: %s -- %s"
+                (prin1-to-string  symbol)
+                (prin1-to-string  err-symb))
        (setq ok nil))
       )
     ok))
