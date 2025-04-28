@@ -374,7 +374,7 @@
 
 
 (defcustom lre-imenu-general
-  '("///" "[/]\\{3,\\}\\s-+\\([^\n]+\\)\\s-+[/]\\{3,\\}.*$" 1)
+  '("///" "[/]\\{3,\\}\\s-+\\([^\n]+\\)\\s-+[/]\\{3,\\}" 1)
   "* Expression to add to the imenu"
   :type 'sexp
   :group 'lresetup)
@@ -1053,6 +1053,7 @@ and launch or redirect a browser to the specified URL."
                                         100000)
       imenu-auto-rescan               (lre-memb 'e21+)
       imenu-max-items                 lre-menu-lines
+      imenu-generic-skip-comments-and-strings nil
       indent-tabs-mode                nil
 ;;      initial-frame-alist             (list
 ;;                                       (if (lre-memb 'personal)
@@ -1263,6 +1264,7 @@ and launch or redirect a browser to the specified URL."
                                             "~/_tplsubhist"
                                          "~/.tplsubhist")))
       track-eol                       t
+      undelete-frame-mode             t
       uniquify-buffer-name-style      'forward
       vc-command-messages             t
       vc-static-header-alist          '(("\\.[ch]$" .
@@ -1272,6 +1274,7 @@ and launch or redirect a browser to the specified URL."
       version-control                 nil
       visible-bell                    (not (lre-memb-all 'personal 'gnunix))
       visual-line-fringe-indicators   '(left-curly-arrow right-curly-arrow)
+      which-key-mode                  t
       woman-always-color-faces        t
       woman-fill-frame                t
       woman-ignore                    (not (lre-memb 'personal))

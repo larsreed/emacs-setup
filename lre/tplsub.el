@@ -1,4 +1,5 @@
-';; tplsub.el - templates, abbreviations and syntax help
+;; -- lexical-binding: t;--
+;; tplsub.el - templates, abbreviations and syntax help
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Author:              Lars Reed <Lars@kalars.net>
@@ -93,11 +94,11 @@ Be sure it is smaller than the high limit..."
 (make-variable-buffer-local 'tplsub-tmpl-help)
 
 (defcustom tplsub-no-no-help nil
-  "* Set to t to silence \"no help\" messages \(just be quiet\)"
+  "* Set to t to silence \"no help\" messages \\=(just be quiet\\=)"
   :group 'tplsub :type 'boolean)
 
 (defcustom tplsub-std-indent 4
-  "* Standard indentation \(spaces\), or \'tab for TAB"
+  "* Standard indentation \\=(spaces\\=), or \\='tab for TAB"
   :group 'tplsub :type 'integer)
 (make-variable-buffer-local 'tplsub-std-indent)
 
@@ -108,8 +109,8 @@ Be sure it is smaller than the high limit..."
 
 (defcustom tplsub-tmpl-undefined-action 'insert
   "* Action when expansion is unsuccessful.
-The default action (given by \'insert) is to insert `tplsub-key'.
-The other possible values are `nil' \(ignore\) and \'error, to either
+The default action (given by \\='insert) is to insert `tplsub-key'.
+The other possible values are `nil' \\=(ignore\\=) and \\='error, to either
 completely ignore the situation, or report an error."
   :group 'tplsub
   :type '(choice :tag "Action"
@@ -131,7 +132,7 @@ nil to avoid recording."
   :group 'tplsub :type 'file)
 
 (defcustom tplsub-tmpl-key "|"
-  "Key to trigger template expansion \(`tplsub-templates'\)
+  "Key to trigger template expansion \\=(`tplsub-templates'\\=)
 If this is changed to an unprintable key code, `tplsub-tmpl-undefined-action'
 should be changed also."
   :group 'tplsub :type 'string)
@@ -417,9 +418,17 @@ templates.  Can be used by your own template-handling functions.")
       tplsub-tab-indent
     tplsub-std-indent))
 
-(defsubst tplsub-buffer-name () (file-name-nondirectory
-                                 (file-name-sans-extension
-                                  (buffer-file-name))))
+(defsubst tplsub-buffer-name ()
+  (file-name-nondirectory
+   (file-name-sans-extension
+    (buffer-file-name))))
+
+(when (>= emacs-major-version 27)
+  (defalias 'incf 'cl-incf)
+  (defalias 'decf 'cl-decf)
+  (defalias 'copy-list 'cl-copylist)
+  (defalias 'pushnew 'cl-pushnew))
+
 
 (defun tplsub-replace-in-string (s from &optional to)
   "Replace all occurences in the string S of the regexp FROM to the string TO."
